@@ -57,12 +57,13 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      [hli],a
     ld      [hli],a
 
-    ; skip half width
-    inc     hl
-
-    ; store y-attr-pointer
+    ; store half-size pointer
     ld      b,h
     ld      c,l
+
+    ; skip half width
+    ld      a,[hli]
+    ld      [polygonHalfSize],a
 
     ; set x
     ldxa    [hli],[polygonY]
@@ -74,6 +75,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ldxa    [hli],[polygonRotation]
 
     ; setup palette
+    push    bc
     push    de
     ldxa    b,[polygonPalette]
     ldxa    d,[hli]
@@ -82,6 +84,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     call    _set_sprite_palette
     pop     hl
     pop     de
+    pop     bc
 
     ; set old rotation to a different value to force initial update
     ld      a,[polygonRotation]
@@ -115,7 +118,8 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      l,a
     ld      h,polygonCollisionGroups >> 8
 
-    ; FIXME This doesn't guard against overflow
+    ; FIXME This doesn't guard against overflow if more than 8 polygons are
+    ; created per collision group
 .next:
     ld      a,[hl]
     cp      $ff
@@ -127,6 +131,11 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ; store data pointer
     ldxa    [hli],b
     ldxa    [hli],c
+
+    ; store half size
+    ld      a,[polygonHalfSize]
+    ld      [hl],a
+
 
     ; divide L by 4 to get collision index
     div     l,4
@@ -205,7 +214,7 @@ update_polygon:; hl = polygon state pointer
     ldxa    [polygonMX],[hli]
     inc     hl; skip dy
     inc     hl; skip dx
-    inc     hl; skip half size
+    ldxa    [polygonHalfSize],[hli]
     ldxa    [polygonY],[hli]
     ldxa    [polygonX],[hli]
     ld      a,[hl]; load current rotation
@@ -223,12 +232,10 @@ update_polygon:; hl = polygon state pointer
 
 .disable:
     ; back to active flag
-    ;push    hl
     dec     hl
     dec     hl
     dec     hl
     call    polygon_destroy
-    ;pop     hl
     ret
 
 .update_momentum:

@@ -10,18 +10,18 @@ core_loop:
     jr      z,core_loop         ; No, some other interrupt
     xor     a
     ld      [coreVBlankDone],a  ; Clear V-Blank flag
-                                
+
     ; Fetch Joypad State
     call    core_input
 
-    ; Run the main game loop 
-    call    game_loop 
+    ; Run the main game loop
+    call    game_loop
 
     ; Loop counter which goes from 0-7
     ld      a,[coreLoopCounter]
     inc     a
     and     %00000111
     ld      [coreLoopCounter],a
-            
+
     jr      core_loop
 

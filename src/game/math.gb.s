@@ -228,16 +228,18 @@ sqrt_length:
     ld      a,b
     cp      15
     jr      c,.x_small
-    ld      a,15
-    ld      b,a
+    ; abort
+    ld      a,16
+    ret
 .x_small:
 
     ; limit y
     ld      a,c
     cp      15
     jr      c,.y_small
-    ld      a,15
-    ld      c,a
+    ; abort
+    ld      a,16
+    ret
 .y_small:
 
     ; lookup remainder length
