@@ -6,8 +6,8 @@ ENDMACRO
 
 _gbc_palette:
     GBC_COLOR(255, 255, 255)
-    GBC_COLOR(168, 240, 128)
-    GBC_COLOR(72, 152, 120)
+    GBC_COLOR(145, 97, 50)
+    GBC_COLOR(128, 128, 128)
     GBC_COLOR(0, 0, 0)
 
 

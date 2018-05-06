@@ -1,18 +1,18 @@
 ; 8 x 8 bit multiplication ----------------------------------------------------
-math_mul8b:                     ; this routine performs the operation HL=H*E
-    ld      d,0                 ; clearing D and L
-    ld      l,d
-    ld      a,8                 ; we have 8 bits
-
-.Mul8bLoop:
-    add     hl,hl               ; advancing a bit
-    jr      nc,.Mul8bSkip        ; if zero, we skip the addition (jr is used for speed)
-    add     hl,de               ; adding to the product if necessary
-
-.Mul8bSkip:
-    dec     a
-    jr      nz,.Mul8bLoop
-    ret
+;math_mul8b:                     ; this routine performs the operation HL=H*E
+;    ld      d,0                 ; clearing D and L
+;    ld      l,d
+;    ld      a,8                 ; we have 8 bits
+;
+;.Mul8bLoop:
+;    add     hl,hl               ; advancing a bit
+;    jr      nc,.Mul8bSkip        ; if zero, we skip the addition (jr is used for speed)
+;    add     hl,de               ; adding to the product if necessary
+;
+;.Mul8bSkip:
+;    dec     a
+;    jr      nz,.Mul8bLoop
+;    ret
 
 ; Fast RND
 ;
@@ -29,6 +29,13 @@ math_mul8b:                     ; this routine performs the operation HL=H*E
 math_random:
     call    math_update_random
     ld      a,[coreRandomLow]
+    ret
+
+math_random_signed:
+    call    math_update_random
+    ld      a,[coreRandomLow]
+    div     a,16
+    sub     8
     ret
 
 math_update_random:

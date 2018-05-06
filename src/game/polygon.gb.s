@@ -48,9 +48,12 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     inc     hl
 
     ; reset momentum and delta
+    ld      a,[polygonMY]
+    ld      [hli],a
+
+    ld      a,[polygonMX]
+    ld      [hli],a
     xor     a
-    ld      [hli],a
-    ld      [hli],a
     ld      [hli],a
     ld      [hli],a
 
@@ -232,12 +235,22 @@ update_polygon:; hl = polygon state pointer
 
     ; py += dy.my
     ld      d,[hl]
-    addFixedSigned(polygonY, d, b, 160)
+    push    hl
+    addFixedSigned(polygonY, d, b, 176)
+    addFixedSigned(polygonY, d, b, 176)
+    addFixedSigned(polygonY, d, b, 176)
+    addFixedSigned(polygonY, d, b, 176)
+    pop     hl
     ldxa    [hli],d; store updated dy
 
     ; px += dx.mx
     ld      d,[hl]
-    addFixedSigned(polygonX, d, c, 176)
+    push    hl
+    addFixedSigned(polygonX, d, c, 192)
+    addFixedSigned(polygonX, d, c, 192)
+    addFixedSigned(polygonX, d, c, 192)
+    addFixedSigned(polygonX, d, c, 192)
+    pop     hl
     ldxa    [hli],d; store updated dx
 
     ; TODO run collision detection only when changed
@@ -711,8 +724,8 @@ polygon_draw:
 
 polygon_sprite_base:
     ; 0-3. 2x2
-    DB      0,0,$80,0
-    DB      0,0,$82,0
+    DB      0,0,$80,%0000_0001
+    DB      0,0,$82,%0000_0001
     DB      0,0,$84,0
     DB      0,0,$86,0
     DB      0,0,$88,0
@@ -1182,13 +1195,26 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
 ; TODO fix indexing with macros defined above their invocation point
 MACRO addFixedSigned(@major, @minor, @increase, @max)
 add_fixed_signed:
+
+    ; TODO we currently don't clear @minor in case the direction changed
+    ld      l,@increase
+
+    ; ignore if zero
+    xor     a
+    cp      @increase
+    jr      z,.done
+
     ; check if increase is positive or negative
     ld      a,128
     cp      @increase
     jr      c,.negative
 
 .positive:
+    ; double speed so we get more "range" even though we only use 0-128 for M?
     sla     @increase
+    sla     @increase
+    ;sla     @increase
+
     ld      a,@minor
     add     @increase
     ld      @minor,a
@@ -1197,7 +1223,7 @@ add_fixed_signed:
     ; minor overflowed so increase major
     ld      a,[@major]
     inc     a
-    inc     a
+    ;inc     a TODO allow for higher speeds
 
     ; check if > @max
     cp      @max
@@ -1214,19 +1240,21 @@ add_fixed_signed:
     cpl
     inc     a
     ld      @increase,a
+    ; double speed so we get more "range" even though we only use 0-128 for M?
     sla     @increase
+    sla     @increase
+    ;sla     @increase
 
     ; subtract
     ld      a,@minor
-    sub     @increase
+    add     @increase
     ld      @minor,a
-    sub     128
     jr      nc,.done
 
     ; minor underflowd so decrease major
     ld      a,[@major]
     dec     a
-    dec     a
+    ;dec     a TODO allow for higher speeds
 
     ; check if > @max
     cp      @max
@@ -1237,5 +1265,6 @@ add_fixed_signed:
     ld      [@major],a
     jr      .done
 .done:
+    ld      @increase,l
 ENDMACRO
 
