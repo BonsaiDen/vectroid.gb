@@ -43,12 +43,9 @@ core_init:
     ld      [coreInputOff],a
     ld      [coreRandomHigh],a
     ld      [coreRandomLow],a
-    ld      [corePaletteChanged],a
     ld      [coreDecodeAddress],a
     ld      [coreDecodeAddress + 1],a
     ld      [coreTimerToggle],a
-    ld      [coreScrollX],a
-    ld      [coreScrollY],a
 
     ld      sp,$FFFF        ; init stack pointer
     call    core_screen_off ; Disable Screen

@@ -26,7 +26,8 @@ INCLUDE     "game/game.gb.s"
 INCLUDE     "game/math.gb.s"
 INCLUDE     "game/line.gb.s"
 INCLUDE     "game/polygon.gb.s"
-INCLUDE     "game/screen.gb.s"
+INCLUDE     "game/base.gb.s"
+INCLUDE     "game/palette.gb.s"
 
 
 ; Data ------------------------------------------------------------------------

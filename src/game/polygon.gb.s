@@ -19,7 +19,7 @@ polygon_init:
     call    core_mem_cpy
     ret
 
-    ; set polygonX, polygonY, polygonGroup, polygonRotation first
+    ; set polygonX, polygonY, polygonGroup, polygonRotation, polygonMX, polygonMY, polygonData first
 polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no size spot available
 
     ld      [polygonSize],a
@@ -43,9 +43,9 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ldxa    [hli],b
     ldxa    [hli],c
 
-    ; skip index
-    ; TODO setup
-    inc     hl
+    ; data value
+    ld      a,[polygonData]
+    ld      [hli],a
 
     ; reset momentum and delta
     ld      a,[polygonMY]
@@ -73,8 +73,9 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ; set rotation
     ldxa    [hli],[polygonRotation]
 
+    ; TODO push / pop hl and set sprite palette
     inc     hl; skip size
-    inc     hl; skip sprite
+    inc     hl; skip sprite index
 
     ; set old rotation to a different value to force initial update
     inc     a
@@ -156,6 +157,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ret
 
 
+; Polygon Update --------------------------------------------------------------
 polygon_update:
 
     ; update polygons
@@ -186,9 +188,10 @@ update_polygon:; hl = polygon state pointer
     ldxa    b,[hli]; high byte
     ldxa    c,[hli]; low byte
 
-    ; load position and rotation
-    inc     hl; skip index
     push    hl
+
+    ; load data pointer
+    ldxa    [polygonData],[hli]
 
     ; skip momentum and delta
     ldxa    [polygonMY],[hli]
@@ -217,13 +220,16 @@ update_polygon:; hl = polygon state pointer
     dec     hl
     dec     hl
     dec     hl
+    dec     hl
     push    hl
     call    polygon_destroy
     pop     hl
     ret
 
-    ; update sprite position --------------------------------------------------
 .update_momentum:
+
+    ; re-assign data so it can be used as a counter etc.
+    ldxa    [hli],[polygonData]
 
     ; b = my
     ldxa    [hli],[polygonMY]
@@ -538,6 +544,7 @@ _update_polygon:
     jp      [hl]
 
 
+; Polygon Destroy -------------------------------------------------------------
 polygon_destroy:
 
     ; disable active flag
@@ -572,6 +579,8 @@ polygon_destroy:
     add     a; x32
     ld      c,a
     ld      b,polygonCollisionGroups >> 8
+
+    ; mark slot as unused
     ld      a,$ff
     ld      [bc],a
 
@@ -700,7 +709,103 @@ polygon_destroy:
     ld      [hl],a
     ret
 
+_set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
 
+    ; setup sprite base
+.no_collision:
+    ld      h,$C0
+    ld      a,e
+    add     a; x2
+    add     a; x4
+    ld      l,a;
+
+    ; set palette
+.one:
+    ld      b,a
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    ; one complete
+    ld      a,d
+    cp      0
+    ret     z
+
+.two:
+    ld      b,a
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    ; two complete
+    ld      a,d
+    cp      $10
+    ret     z
+
+.three:
+    ld      a,d
+    cp      $30
+    jr      z,.four
+
+    ld      b,a
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    inc     l
+    inc     l
+    inc     l
+    ld      [hl],a
+    ret
+
+.four:
+    ld      b,a
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    inc     l
+    inc     l
+    inc     l
+    ld      [hli],a
+
+    inc     l
+    inc     l
+    inc     l
+    ld      [hl],a
+    ret
+
+
+; Polygon Drawing -------------------------------------------------------------
 polygon_draw:
     ; wait for hardware DMA to complete
     ld      a,[rHDMA5]
@@ -722,475 +827,6 @@ polygon_draw:
     ld      [rHDMA5],a
     ret
 
-polygon_sprite_base:
-    ; 0-3. 2x2
-    DB      0,0,$80,%0000_0001
-    DB      0,0,$82,%0000_0001
-    DB      0,0,$84,0
-    DB      0,0,$86,0
-    DB      0,0,$88,0
-    DB      0,0,$8A,0
-    DB      0,0,$8C,0
-    DB      0,0,$8E,0
-
-    ; 4-15. 1x1
-    DB      0,0,$90,0
-    DB      0,0,$92,0
-    DB      0,0,$94,0
-    DB      0,0,$96,0
-
-    DB      0,0,$98,0
-    DB      0,0,$9A,0
-    DB      0,0,$9C,0
-    DB      0,0,$9E,0
-
-    DB      0,0,$A0,0
-    DB      0,0,$A2,0
-    DB      0,0,$A4,0
-    DB      0,0,$A6,0
-
-    ; 16-17. 3x3
-    DB      0,0,$A8,0
-    DB      0,0,$AA,0
-    DB      0,0,$AC,0
-    DB      0,0,$AE,0
-    DB      0,0,$B0,0
-    DB      0,0,$B2,0
-
-    DB      0,0,$B4,0
-    DB      0,0,$B6,0
-    DB      0,0,$B8,0
-    DB      0,0,$BA,0
-    DB      0,0,$BC,0
-    DB      0,0,$BE,0
-
-    ; 18
-    DB      0,0,$C0,0
-    DB      0,0,$C2,0
-    DB      0,0,$C4,0
-    DB      0,0,$C6,0
-    DB      0,0,$C8,0
-    DB      0,0,$CA,0
-    DB      0,0,$CC,0
-    DB      0,0,$CE,0
-
-polygon_collision_base:
-    ; group/y-attr-pointer/??
-
-    ; asteroids
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-
-    ; bullets
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-
-    ; ships
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-    DB      $ff,$00,$00,$00
-
-polygon_state_base:; POLYGON_BYTES bytes per polygon
-
-    ; 2x2
-    DB      %0000_0010; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $08; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $10; Sprite Size
-    DB      $00; Sprite index
-    DB      $00; Old Rotation
-    DB      $04; Tile Clear Count
-    DW      $C400; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 2x2
-    DB      %0000_0010; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $08; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $10; Sprite Size
-    DB      $02; Sprite index
-    DB      $00; Old Rotation
-    DB      $04; Sprite count
-    DW      $C440; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 2x2
-    DB      %0000_0010; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $08; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $10; Sprite Size
-    DB      $04; Sprite index
-    DB      $00; Old Rotation
-    DB      $04; Tilecount
-    DW      $C480; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 2x2
-    DB      %0000_0010; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $08; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $10; Sprite Size
-    DB      $06; Sprite index
-    DB      $00; Old Rotation
-    DB      $04; Tile Clear Count
-    DW      $C4C0; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 1
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $08; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C500; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 2
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $09; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C520; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 3
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $0A; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C540; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 4
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $0B; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C560; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 5
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $0C; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C580; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 6
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $0D; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C5A0; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 7
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $0E; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C5C0; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 8
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $0F; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C5E0; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 9
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $10; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C600; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 10
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $11; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C620; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 11
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $12; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C640; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 1x1 12
-    DB      %0000_0001; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $04; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $00; Sprite Size
-    DB      $13; Sprite index
-    DB      $00; Old Rotation
-    DB      $01; Tile Clear Count
-    DW      $C660; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 3x3
-    DB      %0000_0011; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $0C; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $20; Sprite Size
-    DB      $14; Sprite index
-    DB      $00; Old Rotation
-    DB      $0B; Tile Clear Count
-    DW      $C680; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 3x3
-    DB      %0000_0011; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $0C; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $20; Sprite Size
-    DB      $1A; Sprite index
-    DB      $00; Old Rotation
-    DB      $0B; Tile Clear Count
-    DW      $C740; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; 4x4
-    DB      %0000_0100; active / size
-    DW      $ffff; Update routine
-    DB      $00; Index
-    DB      $00; MX
-    DB      $00; MY
-    DB      $00; PX
-    DB      $00; PY
-    DB      $10; Sprite half width
-    DB      $20; Y
-    DB      $20; X
-    DB      $00; Rotation
-    DB      $30; Sprite Size
-    DB      $20; Sprite index
-    DB      $00; Old Rotation
-    DB      $10; Tile Clear Count
-    DW      $C800; Tilevram Offset
-    DW      $FFFF; Polygon data
-    DB      $FF; Collision Index
-
-    ; end marker
-    DB      $ff
 
 ; TODO fix indexing with macros defined above their invocation point
 MACRO addFixedSigned(@major, @minor, @increase, @max)

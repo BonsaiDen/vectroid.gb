@@ -11,7 +11,7 @@ release:
 
 # Emulation
 run: release
-	gngb --fps -a --sound build/game.gb
+	gngb -a --sound build/game.gb
 
 gambatte: release
 	gambatte_sdl -s 2 build/game.gb

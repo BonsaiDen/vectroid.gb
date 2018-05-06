@@ -4,21 +4,7 @@ SECTION "GameLogic",ROM0
 ; Initialization --------------------------------------------------------------
 game_init:
 
-    ; setup background tile palette
-    ld      a,%00000011
-    ld      [corePaletteBG],a; load a into the memory pointed to by rBGP
-
-    ; set sprite palette 0
-    ld      a,%11110111  ; 3 = black      2 = light gray  1 = white  0 = transparent
-    ld      [corePaletteSprite0],a
-
-    ; set sprite palette 1
-    ld      a,%11110011  ; 3 = dark gray  2 = light gray  1 = white  0 = transparent
-    ld      [corePaletteSprite1],a
-
-    ; mark palettes as changed
-    ld      a,$01
-    ld      [corePaletteChanged],a
+    ldxa    [paletteUpdated],1
 
     ; setup scroll border
     ld      a,SCROLL_BORDER
@@ -34,28 +20,28 @@ game_init:
     ; init polygon data
     call    polygon_init
 
-    createPolygon(2,     COLLISION_SHIP,  64,  96,   128,         ship_polygon, ship_update)
-    createPolygon(2,     COLLISION_ASTEROID, 128,  96,  64,         small_asteroid_polygon, ship_other)
-    createPolygon(2,     COLLISION_ASTEROID,  96,  64, 128,         small_asteroid_polygon, ship_other)
-    createPolygon(2,     COLLISION_ASTEROID,  64,  64, 192,         small_asteroid_polygon, ship_other)
-    createPolygon(3, COLLISION_ASTEROID, 112,  24,   0,     asteroid_polygon, asteroid_update)
-    createPolygon(3, COLLISION_ASTEROID, 112, 112,   0,     asteroid_polygon, asteroid_update)
-    createPolygon(4, COLLISION_ASTEROID,  24,  24,  50, big_asteroid_polygon, big_asteroid_update)
+    createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
+    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID, 128,  96,  64, small_asteroid_polygon, ship_other)
+    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  96,  64, 128, small_asteroid_polygon, ship_other)
+    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  64,  64, 192, small_asteroid_polygon, ship_other)
+    createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112,  24,   0,       asteroid_polygon, asteroid_update)
+    createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       asteroid_polygon, asteroid_update)
+    createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   big_asteroid_polygon, big_asteroid_update)
 
-    ; createPolygon(1,     COLLISION_NONE, 16, 120,   0,        effect_polygon, effect_update)
-    ; createPolygon(1,     COLLISION_NONE, 32, 120,   0,        effect_polygon, effect_update)
-    ; createPolygon(1,     COLLISION_NONE, 48, 120,   0,        effect_polygon, effect_update)
-    ; createPolygon(1,     COLLISION_NONE, 64, 120,   0,        effect_polygon, effect_update)
-    ; createPolygon(1,     COLLISION_NONE, 80, 120,   0,        effect_polygon, effect_update)
-    ; createPolygon(1,     COLLISION_NONE, 96, 120,   0,        effect_polygon, effect_update)
+    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 16, 120,   0,          effect_polygon, effect_update)
+    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
+    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 48, 120,   0,          effect_polygon, effect_update)
+    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64, 120,   0,          effect_polygon, effect_update)
+    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 80, 120,   0,          effect_polygon, effect_update)
+    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 96, 120,   0,          effect_polygon, effect_update)
 
-    ; createPolygon(1,   COLLISION_BULLET, 16, 140,   0,        bullet_polygon, bullet_update)
-    ; createPolygon(1,   COLLISION_BULLET, 32, 140,   0,        bullet_polygon, bullet_update)
-    ; createPolygon(1,   COLLISION_BULLET, 48, 140,   0,        bullet_polygon, bullet_update)
-    ; createPolygon(1,   COLLISION_BULLET, 64, 140,   0,        bullet_polygon, bullet_update)
+    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 16, 140,   0,          bullet_polygon, bullet_update)
+    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 32, 140,   0,          bullet_polygon, bullet_update)
+    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 48, 140,   0,          bullet_polygon, bullet_update)
+    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 64, 140,   0,          bullet_polygon, bullet_update)
 
-    ; createPolygon(1,   COLLISION_BULLET, 80,  16,   0,        bullet_polygon, bullet_update)
-    ; createPolygon(1,   COLLISION_BULLET, 96,   8,   0,        bullet_polygon, bullet_update)
+    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 80,  16,   0,          bullet_polygon, bullet_update)
+    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 96,   8,   0,          bullet_polygon, bullet_update)
     ret
 
 ; Main Loop -------------------------------------------------------------------
@@ -71,6 +57,18 @@ game_timer:
     ret
 
 game_draw_vram:
+    ; load / update palette
+    ld      a,[paletteUpdated]
+    cp      0
+    jr      z,.draw_polygons
+
+    ; update palette vram
+    xor     a
+    ld      [paletteUpdated],a
+    call    load_palette_sp
+    call    load_palette_bg
+
+.draw_polygons:
     call    polygon_draw
     ret
 
@@ -251,8 +249,8 @@ ship_other:
     ret
 
 bullet_update:
-    ld      a,125
-    ld      [polygonMX],a
+    ;ld      a,125
+    ;ld      [polygonMX],a
     ld      a,1
     ret
 
@@ -301,13 +299,15 @@ big_asteroid_update:
     ld      a,1
     ret
 
-MACRO createPolygon(@size, @group, @x, @y, @r, @data, @update)
+MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
 
     call    math_random_signed
     ld      [polygonMX],a
     call    math_random_signed
     ld      [polygonMY],a
 
+    ld      a,@palette
+    ld      [polygonPalette],a
     ld      a,@group
     ld      [polygonGroup],a
     ld      a,@x + SCROLL_BORDER
