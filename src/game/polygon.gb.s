@@ -29,7 +29,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
 .loop:
     ld      a,$ff
     cp      [hl]; check for end marker
-    jr      z,.all_in_use
+    jp      z,.all_in_use
 
     ; check for size match
     ld      a,[polygonSize]
@@ -73,13 +73,20 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ; set rotation
     ldxa    [hli],[polygonRotation]
 
-    ; TODO push / pop hl and set sprite palette
-    inc     hl; skip size
-    inc     hl; skip sprite index
+    ; setup palette
+    push    de
+    ldxa    b,[polygonPalette]
+    ldxa    d,[hli]
+    ldxa    e,[hli]
+    push    hl
+    call    _set_sprite_palette
+    pop     hl
+    pop     de
 
     ; set old rotation to a different value to force initial update
+    ld      a,[polygonRotation]
     inc     a
-    ld      [hli],a
+    ldxa    [hli],c
 
     inc     hl; skip tile count
     inc     hl; skip tile offset
@@ -150,7 +157,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ; skip bytes
 .used_or_other_size:
     addw    hl,POLYGON_BYTES
-    jr      .loop
+    jp      .loop
 
 .all_in_use:
     xor     a
@@ -721,7 +728,7 @@ _set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
 
     ; set palette
 .one:
-    ld      b,a
+    ld      a,b
     inc     l
     inc     l
     inc     l
@@ -733,7 +740,7 @@ _set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
     ret     z
 
 .two:
-    ld      b,a
+    ld      a,b
     inc     l
     inc     l
     inc     l
@@ -749,7 +756,7 @@ _set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
     cp      $30
     jr      z,.four
 
-    ld      b,a
+    ld      a,b
     inc     l
     inc     l
     inc     l
@@ -772,7 +779,7 @@ _set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
     ret
 
 .four:
-    ld      b,a
+    ld      a,b
     inc     l
     inc     l
     inc     l

@@ -1,7 +1,7 @@
 polygon_sprite_base:
     ; 0-3. 2x2
-    DB      0,0,$80,%0000_0001; TODO add ability to define palette on a per polygon basis
-    DB      0,0,$82,%0000_0001; TODO add ability to define palette on a per polygon basis
+    DB      0,0,$80,0
+    DB      0,0,$82,0
     DB      0,0,$84,0
     DB      0,0,$86,0
     DB      0,0,$88,0
