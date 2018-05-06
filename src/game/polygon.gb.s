@@ -223,14 +223,12 @@ update_polygon:; hl = polygon state pointer
 
 .disable:
     ; back to active flag
+    ;push    hl
     dec     hl
     dec     hl
     dec     hl
-    dec     hl
-    dec     hl
-    push    hl
     call    polygon_destroy
-    pop     hl
+    ;pop     hl
     ret
 
 .update_momentum:
@@ -568,6 +566,7 @@ polygon_destroy:
     addw    hl,6
 
     ; check collision pointer
+    ;brk
     ld      a,[hl]
     cp      $ff
     jr      z,.no_collision
@@ -581,9 +580,9 @@ polygon_destroy:
     ld      a,b
     add     a; x2
     add     a; x4
-    add     a; x8
-    add     a; x16
-    add     a; x32
+    ;add     a; x8
+    ;add     a; x16
+    ;add     a; x32
     ld      c,a
     ld      b,polygonCollisionGroups >> 8
 
@@ -836,6 +835,7 @@ polygon_draw:
 
 
 ; TODO fix indexing with macros defined above their invocation point
+; TODO optimize
 MACRO addFixedSigned(@major, @minor, @increase, @max)
 add_fixed_signed:
 

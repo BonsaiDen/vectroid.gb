@@ -9,7 +9,9 @@ COLLISION_SHIP              EQU 2
 PALETTE_ASTEROID            EQU 0
 PALETTE_SHIP                EQU 1
 PALETTE_BULLET              EQU 2
-PALETTE_EFFECT              EQU 3
+PALETTE_THRUST_A            EQU 3
+PALETTE_THRUST_B            EQU 4
+PALETTE_EFFECT              EQU 5
 
 
 ; OAM -------------------------------------------------------------------------
@@ -20,5 +22,17 @@ DS                          160
 ; Game ------------------------------------------------------------------------
 SECTION "GameRam",WRAM0[$C0A0]
 paletteUpdated:             DB
+bulletRotation:             DB
+bulletX:                    DB
+bulletY:                    DB
+bulletFired:                DB
+bulletDelay:                DB
+bulletCount:                DB
+thrustType:                 DB
+thrustDelay:                DB
+thrustRotation:             DB
+thrustActive:               DB
+thrustX:                    DB
+thrustY:                    DB
 testRotate:                 DB
 

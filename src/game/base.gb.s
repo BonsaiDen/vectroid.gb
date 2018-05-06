@@ -1,3 +1,5 @@
+SECTION "PolygonBaseData",ROM0
+
 polygon_sprite_base:
     ; 0-3. 2x2
     DB      0,0,$80,0

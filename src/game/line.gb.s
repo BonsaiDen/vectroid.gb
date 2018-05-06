@@ -5,6 +5,12 @@ line_two:
     DELTA(b, d, h, lineXI)
     DELTA(c, e, l, lineYI)
 
+    ; skip lines with length 0
+    ld      a,h
+    add     l
+    cp      0
+    ret     z
+
     ; dy <= dx
     ld      a,l
     cp      h

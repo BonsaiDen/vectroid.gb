@@ -6,6 +6,14 @@ game_init:
 
     ldxa    [paletteUpdated],1
 
+    xor     a
+    ld      [bulletFired],a
+    ld      [bulletDelay],a
+    ld      [bulletCount],a
+    ld      [thrustDelay],a
+    ld      [thrustType],a
+    ld      [thrustActive],a
+
     ; setup scroll border
     ld      a,SCROLL_BORDER
     ld      [rSCY],a
@@ -28,32 +36,32 @@ game_init:
     createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       asteroid_polygon, asteroid_update)
     createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   big_asteroid_polygon, big_asteroid_update)
 
-    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 16, 120,   0,          effect_polygon, effect_update)
-    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
-    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 48, 120,   0,          effect_polygon, effect_update)
-    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64, 120,   0,          effect_polygon, effect_update)
-    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 80, 120,   0,          effect_polygon, effect_update)
-    createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 96, 120,   0,          effect_polygon, effect_update)
+    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64 + 7, 96,   0,         thrust_polygon_a, thrust_update)
+    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
+    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 48, 120,   0,          effect_polygon, effect_update)
+    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64, 120,   0,          effect_polygon, effect_update)
+    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 80, 120,   0,          effect_polygon, effect_update)
+    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 96, 120,   0,          effect_polygon, effect_update)
 
-    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 16, 140,   0,          bullet_polygon, bullet_update)
-    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 32, 140,   0,          bullet_polygon, bullet_update)
-    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 48, 140,   0,          bullet_polygon, bullet_update)
-    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 64, 140,   0,          bullet_polygon, bullet_update)
+    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 16, 64,   $D7,          bullet_polygon, bullet_update)
+    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 32, 140,   0,          bullet_polygon, bullet_update)
+    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 48, 140,   0,          bullet_polygon, bullet_update)
+    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 64, 140,   0,          bullet_polygon, bullet_update)
 
-    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 80,  16,   0,          bullet_polygon, bullet_update)
-    createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 96,   8,   0,          bullet_polygon, bullet_update)
+    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 80,  16,   0,          bullet_polygon, bullet_update)
+    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 96,   8,   0,          bullet_polygon, bullet_update)
     ret
 
 ; Main Loop -------------------------------------------------------------------
 game_loop:
     call    polygon_update
+    call    ship_fire_bullet
+    call    ship_fire_thrust
     ret
+
 
 ; Timer -----------------------------------------------------------------------
 game_timer:
-    ld      a,[testRotate]
-    inc     a
-    ld      [testRotate],a
     ret
 
 game_draw_vram:
@@ -83,34 +91,6 @@ effect_polygon:
     DB      3; length
     DB      0; angle
     DB      3; length
-    DB      $ff,$ff
-
-bullet_polygon:
-    DB      0; angle
-    DB      1; length
-    DB      42
-    DB      1; length
-    DB      42 * 2
-    DB      1; length
-    DB      42 * 3
-    DB      1; length
-    DB      42 * 4
-    DB      1; length
-    DB      42 * 5
-    DB      1; length
-    DB      0; angle
-    DB      1; length
-    DB      $ff,$ff
-
-ship_polygon:
-    DB      0; angle
-    DB      5; length
-    DB      85 + 15; angle
-    DB      5; length
-    DB      85 + 85 - 15; angle
-    DB      5; length
-    DB      0; angle
-    DB      5; length
     DB      $ff,$ff
 
 small_asteroid_polygon:
@@ -168,72 +148,6 @@ big_asteroid_polygon:
     DB      13; length
     DB      $ff,$ff
 
-ship_update:
-
-    ; Rotation Controls
-    ld      a,[coreInput]
-    and     BUTTON_LEFT
-    cp      BUTTON_LEFT
-    jr      nz,.no_left
-    ld      a,[polygonRotation]
-    sub     3
-    ld      [polygonRotation],a
-.no_left:
-    ld      a,[coreInput]
-    and     BUTTON_RIGHT
-    cp      BUTTON_RIGHT
-    jr      nz,.no_right
-    ld      a,[polygonRotation]
-    add     3
-    ld      [polygonRotation],a
-.no_right:
-
-    ld      a,[coreLoopCounter]
-    and     %0000_0010
-    jr      z,.no_acceleration
-
-    ; Acceleration
-    ld      a,[coreInput]
-    and     BUTTON_A
-    cp      BUTTON_A
-    jr      nz,.no_acceleration
-
-    ; calculate ax/ay from angle
-    ldxa    d,[polygonRotation]
-    ld      e,2
-    call    angle_vector_16; bc = ax/ay
-
-    ; add to mx/my
-    ld      a,[polygonMX]
-    add     b
-    ld      b,a
-
-    ld      a,[polygonMY]
-    add     c
-    ld      c,a
-
-    ; calculate movement angle
-    call    atan_2
-    ld      d,a
-
-    ; bc=cx/cy
-    ; calculate magnitude
-    call    sqrt_length
-    cp      15; TODO add maximum speed variable
-    jr      c,.smaller
-    ld      a,15; limit to max speed
-
-.smaller:
-    ; calculate new MX/MY
-    ld      e,a
-    call    angle_vector_16
-    ldxa    [polygonMX],b
-    ldxa    [polygonMY],c
-
-.no_acceleration:
-    ld      a,1
-    ret
-
 ship_other:
     ld      a,[coreLoopCounter]
     and     %0000_0011
@@ -245,12 +159,6 @@ ship_other:
     dec     a
     ld      [polygonRotation],a
 .skip:
-    ld      a,1
-    ret
-
-bullet_update:
-    ;ld      a,125
-    ;ld      [polygonMX],a
     ld      a,1
     ret
 
@@ -301,9 +209,10 @@ big_asteroid_update:
 
 MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
 
-    call    math_random_signed
+    ;call    math_random_signed
+    xor     a
     ld      [polygonMX],a
-    call    math_random_signed
+    ;call    math_random_signed
     ld      [polygonMY],a
 
     ld      a,@palette

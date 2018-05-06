@@ -65,24 +65,29 @@ _sprite_palettes:
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
-    ; Unused
+    ; Bullet
     GBC_COLOR(0, 0, 0)
-    GBC_COLOR(0, 255, 255)
-    GBC_COLOR(0, 0, 0)
-    GBC_COLOR(0, 0, 0)
-
-    ; Unused
-    GBC_COLOR(0, 0, 0)
-    GBC_COLOR(0, 255, 0)
+    GBC_COLOR(255, 255, 0)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
-    ; Unused
+    ; Thrust A
     GBC_COLOR(0, 0, 0)
-    GBC_COLOR(0, 0, 255)
+    GBC_COLOR(255, 128, 128)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
+    ; Thrust B
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(255, 64, 0)
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(0, 0, 0)
+
+    ; Effect Placeholer
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(255, 255, 255)
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(0, 0, 0)
 
 ; Helpers ---------------------------------------------------------------------
 MACRO GBC_COLOR(@r, @g, @b)

@@ -11,7 +11,7 @@ release:
 
 # Emulation
 run: release
-	gngb -a --sound build/game.gb
+	gngb -Y --res=640x576 -a --sound build/game.gb
 
 gambatte: release
 	gambatte_sdl -s 2 build/game.gb
