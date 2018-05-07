@@ -1,2 +1,6 @@
 build/
+node_modules
+*.webm
+*.mov
+package-lock.json
 TODO.md

@@ -724,6 +724,11 @@ polygon_destroy:
 
 _set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
 
+    ; add priority bit
+    ld      a,b
+    or      %1000_0000
+    ld      b,a
+
     ; setup sprite base
 .no_collision:
     ld      h,$C0

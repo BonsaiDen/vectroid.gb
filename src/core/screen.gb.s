@@ -24,7 +24,7 @@ core_screen_on:
     call    $ff80
 
     ; setup screen flags
-    ld      a,LCDCF_ON | LCDCF_BG8800 | LCDCF_BG9800 | LCDCF_BGON | LCDCF_OBJ16 | LCDCF_OBJON
+    ld      a,LCDCF_ON | LCDCF_BG8000 | LCDCF_BG9800 | LCDCF_BGON | LCDCF_OBJ16 | LCDCF_OBJON
     ld      [rLCDC],a
     ret
 

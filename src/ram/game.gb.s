@@ -34,5 +34,5 @@ thrustRotation:             DB
 thrustActive:               DB
 thrustX:                    DB
 thrustY:                    DB
-testRotate:                 DB
+testCounter:                 DB
 

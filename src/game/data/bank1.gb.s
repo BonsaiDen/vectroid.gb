@@ -1,4 +1,4 @@
-SECTION "AngleTable",ROM0[$2C00]
+SECTION "AngleTable",ROM0[$2A00]
 angle_table:
     ; lookup: sin(l * 256 + r) / cos(l * 256 + 64 + r)
     ; table starts at length 1
@@ -64,4 +64,8 @@ tile_index_table:
     DB 0 * 16,2 * 16,0 * 16,0 * 16, 1 * 16,3 * 16,0 * 16,0 * 16, 0 * 16, 0 * 16,  0 * 16, 0 * 16, 0 * 16, 0 * 16, 0 * 16, 0 * 16
     DB 0 * 16,2 * 16,4 * 16,0 * 16, 1 * 16,3 * 16,5 * 16,0 * 16, 6 * 16, 8 * 16, 10 * 16, 0 * 16, 0 * 16, 0 * 16, 0 * 16, 0 * 16
     DB 0 * 16,2 * 16,4 * 16,6 * 16, 1 * 16,3 * 16,5 * 16,7 * 16, 8 * 16,10 * 16, 12 * 16,14 * 16, 9 * 16,11 * 16,13 * 16,15 * 16
+
+SECTION "UITileData",ROM0
+DataUITiles:
+    INCBIN  "/data/bin/ui.bg.bin"
 

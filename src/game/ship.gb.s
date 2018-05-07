@@ -1,13 +1,11 @@
 ; Main Game Logic -------------------------------------------------------------
 SECTION "ShipLogic",ROM0
 
-
 THRUST_DELAY        EQU  4
+TRHUST_ACTIVE       EQU  10
 
 ; Logic -----------------------------------------------------------------------
 ship_fire_thrust:
-    ;ld      a,10
-    ;ld      [thrustActive],a
     ld      a,[thrustActive]
     cp      0
     ret     z
@@ -131,7 +129,7 @@ ship_update:
     cp      BUTTON_A
     jr      nz,.no_acceleration
 
-    ldxa    [thrustActive],10
+    ldxa    [thrustActive],TRHUST_ACTIVE
 
     ld      a,[coreLoopCounter]
     and     %0000_0010

@@ -1,13 +1,17 @@
 # Build
-debug:
+debug: convert
 	@mkdir -p build
 	@../../gbasm/bin/gbasm -O -d -o build/game.gb -m stdout -s build/game.sym src/main.gb.s
 	@cp build/game.gb ~/.wine_old/drive_c/Program\ Files/bgb/game.gb
 	@cp build/game.sym ~/.wine_old/drive_c/Program\ Files/bgb/game.sym
 
-release:
+release: convert
 	@mkdir -p build
 	@../../gbasm/bin/gbasm -O -o build/game.gb -m stdout -s build/game.sym src/main.gb.s
+
+convert:
+	@mkdir -p src/data/bin
+	node tools/convert src/data src/data/bin
 
 # Emulation
 run: release
