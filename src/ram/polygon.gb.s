@@ -2,34 +2,38 @@
 POLYGON_BYTES               EQU 22
 POLYGON_COUNT               EQU 19
 POLYGON_COLLISION_BYTES     EQU 3 * 8 * 4
+POLYGON_GIANT               EQU 4
+POLYGON_LARGE               EQU 3
+POLYGON_MEDIUM              EQU 2
+POLYGON_SMALL               EQU 1
 
 
-SECTION "PolygonRam",WRAM0[$C100]
-polygonState:              DS     POLYGON_COUNT * POLYGON_BYTES + 1
-polygonPalette:            DB
-polygonDrawState:          DB
-polygonGroup:              DB
-
-SECTION "CollisionRam",WRAM0[$C300]
-polygonCollisionGroups:    DS     POLYGON_COLLISION_BYTES
+SECTION "PolygonRam",WRAM0[$C800]
+polygonState:               DS     POLYGON_COUNT * POLYGON_BYTES + 1
+polygonPalette:             DB
+polygonDrawState:           DB
+polygonGroup:               DB
 
 
-; TODO must be here since C4XX addresses are currently hardcoded in polygon_state_base:
-SECTION "PolygonBuffer",WRAM0[$C400]
-polygonOffscreenBuffer:    DS     1280
+SECTION "CollisionRam",WRAM0[$CA00]
+polygonCollisionGroups:     DS     POLYGON_COLLISION_BYTES
 
 
-SECTION "PolygonVars",HRAM[$FF9B]
-lineXI:                    DB
-lineYI:                    DB
-polygonX:                  DB
-polygonY:                  DB
-polygonMX:                 DB
-polygonMY:                 DB
-polygonDataA:              DB
-polygonDataB:              DB
-polygonSize:               DB
-polygonOffset:             DW
-polygonRotation:           DB
-polygonHalfSize:           DB
+SECTION "PolygonBuffer",WRAM0[$CB00]
+polygonOffscreenBuffer:     DS     1280
+
+
+SECTION "PolygonVars",HRAM[$FF97]
+lineXI:                     DB
+lineYI:                     DB
+polygonX:                   DB
+polygonY:                   DB
+polygonMX:                  DB
+polygonMY:                  DB
+polygonDataA:               DB
+polygonDataB:               DB
+polygonSize:                DB
+polygonOffset:              DW
+polygonRotation:            DB
+polygonHalfSize:            DB
 

@@ -88,7 +88,7 @@ game_draw_vram:
     and     %0000_0011
     ret     z
 
-    ld      a,[polygonState + 11]
+    ld      a,[polygonState + 12]
     ld      bc,$1300
     ld      de,$05FF
     call    ui_number_right_aligned
@@ -105,76 +105,6 @@ effect_polygon:
     DB      3; length
     DB      0; angle
     DB      3; length
-    DB      $ff,$ff
-
-small_asteroid_polygon:
-    DB      0; angle
-    DB      3; length
-    DB      32
-    DB      2; length
-    DB      96
-    DB      3; length
-    DB      156
-    DB      2; length
-    DB      220
-    DB      3; length
-    DB      0; angle
-    DB      3; length
-    DB      $ff,$ff
-
-medium_asteroid_polygon:
-    DB      0; angle
-    DB      7; length
-
-    DB      35; angle
-    DB      4; length
-
-    DB      85; angle
-    DB      6; length
-
-    DB      135; angle
-    DB      3; length
-
-    DB      200; angle
-    DB      5; length
-
-    DB      220; angle
-    DB      6; length
-
-    DB      0; angle
-    DB      7; length
-    DB      $ff,$ff
-
-large_asteroid_polygon:
-    DB      0; angle
-    DB      11; length
-    DB      35; angle
-    DB      10; length
-    DB      85; angle
-    DB      11; length
-    DB      135; angle
-    DB      11; length
-    DB      200; angle
-    DB      7; length
-    DB      0; angle
-    DB      11; length
-    DB      $ff,$ff
-
-giant_asteroid_polygon:
-    DB      0; angle
-    DB      13; length
-    DB      25; angle
-    DB      15; length
-    DB      85; angle
-    DB      14; length
-    DB      125; angle
-    DB      13; length
-    DB      165; angle
-    DB      15; length
-    DB      230; angle
-    DB      14; length
-    DB      0; angle
-    DB      13; length
     DB      $ff,$ff
 
 ship_other:
@@ -201,58 +131,6 @@ effect_update:
 .skip:
     ld      a,1
     ret
-
-asteroid_update:
-    ld      a,[polygonDataB]
-    cp      0
-    jr      z,.destroy
-
-    ld      a,[polygonDataA]
-    and     %0000_0111
-    ld      b,a
-    ld      a,[coreLoopCounter]
-    cp      b
-    jr      nz,.skip
-
-    ld      a,[polygonDataA]
-    ld      b,a
-    ld      a,[polygonRotation]
-    add     b
-    ld      [polygonRotation],a
-
-.skip:
-    ld      a,1
-    ret
-
-.destroy:
-    call    asteroid_split
-    ret
-
-
-asteroid_split:; return 0 if actually split up
-    ld      a,[polygonHalfSize]
-    cp      $04
-    jr      z,.small
-    cp      $08
-    jr      z,.medium
-    cp      $0C
-    jr      z,.large
-
-.giant:; 32x32
-    ret
-
-.large:; 24x24
-    ret
-
-.medium: ; 16x16
-    ; TODO split into two small
-    ret
-
-.small: ;8x8
-    ; no split
-    xor     a
-    ret
-
 
 MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
 

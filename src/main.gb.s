@@ -23,9 +23,10 @@ INCLUDE     "ram/polygon.gb.s"
 
 ; Main Game -------------------------------------------------------------------
 INCLUDE     "game/game.gb.s"
-INCLUDE     "game/ship.gb.s"
 INCLUDE     "game/math.gb.s"
 INCLUDE     "game/ui.gb.s"
+INCLUDE     "game/ship.gb.s"
+INCLUDE     "game/asteroid.gb.s"
 INCLUDE     "game/collision.gb.s"
 INCLUDE     "game/line.gb.s"
 INCLUDE     "game/polygon.gb.s"

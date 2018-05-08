@@ -1,5 +1,6 @@
 ; Constants -------------------------------------------------------------------
 SCROLL_BORDER               EQU 16
+ASTEROID_MAX                EQU 12
 
 COLLISION_NONE              EQU $ff
 COLLISION_ASTEROID          EQU 0
@@ -34,5 +35,10 @@ thrustRotation:             DB
 thrustActive:               DB
 thrustX:                    DB
 thrustY:                    DB
-testCounter:                 DB
+testCounter:                DB
+
+SECTION "AsteroidRam",WRAM0[$C100]
+asteroidQueue:              DS ASTEROID_MAX * 8
+asteroidCount:              DB
+asteroidQueueCount:         DB
 
