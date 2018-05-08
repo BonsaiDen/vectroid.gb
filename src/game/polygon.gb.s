@@ -34,7 +34,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ; check for size match
     ld      a,[polygonSize]
     cp      [hl]
-    jr      nz,.used_or_other_size
+    jp      nz,.used_or_other_size
 
     or      %1000_0000; set active flag
     ld      [hli],a
@@ -43,8 +43,11 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ldxa    [hli],b
     ldxa    [hli],c
 
-    ; data value
-    ld      a,[polygonData]
+    ; data values
+    ld      a,[polygonDataA]
+    ld      [hli],a
+
+    ld      a,[polygonDataB]
     ld      [hli],a
 
     ; reset momentum and delta
@@ -206,8 +209,9 @@ update_polygon:; hl = polygon state pointer
 
     push    hl
 
-    ; load data pointer
-    ldxa    [polygonData],[hli]
+    ; load data vlaues
+    ldxa    [polygonDataA],[hli]
+    ldxa    [polygonDataB],[hli]
 
     ; skip momentum and delta
     ldxa    [polygonMY],[hli]
@@ -241,7 +245,8 @@ update_polygon:; hl = polygon state pointer
 .update_momentum:
 
     ; re-assign data so it can be used as a counter etc.
-    ldxa    [hli],[polygonData]
+    ldxa    [hli],[polygonDataA]
+    ldxa    [hli],[polygonDataB]
 
     ; b = my
     ldxa    [hli],[polygonMY]
@@ -270,8 +275,6 @@ update_polygon:; hl = polygon state pointer
     addFixedSigned(polygonX, d, c, 192)
     pop     hl
     ldxa    [hli],d; store updated dx
-
-    ; TODO run collision detection only when changed
 
 .update_sprite:
 
@@ -563,7 +566,7 @@ polygon_destroy:
     res     7,[hl]
 
     ; skip over other attributes
-    addw    hl,12
+    addw    hl,13
 
     ; load sprite size
     ld      a,[hli]

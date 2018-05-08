@@ -1,5 +1,5 @@
 ; Constants -------------------------------------------------------------------
-POLYGON_BYTES               EQU 21
+POLYGON_BYTES               EQU 22
 POLYGON_COUNT               EQU 19
 POLYGON_COLLISION_BYTES     EQU 3 * 8 * 4
 
@@ -26,7 +26,8 @@ polygonX:                  DB
 polygonY:                  DB
 polygonMX:                 DB
 polygonMY:                 DB
-polygonData:               DB
+polygonDataA:              DB
+polygonDataB:              DB
 polygonSize:               DB
 polygonOffset:             DW
 polygonRotation:           DB

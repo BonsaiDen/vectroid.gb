@@ -21,7 +21,7 @@ game_init:
     ld      de,$8000
     call    core_decode_eom
 
-    ; setup test tiles
+    ; Clear background tiles
     ld      d,0
     ld      hl,$9800
     ld      bc,$400
@@ -30,20 +30,21 @@ game_init:
     ; init polygon data
     call    polygon_init
 
+    ; Setup test polygons
     createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
-    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID, 128,  96,  64, small_asteroid_polygon, asteroid_update)
-    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  96,  64, 128, small_asteroid_polygon, asteroid_update)
-    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  64,  64, 192, small_asteroid_polygon, asteroid_update)
-    createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112,  24,   0,       asteroid_polygon, asteroid_update)
-    createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       asteroid_polygon, asteroid_update)
-    createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   big_asteroid_polygon, asteroid_update)
+    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID, 128,  96,  64, medium_asteroid_polygon, asteroid_update)
+    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  96,  64, 128, medium_asteroid_polygon, asteroid_update)
+    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  64,  64, 192, medium_asteroid_polygon, asteroid_update)
+    createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112,  24,   0,       large_asteroid_polygon, asteroid_update)
+    createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       large_asteroid_polygon, asteroid_update)
+    createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   giant_asteroid_polygon, asteroid_update)
 
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64 + 7, 96,   0,         thrust_polygon_a, thrust_update)
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 48, 120,   0,          effect_polygon, effect_update)
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64, 120,   0,          effect_polygon, effect_update)
-    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 80, 120,   0,          effect_polygon, effect_update)
-    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 96, 120,   0,          effect_polygon, effect_update)
+    createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 80, 120,   0,          small_asteroid_polygon, asteroid_update)
+    createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 96, 120,   0,          small_asteroid_polygon, asteroid_update)
 
     ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 16, 64,   $D7,          bullet_polygon, bullet_update)
     ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 32, 140,   0,          bullet_polygon, bullet_update)
@@ -82,12 +83,15 @@ game_draw_vram:
 .draw_polygons:
     call    polygon_draw
 
-    ; debug test print
+    ; update ui
+    ld      a,[coreLoopCounter]
+    and     %0000_0011
+    ret     z
+
     ld      a,[polygonState + 11]
     ld      bc,$1300
     ld      de,$05FF
     call    ui_number_right_aligned
-
     ret
 
 effect_polygon:
@@ -104,6 +108,21 @@ effect_polygon:
     DB      $ff,$ff
 
 small_asteroid_polygon:
+    DB      0; angle
+    DB      3; length
+    DB      32
+    DB      2; length
+    DB      96
+    DB      3; length
+    DB      156
+    DB      2; length
+    DB      220
+    DB      3; length
+    DB      0; angle
+    DB      3; length
+    DB      $ff,$ff
+
+medium_asteroid_polygon:
     DB      0; angle
     DB      7; length
 
@@ -126,7 +145,7 @@ small_asteroid_polygon:
     DB      7; length
     DB      $ff,$ff
 
-asteroid_polygon:
+large_asteroid_polygon:
     DB      0; angle
     DB      11; length
     DB      35; angle
@@ -141,7 +160,7 @@ asteroid_polygon:
     DB      11; length
     DB      $ff,$ff
 
-big_asteroid_polygon:
+giant_asteroid_polygon:
     DB      0; angle
     DB      13; length
     DB      25; angle
@@ -184,14 +203,18 @@ effect_update:
     ret
 
 asteroid_update:
-    ld      a,[polygonData]
+    ld      a,[polygonDataB]
+    cp      0
+    jr      z,.destroy
+
+    ld      a,[polygonDataA]
     and     %0000_0111
     ld      b,a
     ld      a,[coreLoopCounter]
     cp      b
     jr      nz,.skip
 
-    ld      a,[polygonData]
+    ld      a,[polygonDataA]
     ld      b,a
     ld      a,[polygonRotation]
     add     b
@@ -201,11 +224,45 @@ asteroid_update:
     ld      a,1
     ret
 
+.destroy:
+    call    asteroid_split
+    ret
+
+
+asteroid_split:; return 0 if actually split up
+    ld      a,[polygonHalfSize]
+    cp      $04
+    jr      z,.small
+    cp      $08
+    jr      z,.medium
+    cp      $0C
+    jr      z,.large
+
+.giant:; 32x32
+    ret
+
+.large:; 24x24
+    ret
+
+.medium: ; 16x16
+    ; TODO split into two small
+    ret
+
+.small: ;8x8
+    ; no split
+    xor     a
+    ret
+
 
 MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
 
+    ; rotation speed stuff
     call    math_random_signed
-    ld      [polygonData],a
+    ld      [polygonDataA],a
+
+    ; asteroid hp
+    ld      a,8
+    ld      [polygonDataB],a
 
     ;call    math_random_signed
     xor     a

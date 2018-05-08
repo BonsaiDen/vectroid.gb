@@ -3,6 +3,9 @@ SECTION "ShipLogic",ROM0
 
 THRUST_DELAY        EQU  4
 TRHUST_ACTIVE       EQU  10
+BULLET_DELAY        EQU  5
+BULLET_ACTIVE       EQU  48
+
 
 ; Logic -----------------------------------------------------------------------
 ship_fire_thrust:
@@ -26,10 +29,10 @@ ship_fire_thrust:
     ld      [polygonMX],a
     ld      [polygonMY],a
 
-    ldxa    [thrustDelay],THRUST_DELAY ; TODO variable
+    ldxa    [thrustDelay],THRUST_DELAY
 
     ldxa    [polygonGroup],COLLISION_NONE
-    ldxa    [polygonData],THRUST_DELAY - 1
+    ldxa    [polygonDataA],THRUST_DELAY - 1
     ld      bc,thrust_update
 
     ; toggle between thrust polygons
@@ -93,7 +96,7 @@ ship_fire_bullet:
     ldxa    [polygonPalette],PALETTE_BULLET
     ldxa    [polygonGroup],COLLISION_BULLET
     ldxa    [polygonRotation],[bulletRotation]
-    ldxa    [polygonData],$30
+    ldxa    [polygonDataA],BULLET_ACTIVE
     ld      de,bullet_polygon
     ld      bc,bullet_update
     ld      a,1; size
@@ -194,7 +197,7 @@ ship_update:
     ldxa    [bulletX],[polygonX]
     ldxa    [bulletY],[polygonY]
     ldxa    [bulletRotation],[polygonRotation]
-    ldxa    [bulletDelay],$05 ; TODO variable
+    ldxa    [bulletDelay],BULLET_DELAY
     ldxa    [bulletFired],1
 
 .no_bullet:
@@ -205,12 +208,14 @@ ship_update:
     ld      a,1
     ret
 
+
+; Bullets ---------------------------------------------------------------------
 bullet_update:
-    ld      a,[polygonData]
+    ld      a,[polygonDataA]
     dec     a
     cp      0
     jr      z,.destroy
-    ld      [polygonData],a
+    ld      [polygonDataA],a
 
     ld      d,COLLISION_ASTEROID
     call    collide_with_group
@@ -221,18 +226,39 @@ bullet_update:
     ret
 
 .destroy:
+
+    ; DE points to half size of polygon, so we need to go 5 back to DataB
+    ; TODO optimize?
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+
+    ; reduce asteroid hp
+    ld      a,[de]
+    sub     3; TODO variable for bullet damage
+    jr      nc,.hp_above_zero
+    xor     a
+
+.hp_above_zero:
+    ld      [de],a
+
+    ; reduce global bullet count
     ld      a,[bulletCount]
     dec     a
     ld      [bulletCount],a
     xor     a
     ret
 
+
+; Thrust ----------------------------------------------------------------------
 thrust_update:
-    ld      a,[polygonData]
+    ld      a,[polygonDataA]
     dec     a
     cp      0
     jr      z,.destroy
-    ld      [polygonData],a
+    ld      [polygonDataA],a
 
 .place:
 
@@ -242,7 +268,6 @@ thrust_update:
     ld      e,7
     call    angle_vector_16
 
-    ; TODO fix wrap around
     ld      a,[thrustX]
     sub     b
     ld      [polygonX],a

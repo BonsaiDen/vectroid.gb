@@ -63,15 +63,7 @@ collide_with_group:; polygonX, polygonY = x/y, d = group -> a=0 no collision, a=
 
     ; distance < collisionSizeA + collisionSizeB - 4
     cp      c; compare with distance
-    jr      z,.no_collision
-    jr      c,.no_collision
-
-.collision:
-    pop     de
-    pop     bc
-    pop     hl
-    ld      a,1
-    ret
+    jr      nc,.collision
 
     ; restore pointers
 .no_collision:
@@ -89,5 +81,12 @@ collide_with_group:; polygonX, polygonY = x/y, d = group -> a=0 no collision, a=
     jr      nz,.loop
 
     xor     a
+    ret
+
+.collision:
+    pop     de; restore data pointer
+    pop     bc
+    pop     hl
+    ld      a,1
     ret
 
