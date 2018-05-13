@@ -19,36 +19,36 @@ polygon_init:
     call    core_mem_cpy
     ret
 
-_polygon_available:; a = size, b = count -> carry if available
-    ld      [polygonSize],a
-    ld      hl,polygonState
-
-.loop:
-    ld      a,$ff
-    cp      [hl]; check for end marker
-    jp      z,.all_in_use
-
-    ; check for size match
-    ld      a,[polygonSize]
-    cp      [hl]
-    jp      nz,.used_or_other_size
-
-    ; decrement required
-    dec     b
-    jr      nz,.used_or_other_size
-
-    ; return available if required count is available
-    scf
-    ret
-
-    ; skip bytes
-.used_or_other_size:
-    addw    hl,POLYGON_BYTES
-    jp      .loop
-
-.all_in_use:
-    ccf
-    ret
+; _polygon_available:; a = size, b = count -> carry if available
+;     ld      [polygonSize],a
+;     ld      hl,polygonState
+;
+; .loop:
+;     ld      a,$ff
+;     cp      [hl]; check for end marker
+;     jp      z,.all_in_use
+;
+;     ; check for size match
+;     ld      a,[polygonSize]
+;     cp      [hl]
+;     jp      nz,.used_or_other_size
+;
+;     ; decrement required
+;     dec     b
+;     jr      nz,.used_or_other_size
+;
+;     ; return available if required count is available
+;     scf
+;     ret
+;
+;     ; skip bytes
+; .used_or_other_size:
+;     addw    hl,POLYGON_BYTES
+;     jp      .loop
+;
+; .all_in_use:
+;     ccf
+;     ret
 
     ; set polygonX, polygonY, polygonGroup, polygonRotation, polygonMX, polygonMY, polygonData first
 polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no size spot available

@@ -12,9 +12,15 @@ asteroid_queue:
     ld      a,[asteroidQueueLength]
     cp      0
     ret     z
+    ld      b,a; loop counter
+
+    ld      a,[asteroidQueueDelay]
+    dec     a
+    ld      [asteroidQueueDelay],a
+    cp      0
+    ret     nz
 
     ld      hl,asteroidQueue
-    ld      b,a; loop counter
 .next:
     push    bc
 
@@ -69,7 +75,41 @@ asteroid_update:
     ld      a,[polygonDataB]
     cp      0
     jr      z,.destroy
+    cp      128
+    jr      nc,.destroy_collide
 
+    ; only collide every other frame
+    ld      a,[coreLoopCounter]
+    and     %0000_0001
+    jr      z,.rotate
+
+    ; collide with other asteroids
+    ld      d,COLLISION_ASTEROID
+    ld      c,3
+    call    collide_with_group
+    cp      0
+    jr      z,.rotate
+
+    ; move de to size of other asteroid
+    ld      a,[polygonSize]
+    ld      b,a; current size
+    inc     de
+    inc     de
+    inc     de
+    inc     de
+    ld      a,[de]; other size
+
+    ; compare sizes
+    cp      b
+    ; ==
+    jr      z,.destroy_both_asteroids
+    ; <
+    jr      nc,.destroy_this_asteroid
+    ; >
+    jr      .destroy_other_asteroid
+
+    ; rotate asteroid
+.rotate:
     ld      a,[polygonDataA]
     and     %0000_0111
     ld      b,a
@@ -93,11 +133,32 @@ asteroid_update:
     ld      [polygonDataB],a
     ret
 
+.destroy_other_asteroid:
+    call    _destroy_other_asteroid
+    ld      a,1
+    ret
+
+.destroy_both_asteroids:
+    call    _destroy_other_asteroid
+
+.destroy_this_asteroid:
+    ld      a,$ff
+    ld      [polygonDataB],a
+    ld      a,1
+    ret
+
 .destroy:
     call    _asteroid_split
     jr      c,.ignore
+    jr      .destroyed
+
+.destroy_collide:
+    call    _asteroid_split
+    ; we can't ignore the destruction here and will just skip the creation
+    ; of new asteroids
 
     ; increase available counter
+.destroyed:
     ld      a,[polygonHalfSize]
     cp      $04
     jr      nz,.medium
@@ -119,6 +180,20 @@ asteroid_update:
     xor     a
     ret
 
+
+_destroy_other_asteroid:
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de; hp
+    ld      a,$ff
+    ld      [de],a
+    ret
 
 _asteroid_split:; return 0 if actually split up
     ld      a,[polygonHalfSize]
@@ -150,16 +225,18 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidMediumAvailable]
 
     ; create new asteroids
+    ; TODO randomize things a bit
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_LARGE
     ld      c,ASTEROID_SPLIT_VELOCITY_LARGE
-    ld      e,12
+    ld      e,ASTEROID_SPLIT_DISTANCE_LARGE
     call    asteroid_create
 
     ld      a,d
     sub     ASTEROID_SPLIT_OFFSET
     ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
+    ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
     ld      b,POLYGON_MEDIUM
     call    asteroid_create
     xor     a
@@ -200,12 +277,13 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidMediumAvailable]
 
     ; create new asteroids
+    ; TODO randomize things a bit
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_MEDIUM
     ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
-    ld      e,8
-    call    asteroid_create
+    ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
+    ;call    asteroid_create
 
     ld      a,d
     sub     ASTEROID_SPLIT_OFFSET
@@ -228,16 +306,18 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidSmallAvailable]
 
     ; create new asteroids
+    ; TODO randomize things a bit
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_MEDIUM
     ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
-    ld      e,8
+    ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
     call    asteroid_create
 
     ld      a,d
     sub     ASTEROID_SPLIT_OFFSET
     ld      c,ASTEROID_SPLIT_VELOCITY_SMALL
+    ld      e,ASTEROID_SPLIT_DISTANCE_SMALL
     ld      b,POLYGON_SMALL
     call    asteroid_create
     xor     a
@@ -253,11 +333,12 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidSmallAvailable]
 
     ; create new asteroids
+    ; TODO randomize things a bit
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_SMALL
     ld      c,ASTEROID_SPLIT_VELOCITY_SMALL
-    ld      e,4
+    ld      e,ASTEROID_SPLIT_DISTANCE_SMALL
     call    asteroid_create
 
     ld      a,d
@@ -339,6 +420,9 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     ld      a,[asteroidQueueLength]
     inc     a
     ld      [asteroidQueueLength],a
+
+    ld      a,ASTEROID_QUEUE_DELAY
+    ld      [asteroidQueueDelay],a
 
     pop     de
     pop     bc

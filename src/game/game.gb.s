@@ -42,9 +42,17 @@ game_init:
 
     ; setup test asteroid
     ldxa    [polygonX],40
+    ldxa    [polygonY],80
+    ld      a,50
+    ld      b,POLYGON_LARGE
+    ld      c,0
+    ld      e,0
+    call    asteroid_create
+
+    ldxa    [polygonX],80
     ldxa    [polygonY],40
     ld      a,50
-    ld      b,POLYGON_GIANT
+    ld      b,POLYGON_MEDIUM
     ld      c,0
     ld      e,0
     call    asteroid_create
@@ -72,6 +80,32 @@ game_loop:
     call    polygon_update
     call    ship_fire_bullet
     call    ship_fire_thrust
+
+    ; update ui
+    ld      a,[coreLoopCounter]
+    and     %0000_0011
+    ret     z
+
+    ld      a,[polygonState + 12]
+    ld      bc,$1300
+    ld      de,$05FF
+    call    ui_number_right_aligned
+
+    ld      a,[asteroidSmallAvailable]
+    ld      bc,$0100
+    ld      de,$01FF
+    call    ui_number_right_aligned
+
+    ld      a,[asteroidMediumAvailable]
+    ld      bc,$0300
+    ld      de,$01FF
+    call    ui_number_right_aligned
+
+    ld      a,[asteroidLargeAvailable]
+    ld      bc,$0500
+    ld      de,$01FF
+    call    ui_number_right_aligned
+
     ret
 
 
@@ -93,16 +127,6 @@ game_draw_vram:
 
 .draw_polygons:
     call    polygon_draw
-
-    ; update ui
-    ld      a,[coreLoopCounter]
-    and     %0000_0011
-    ret     z
-
-    ld      a,[polygonState + 12]
-    ld      bc,$1300
-    ld      de,$05FF
-    call    ui_number_right_aligned
     ret
 
 effect_polygon:

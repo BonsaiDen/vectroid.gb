@@ -69,6 +69,7 @@ _digit: ; a = digit, bc=x/y
     add     b
     ld      l,a
 
+    ; TODO not vblank safe
     ld      [hl],d
     pop     hl
     ret

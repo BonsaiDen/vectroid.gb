@@ -14,11 +14,16 @@ PALETTE_THRUST_A                EQU 3
 PALETTE_THRUST_B                EQU 4
 PALETTE_EFFECT                  EQU 5
 
+ASTEROID_QUEUE_DELAY            EQU 2
+
 ASTEROID_SPLIT_OFFSET           EQU 32
 ASTEROID_SPLIT_VELOCITY_SMALL   EQU 14
 ASTEROID_SPLIT_VELOCITY_MEDIUM  EQU 10
 ASTEROID_SPLIT_VELOCITY_LARGE   EQU 6
 
+ASTEROID_SPLIT_DISTANCE_SMALL   EQU 6
+ASTEROID_SPLIT_DISTANCE_MEDIUM  EQU 10
+ASTEROID_SPLIT_DISTANCE_LARGE   EQU 14
 
 ; OAM -------------------------------------------------------------------------
 SECTION "OAM",WRAM0[$C000]
@@ -54,6 +59,7 @@ asteroidQueue:              DS ASTEROID_MAX * 8
                             ; my
 asteroidCount:              DB
 asteroidQueueLength:        DB
+asteroidQueueDelay:         DB
 asteroidLargeAvailable:     DB; 2
 asteroidMediumAvailable:    DB; 2
 asteroidSmallAvailable:     DB; 6

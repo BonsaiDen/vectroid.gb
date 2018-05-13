@@ -216,6 +216,7 @@ bullet_update:
     ld      [polygonDataA],a
 
     ld      d,COLLISION_ASTEROID
+    ld      c,5
     call    collide_with_group
     cp      1
     jr      z,.destroy

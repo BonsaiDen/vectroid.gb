@@ -1,6 +1,6 @@
 SECTION "CollisionLogic",ROM0
 
-collide_with_group:; polygonX, polygonY = x/y, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
+collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
 
     ; TODO optimize
     ; get start pointer of collision group
@@ -12,6 +12,8 @@ collide_with_group:; polygonX, polygonY = x/y, d = group -> a=0 no collision, a=
     add     a; x32
     ld      l,a
     ld      h,polygonCollisionGroups >> 8
+
+    ldxa    [polygonOffset],c
 
     ; max of 8 entries in the group
     ld      b,8
@@ -53,13 +55,32 @@ collide_with_group:; polygonX, polygonY = x/y, d = group -> a=0 no collision, a=
     sub     c
     ld      c,a
 
-    ; calculate distance
-    call    sqrt_length
-    ld      c,a; store distance
-    ld      a,[polygonHalfSize]
+    ; check if distance is 0
+    ; (if so we assume that we're checking against the same polygon and skip it)
+    ; TODO re-place with some actual check
+    cp      0; check y for 0 distance
+    jr      nz,.check_distance
 
+    ld      a,b ; check x for 0 distance
+    cp      0
+    jr      z,.no_collision
+
+    ; calculate distance
+.check_distance:
+    call    sqrt_length
+    cp      16
+    jr      z,.no_collision
+    ld      c,a; store distance
+
+    ; load distance offset
+    ld      a,[polygonOffset]
+    ld      d,a
+
+    ld      a,[polygonHalfSize]
     add     e; a is now the combine half size
-    sub     5; TODO set collision size individually
+
+    ; ajust collision distance with offset
+    sub     d
 
     ; distance < collisionSizeA + collisionSizeB - 4
     cp      c; compare with distance
