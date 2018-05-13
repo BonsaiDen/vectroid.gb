@@ -41,13 +41,13 @@ game_init:
     ; createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   giant_asteroid_polygon, asteroid_update)
 
     ; setup test asteroid
-    ldxa    [polygonX],40
-    ldxa    [polygonY],80
-    ld      a,50
-    ld      b,POLYGON_GIANT
-    ld      c,0
-    ld      e,0
-    call    asteroid_create
+    ; ldxa    [polygonX],40
+    ; ldxa    [polygonY],80
+    ; ld      a,50
+    ; ld      b,POLYGON_GIANT
+    ; ld      c,0
+    ; ld      e,0
+    ; call    asteroid_create
 
     ;ldxa    [polygonX],80
     ;ldxa    [polygonY],40
@@ -76,6 +76,7 @@ game_init:
 
 ; Main Loop -------------------------------------------------------------------
 game_loop:
+    call    asteroid_launch
     call    asteroid_queue
     call    polygon_update
     call    ship_fire_bullet

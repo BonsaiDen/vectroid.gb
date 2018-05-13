@@ -6,6 +6,108 @@ asteroid_init:
     ldxa    [asteroidMediumAvailable],2
     ldxa    [asteroidLargeAvailable],2
     ldxa    [asteroidQueueLength],0
+    ldxa    [asteroidLaunchTick],15
+    ret
+
+asteroid_launch:
+
+    ; timer
+    ld      a,[coreTimerCounter]
+    and     %0000_1110
+    ret     nz
+
+    ; 50% chance
+    call    math_random
+    cp      128; TODO variable to increase difficulty
+    ret     c
+
+    ; ticks
+    decx    [asteroidLaunchTick]
+    cp      0
+    ret     nz
+    ldxa    [asteroidLaunchTick],15; TODO variable to increase difficulty
+
+    ; choose side
+    call    math_random
+    cp      192
+    jr      nc,.from_right
+    cp      128
+    jr      nc,.from_down
+    cp      64
+    jr      nc,.from_left
+
+.from_up:
+    ; set y to 0
+    xor     a
+    ld      [polygonY],a
+
+    ; angle between 32-96
+    ld      b,0
+    jr      .vertical
+
+.from_left:
+    ; set x to 0
+    ld      a,0
+    ld      [polygonX],a
+
+    ; angle between  224 - 32
+    ld      b,224
+    jr      .horizontal
+
+.from_down:
+    ; set y to 160
+    ld      a,160
+    ld      [polygonY],a
+
+    ; angle between  160 - 224
+    ld      b,160
+    jr      .vertical
+
+.from_right:
+    ; set x to 176
+    ld      a,176
+    ld      [polygonX],a
+
+    ; angle between  96 - 160
+    ld      b,96
+
+.horizontal:
+    ; choose x between 16-144
+    call    math_random
+    and     %0111_1111
+    add     16
+    ld      [polygonY],a
+    jr      .launch
+
+.vertical:
+    ; choose x between 16-176
+    call    math_random
+    and     %1001_1111
+    add     16
+    ld      [polygonX],a
+
+.launch:
+    ld      a,[asteroidMediumAvailable]
+    cp      0
+    ret     z
+
+    ; vary angle by 64
+    call    math_random
+    and     %0011_1111
+    add     128
+    add     b
+
+    ; set distance to 0
+    ld      e,0
+
+    ; TODO set random velocity
+    ld      c,8
+
+    ; TODO select a random polygon size (2-4)
+    ld      b,POLYGON_MEDIUM
+    call    asteroid_create
+    decx    [asteroidMediumAvailable]
+
     ret
 
 asteroid_queue:

@@ -18,6 +18,7 @@ INCLUDE     "core/core.gb.s"
 
 ; Constants and Variables -----------------------------------------------------
 INCLUDE     "ram/game.gb.s"
+INCLUDE     "ram/asteroid.gb.s"
 INCLUDE     "ram/polygon.gb.s"
 
 
