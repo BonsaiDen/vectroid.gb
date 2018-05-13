@@ -1,6 +1,70 @@
 SECTION "AsteroidLogic",ROM0
 
 ; Asteroid Logic --------------------------------------------------------------
+asteroid_init:
+    ldxa    [asteroidSmallAvailable],6
+    ldxa    [asteroidMediumAvailable],2
+    ldxa    [asteroidLargeAvailable],2
+    ldxa    [asteroidQueueLength],0
+    ret
+
+asteroid_queue:
+    ld      a,[asteroidQueueLength]
+    cp      0
+    ret     z
+
+    ld      hl,asteroidQueue
+    ld      b,a; loop counter
+.next:
+    push    bc
+
+    ; configurable data
+    ldxa    [polygonSize],[hli]
+    ldxa    [polygonPalette],[hli]
+    ldxa    [polygonDataA],[hli]
+    ldxa    [polygonRotation],[hli]
+    ldxa    [polygonX],[hli]
+    ldxa    [polygonY],[hli]
+    ldxa    [polygonMX],[hli]
+    ldxa    [polygonMY],[hli]
+
+    ; non-configurable data
+    ldxa    [polygonGroup],COLLISION_ASTEROID
+
+    push    hl
+
+    ; load polygon hp
+    ld      a,[polygonSize]
+    dec     a
+    ld      hl,_polygon_hp
+    addw    hl,a
+    ld      a,[hl]
+    ld      [polygonDataB],a
+
+    ; load polygon data for size
+    ld      a,[polygonSize]
+    dec     a
+    add     a; x2
+    ld      hl,_polygon_sizes
+    addw    hl,a
+    ld      a,[hli]
+    ld      e,a
+    ld      d,[hl]
+
+    ld      bc,asteroid_update
+    ld      a,[polygonSize]
+    call    polygon_create
+
+    pop     hl
+
+    pop     bc
+    dec     b
+    jr      nz,.next
+
+    xor     a
+    ld      [asteroidQueueLength],a
+    ret
+
 asteroid_update:
     ld      a,[polygonDataB]
     cp      0
@@ -23,115 +87,195 @@ asteroid_update:
     ld      a,1
     ret
 
+.ignore:
+    ; avoid continoues split calls by restoring 1 hp to the asteroid
+    ld      a,1
+    ld      [polygonDataB],a
+    ret
+
 .destroy:
     call    _asteroid_split
-    jr      nc,.skip
+    jr      c,.ignore
+
+    ; increase available counter
+    ld      a,[polygonHalfSize]
+    cp      $04
+    jr      nz,.medium
+    incx    [asteroidSmallAvailable]
+    jr      .none
+
+.medium:
+    cp      $08
+    jr      nz,.large
+    incx    [asteroidMediumAvailable]
+    jr      .none
+
+.large:
+    cp      $0C
+    jr      nz,.none
+    incx    [asteroidLargeAvailable]
+
+.none:
     xor     a
     ret
 
 
 _asteroid_split:; return 0 if actually split up
-
-    ; TODO randomize split velocity
-    ; TODO calculate angle at +90 degrees and -90 degrees
-        ; TODO +75/-75 instead?
-        ; TODO or within range?
-
     ld      a,[polygonHalfSize]
     cp      $04
     jr      z,.small
     cp      $08
-    jr      z,.medium
+    jp      z,.medium
     cp      $0C
     jr      z,.large
+    jr      .giant
+
+.small: ;8x8
+    ; no split
+    xor     a
+    ret
 
 .giant:; 32x32
-    ; split into large and medium
-    ld      a,POLYGON_LARGE
-    ld      b,1
-    call    polygon_available
-    jr      nc,.giant_or
 
-    ld      a,POLYGON_MEDIUM
-    ld      b,1
-    call    polygon_available
-    jr      nc,.giant_or
+    ; split into 1x large and 1x medium
+    ld      a,[asteroidLargeAvailable]
+    cp      1
+    jr      c,.giant_or
 
-    ; TODO
-    scf
+    ld      a,[asteroidMediumAvailable]
+    cp      1
+    jr      c,.giant_or
+
+    decx    [asteroidLargeAvailable]
+    decx    [asteroidMediumAvailable]
+
+    ; create new asteroids
+    call    _direction_vector
+    add     ASTEROID_SPLIT_OFFSET
+    ld      b,POLYGON_LARGE
+    ld      c,ASTEROID_SPLIT_VELOCITY_LARGE
+    ld      e,12
+    call    asteroid_create
+
+    ld      a,d
+    sub     ASTEROID_SPLIT_OFFSET
+    ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
+    ld      b,POLYGON_MEDIUM
+    call    asteroid_create
+    xor     a
     ret
 
     ; or
 .giant_or:
-    ; split into 2 medium and 1 small
-    ld      a,POLYGON_MEDIUM
-    ld      b,2
-    call    polygon_available
-    ret     nc
-
-    ld      a,POLYGON_SMALL
-    ld      b,1
-    call    polygon_available
-    ret     nc
-
-    ; TODO
     scf
+    ret
+
+    ; TODO setup
+
+    ; split into 2x medium and 1x small
+    ld      a,[asteroidMediumAvailable]
+    cp      2
+    ret     c
+
+    ld      a,[asteroidSmallAvailable]
+    cp      1
+    ret     c
+
+    decx    [asteroidMediumAvailable]
+    decx    [asteroidMediumAvailable]
+    decx    [asteroidSmallAvailable]
+
+    ; TODO create asteroids
+    xor     a
     ret
 
 .large:; 24x24
-    ; split into two medium
-    ld      a,POLYGON_MEDIUM
-    ld      b,2
-    call    polygon_available
-    jr      nc,.large_or
 
-    ; TODO
-    scf
+    ; split into 2x medium
+    ld      a,[asteroidMediumAvailable]
+    cp      2
+    jr      c,.large_or
+
+    decx    [asteroidMediumAvailable]
+    decx    [asteroidMediumAvailable]
+
+    ; create new asteroids
+    call    _direction_vector
+    add     ASTEROID_SPLIT_OFFSET
+    ld      b,POLYGON_MEDIUM
+    ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
+    ld      e,8
+    call    asteroid_create
+
+    ld      a,d
+    sub     ASTEROID_SPLIT_OFFSET
+    ld      b,POLYGON_MEDIUM
+    call    asteroid_create
+    xor     a
     ret
 
 .large_or:
-    ; split into medium and small
-    ld      a,POLYGON_SMALL
-    ld      b,1
-    call    polygon_available
-    ret     nc
+    ; split into 1x medium and 1x small
+    ld      a,[asteroidMediumAvailable]
+    cp      1
+    ret     c
 
-    ld      a,POLYGON_MEDIUM
-    ld      b,1
-    call    polygon_available
-    ret     nc
+    ld      a,[asteroidSmallAvailable]
+    cp      1
+    ret     c
 
-    ; TODO
-    scf
+    decx    [asteroidMediumAvailable]
+    decx    [asteroidSmallAvailable]
+
+    ; create new asteroids
+    call    _direction_vector
+    add     ASTEROID_SPLIT_OFFSET
+    ld      b,POLYGON_MEDIUM
+    ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
+    ld      e,8
+    call    asteroid_create
+
+    ld      a,d
+    sub     ASTEROID_SPLIT_OFFSET
+    ld      c,ASTEROID_SPLIT_VELOCITY_SMALL
+    ld      b,POLYGON_SMALL
+    call    asteroid_create
+    xor     a
     ret
 
 .medium: ; 16x16
-    ; split into two small
-    ld      a,POLYGON_SMALL
-    ld      b,2
-    call    polygon_available
-    ret     nc
+    ; split into 2x small
+    ld      a,[asteroidSmallAvailable]
+    cp      2
+    ret     c
 
-    ld      a,[polygonRotation]
-    add     64
+    decx    [asteroidSmallAvailable]
+    decx    [asteroidSmallAvailable]
+
+    ; create new asteroids
+    call    _direction_vector
+    add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_SMALL
-    ld      c,4; TODO way to low?
-    ld      e,8
-    call    _asteroid_create
+    ld      c,ASTEROID_SPLIT_VELOCITY_SMALL
+    ld      e,4
+    call    asteroid_create
 
-    sub     128
-    call    _asteroid_create
-
-    scf
+    ld      a,d
+    sub     ASTEROID_SPLIT_OFFSET
+    ld      b,POLYGON_SMALL
+    call    asteroid_create
+    xor     a
     ret
 
-.small: ;8x8
-    ; no split
-    scf
+_direction_vector:
+    ldxa    b,[polygonMX]
+    ldxa    c,[polygonMY]
+    call    atan_2
+    ld      d,a
     ret
 
-
-_asteroid_create:; a = rotation, b=size, c = velocity, e = distance
+; polygonX, polygonY must be set as the reference position
+asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     push    af
     push    bc
     push    de
@@ -139,58 +283,62 @@ _asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     ; store rotation
     ld      d,a
 
-    ; setup next pointer
+    ; get pointer into queue
     ld      hl,asteroidQueue
-    ld      a,[asteroidQueueCount]
+    ld      a,[asteroidQueueLength]
     mul     a,8
     add     l
     ld      l,a
 
-    ; DB size
-    ; DB palette
-    ; DB rotation speed
-    ; DB rotation
-    ; DB x
-    ; DB y
-    ; DB mx
-    ; DB my
+    push    bc
 
-    ; TODO get pointer into asteroid queue
+    ; Set Size
+    ldxa    [hli],b
 
-    ; TODO set size
+    ; Set palette
+    ; TODO make configurable
+    ldxa    [hli],PALETTE_ASTEROID
 
-    ; TODO set palette
-
-    ; TODO set random rotation
-    call    math_random
-
-    ; TODO set random rotation speed
+    ; Set random rotation speed
+    call    math_random_signed
+    cp      0
+    jr      nz,.rotation
     call    math_random_signed
 
+.rotation:
+    ld      [hli],a
+
+    ; Set random rotation
+    call    math_random
+    ld      [hli],a
 
     ; calculate offset from position
-    push    bc
+    push    hl
     call    angle_vector_16
+    pop     hl
 
     ; add to position of parent asteroid
     ld      a,[polygonX]
     add     b
-    ; TODO set x
+    ld      [hli],a
 
     ld      a,[polygonY]
     add     c
-    ; TODO set y
+    ld      [hli],a
     pop     bc
 
     ; set mx/my from rotation and velocity
     ld      e,c
+    push    hl
     call    angle_vector_16
-    ; TODO set mx/my
+    pop     hl
+    ldxa    [hli],b
+    ld      [hl],c
 
     ; increase queue count
-    ld      a,[asteroidQueueCount]
+    ld      a,[asteroidQueueLength]
     inc     a
-    ld      [asteroidQueueCount],a
+    ld      [asteroidQueueLength],a
 
     pop     de
     pop     bc
@@ -199,6 +347,18 @@ _asteroid_create:; a = rotation, b=size, c = velocity, e = distance
 
 
 ; Asteroid Layout -------------------------------------------------------------
+_polygon_sizes:
+    DW      small_asteroid_polygon
+    DW      medium_asteroid_polygon
+    DW      large_asteroid_polygon
+    DW      giant_asteroid_polygon
+
+_polygon_hp:
+    DB      2
+    DB      8
+    DB      15
+    DB      40
+
 small_asteroid_polygon:
     DB      0; angle
     DB      3; length

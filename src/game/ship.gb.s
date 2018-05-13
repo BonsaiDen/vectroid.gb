@@ -54,7 +54,7 @@ ship_fire_thrust:
     add     128
     ld      [polygonRotation],a
 
-    ld      a,1; size
+    ld      a,POLYGON_SMALL; size
     call    polygon_create
 
     ret
@@ -163,14 +163,12 @@ ship_update:
     jr      c,.smaller
     ld      a,15; limit to max speed
 
-
 .smaller:
     ; calculate new MX/MY
     ld      e,a
     call    angle_vector_16
     ldxa    [polygonMX],b
     ldxa    [polygonMY],c
-
 
 .no_acceleration:
 

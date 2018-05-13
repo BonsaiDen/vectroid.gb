@@ -19,7 +19,7 @@ polygon_init:
     call    core_mem_cpy
     ret
 
-polygon_available:; a = size, b = count -> carry if available
+_polygon_available:; a = size, b = count -> carry if available
     ld      [polygonSize],a
     ld      hl,polygonState
 

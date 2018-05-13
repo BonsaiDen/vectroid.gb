@@ -29,22 +29,32 @@ game_init:
 
     ; init polygon data
     call    polygon_init
+    call    asteroid_init
 
     ; Setup test polygons
     createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
-    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID, 128,  96,  64, medium_asteroid_polygon, asteroid_update)
-    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  96,  64, 128, medium_asteroid_polygon, asteroid_update)
-    createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  64,  64, 192, medium_asteroid_polygon, asteroid_update)
-    createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112,  24,   0,       large_asteroid_polygon, asteroid_update)
-    createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       large_asteroid_polygon, asteroid_update)
-    createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   giant_asteroid_polygon, asteroid_update)
+    ;createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID, 128,  96,  64, medium_asteroid_polygon, asteroid_update)
+    ;createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  96,  64, 128, medium_asteroid_polygon, asteroid_update)
+    ;createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  64,  64, 192, medium_asteroid_polygon, asteroid_update)
+    ;createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112,  24,   0,       large_asteroid_polygon, asteroid_update)
+    ;createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       large_asteroid_polygon, asteroid_update)
+    ; createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   giant_asteroid_polygon, asteroid_update)
+
+    ; setup test asteroid
+    ldxa    [polygonX],40
+    ldxa    [polygonY],40
+    ld      a,50
+    ld      b,POLYGON_GIANT
+    ld      c,0
+    ld      e,0
+    call    asteroid_create
 
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64 + 7, 96,   0,         thrust_polygon_a, thrust_update)
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 48, 120,   0,          effect_polygon, effect_update)
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64, 120,   0,          effect_polygon, effect_update)
-    createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 80, 120,   0,          small_asteroid_polygon, asteroid_update)
-    createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 96, 120,   0,          small_asteroid_polygon, asteroid_update)
+    ;createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 80, 120,   0,          small_asteroid_polygon, asteroid_update)
+    ;createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 96, 120,   0,          small_asteroid_polygon, asteroid_update)
 
     ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 16, 64,   $D7,          bullet_polygon, bullet_update)
     ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 32, 140,   0,          bullet_polygon, bullet_update)
@@ -58,6 +68,7 @@ game_init:
 
 ; Main Loop -------------------------------------------------------------------
 game_loop:
+    call    asteroid_queue
     call    polygon_update
     call    ship_fire_bullet
     call    ship_fire_thrust
