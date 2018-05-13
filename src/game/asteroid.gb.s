@@ -91,12 +91,8 @@ asteroid_update:
     jr      z,.rotate
 
     ; move de to size of other asteroid
-    ld      a,[polygonSize]
+    ld      a,[polygonHalfSize]
     ld      b,a; current size
-    inc     de
-    inc     de
-    inc     de
-    inc     de
     ld      a,[de]; other size
 
     ; compare sizes
@@ -186,10 +182,6 @@ _destroy_other_asteroid:
     dec     de
     dec     de
     dec     de
-    dec     de
-    dec     de
-    dec     de
-    dec     de
     dec     de; hp
     ld      a,$ff
     ld      [de],a
@@ -202,7 +194,7 @@ _asteroid_split:; return 0 if actually split up
     cp      $08
     jp      z,.medium
     cp      $0C
-    jr      z,.large
+    jp      z,.large
     jr      .giant
 
 .small: ;8x8
@@ -244,10 +236,6 @@ _asteroid_split:; return 0 if actually split up
 
     ; or
 .giant_or:
-    scf
-    ret
-
-    ; TODO setup
 
     ; split into 2x medium and 1x small
     ld      a,[asteroidMediumAvailable]
@@ -262,7 +250,24 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidMediumAvailable]
     decx    [asteroidSmallAvailable]
 
-    ; TODO create asteroids
+    call    _direction_vector
+    add     ASTEROID_SPLIT_OFFSET_THIRD
+    ld      b,POLYGON_MEDIUM
+    ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
+    ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
+    call    asteroid_create
+
+    ld      a,d
+    add     ASTEROID_SPLIT_OFFSET_THIRD
+    add     ASTEROID_SPLIT_OFFSET_THIRD
+    call    asteroid_create
+
+    ld      a,d
+    sub     ASTEROID_SPLIT_OFFSET_THIRD
+    ld      c,ASTEROID_SPLIT_VELOCITY_SMALL
+    ld      e,ASTEROID_SPLIT_DISTANCE_SMALL
+    ld      b,POLYGON_SMALL
+    call    asteroid_create
     xor     a
     ret
 
@@ -283,7 +288,7 @@ _asteroid_split:; return 0 if actually split up
     ld      b,POLYGON_MEDIUM
     ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
     ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
-    ;call    asteroid_create
+    call    asteroid_create
 
     ld      a,d
     sub     ASTEROID_SPLIT_OFFSET
@@ -441,7 +446,7 @@ _polygon_hp:
     DB      2
     DB      8
     DB      15
-    DB      40
+    DB      32
 
 small_asteroid_polygon:
     DB      0; angle

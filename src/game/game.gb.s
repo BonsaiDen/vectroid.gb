@@ -44,18 +44,18 @@ game_init:
     ldxa    [polygonX],40
     ldxa    [polygonY],80
     ld      a,50
-    ld      b,POLYGON_LARGE
+    ld      b,POLYGON_GIANT
     ld      c,0
     ld      e,0
     call    asteroid_create
 
-    ldxa    [polygonX],80
-    ldxa    [polygonY],40
-    ld      a,50
-    ld      b,POLYGON_MEDIUM
-    ld      c,0
-    ld      e,0
-    call    asteroid_create
+    ;ldxa    [polygonX],80
+    ;ldxa    [polygonY],40
+    ;ld      a,50
+    ;ld      b,POLYGON_MEDIUM
+    ;ld      c,0
+    ;ld      e,0
+    ;call    asteroid_create
 
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64 + 7, 96,   0,         thrust_polygon_a, thrust_update)
     ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
