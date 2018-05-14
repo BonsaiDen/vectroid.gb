@@ -33,6 +33,7 @@ INCLUDE     "game/line.gb.s"
 INCLUDE     "game/polygon.gb.s"
 INCLUDE     "game/base.gb.s"
 INCLUDE     "game/palette.gb.s"
+INCLUDE     "game/sound.gb.s"
 
 
 ; Data ------------------------------------------------------------------------

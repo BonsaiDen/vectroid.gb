@@ -280,6 +280,7 @@ asteroid_update:
     incx    [asteroidLargeAvailable]
 
 .none:
+    call    sound_effect_break
     xor     a
     ret
 
@@ -521,7 +522,7 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     pop     bc
 
     ; set mx/my from rotation and velocity
-    ld      e,c
+    ld      e,c; TODO add some random  influence
     push    hl
     call    angle_vector_16
     pop     hl

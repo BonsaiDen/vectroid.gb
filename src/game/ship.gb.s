@@ -102,6 +102,8 @@ ship_fire_bullet:
     ld      a,1; size
     call    polygon_create
 
+    call    sound_effect_bullet
+
     xor     a
     ld      [bulletFired],a
     ret
@@ -244,12 +246,12 @@ bullet_update:
     ld      c,4; TODO variable
     call    collide_with_group
     cp      1
-    jr      z,.destroy
+    jr      z,.collide
 
     ld      a,1
     ret
 
-.destroy:
+.collide:
 
     ; DE points to half size of polygon, so we need to go 5 back to DataB
     ; TODO optimize?
@@ -258,6 +260,8 @@ bullet_update:
     dec     de
     dec     de
     dec     de
+
+    call    sound_effect_impact
 
     ; reduce asteroid hp
     ld      a,[de]
@@ -269,6 +273,7 @@ bullet_update:
     ld      [de],a
 
     ; reduce global bullet count
+.destroy:
     ld      a,[bulletCount]
     dec     a
     ld      [bulletCount],a

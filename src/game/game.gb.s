@@ -30,6 +30,7 @@ game_init:
     ; init polygon data
     call    polygon_init
     call    asteroid_init
+    call    sound_enable
 
     ; Setup test polygons
     createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
