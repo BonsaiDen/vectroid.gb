@@ -54,7 +54,6 @@ function tamilTable() {
 }
 
 function sqrtLengthTable() {
-    // See https://math.stackexchange.com/a/1352361
     let values = [];
     for(let x = 0; x < 16; x++) {
         for(let y = 0; y < 16; y++) {
@@ -65,6 +64,48 @@ function sqrtLengthTable() {
     console.log('    DB ' + values.join(', '));
 }
 
+function asciiTable() {
+
+    const characters = [
+        ' 0123456789:;<=>',
+        ' !"#$%&`()*+,-./',
+        '?@ABCDEFGHIJKLMN',
+        'OPQRSTUVWXYZ[\\]^',
+        '_`abcdefghijklmn',
+        'opqrstuvwxyz{|}~'
+
+    ].join('');
+
+    const ascii = '.'.repeat(256).split('').map((_, i) => String.fromCharCode(i));
+    const values = ascii.map((c) => {
+        const i = characters.indexOf(c);
+        if (i === -1) {
+            return '$00';
+
+        } else {
+            let c = i.toString(16).toUpperCase();;
+            if (c.length < 2) {
+                c = `0${c}`;
+            }
+            return `$${c}`;
+        }
+    });
+
+    console.log('text_table:');
+    const row = [];
+    values.forEach((v) => {
+        row.push(v);
+        if (row.length === 16) {
+            console.log('    DB ' + row.join(', '));
+            row.length = 0;
+        }
+    });
+
+}
+
 angleTable();
 sqrtLengthTable();
 //atan2Table();
+
+asciiTable();
+

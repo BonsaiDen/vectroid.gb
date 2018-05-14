@@ -11,6 +11,11 @@ ASTEROID_SPLIT_DISTANCE_SMALL   EQU 6
 ASTEROID_SPLIT_DISTANCE_MEDIUM  EQU 10
 ASTEROID_SPLIT_DISTANCE_LARGE   EQU 14
 
+ASTEROID_SMALL_MAX              EQU 6
+ASTEROID_MEDIUM_MAX             EQU 3
+ASTEROID_LARGE_MAX              EQU 2
+ASTEROID_GIANT_MAX              EQU 1
+
 SECTION "AsteroidRam",WRAM0[$C700]
 asteroidQueue:              DS ASTEROID_MAX * 8
                             ; size
@@ -25,7 +30,8 @@ asteroidCount:              DB
 asteroidLaunchTick:         DB
 asteroidQueueLength:        DB
 asteroidQueueDelay:         DB
-asteroidLargeAvailable:     DB; 2
-asteroidMediumAvailable:    DB; 2
-asteroidSmallAvailable:     DB; 6
+asteroidGiantAvailable:     DB
+asteroidLargeAvailable:     DB
+asteroidMediumAvailable:    DB
+asteroidSmallAvailable:     DB
 

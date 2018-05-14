@@ -1,5 +1,50 @@
 SECTION "UILogic",ROM0
 
+ui_clear:; bc=x/y, a = length
+    ; TODO
+    ret
+
+ui_text:; bc = x/y, hl = data pointer
+.next:
+    ld      a,[hl]
+    cp      0
+    ret     z
+
+    push    hl
+    ld      e,a
+
+    ; draw character
+    ld      h,0
+    ld      l,c
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+
+    ld      a,h
+    add     $98
+    ld      h,a
+
+    ld      a,l
+    add     b
+    ld      l,a
+
+    brk
+    ld      d,text_table >> 8
+    ld      a,text_table & $ff
+    add     e
+    ld      e,a
+    ld      a,[de]
+
+    ; TODO not vblank safe
+    ld      [hl],a
+    pop     hl
+    inc     hl
+    inc     b
+    jr      .next
+
+
 ui_number_right_aligned:; a = number, bc = x/y, d = fill width, e = fill tile index
     ld      l,a
 

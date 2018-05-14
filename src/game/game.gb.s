@@ -71,8 +71,22 @@ game_init:
 
     ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 80,  16,   0,          bullet_polygon, bullet_update)
     ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 96,   8,   0,          bullet_polygon, bullet_update)
+
+    ld      bc,$0000
+    ld      hl,text_debug_ui_one
+    call    ui_text
+
+    ld      bc,$0001
+    ld      hl,text_debug_ui_two
+    call    ui_text
+
     ret
 
+text_debug_ui_one:
+    DS 18 "S:X/6 M:X/3 L:X/2\0"
+
+text_debug_ui_two:
+    DS 18 "G:X/1 B:X/4 R:XXX"
 
 ; Main Loop -------------------------------------------------------------------
 game_loop:
@@ -87,23 +101,46 @@ game_loop:
     and     %0000_0011
     ret     z
 
+    ; TODO Support printing text strings
     ld      a,[polygonState + 12]
-    ld      bc,$1300
-    ld      de,$05FF
+    ld      bc,$1001
+    ld      de,$03FF
     call    ui_number_right_aligned
 
     ld      a,[asteroidSmallAvailable]
-    ld      bc,$0100
+    cpl
+    inc     a
+    add     ASTEROID_SMALL_MAX
+    ld      bc,$0200
     ld      de,$01FF
     call    ui_number_right_aligned
 
     ld      a,[asteroidMediumAvailable]
-    ld      bc,$0300
+    cpl
+    inc     a
+    add     ASTEROID_MEDIUM_MAX
+    ld      bc,$0800
     ld      de,$01FF
     call    ui_number_right_aligned
 
     ld      a,[asteroidLargeAvailable]
-    ld      bc,$0500
+    cpl
+    inc     a
+    add     ASTEROID_LARGE_MAX
+    ld      bc,$0E00
+    ld      de,$01FF
+    call    ui_number_right_aligned
+
+    ld      a,[asteroidGiantAvailable]
+    cpl
+    inc     a
+    add     ASTEROID_GIANT_MAX
+    ld      bc,$0201
+    ld      de,$01FF
+    call    ui_number_right_aligned
+
+    ld      a,[bulletCount]
+    ld      bc,$0801
     ld      de,$01FF
     call    ui_number_right_aligned
 

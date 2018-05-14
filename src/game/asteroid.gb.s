@@ -2,9 +2,10 @@ SECTION "AsteroidLogic",ROM0
 
 ; Asteroid Logic --------------------------------------------------------------
 asteroid_init:
-    ldxa    [asteroidSmallAvailable],6
-    ldxa    [asteroidMediumAvailable],2
-    ldxa    [asteroidLargeAvailable],2
+    ldxa    [asteroidSmallAvailable],ASTEROID_SMALL_MAX
+    ldxa    [asteroidMediumAvailable],ASTEROID_MEDIUM_MAX
+    ldxa    [asteroidLargeAvailable],ASTEROID_LARGE_MAX
+    ldxa    [asteroidGiantAvailable],ASTEROID_GIANT_MAX
     ldxa    [asteroidQueueLength],0
     ldxa    [asteroidLaunchTick],15
     ret
@@ -91,23 +92,27 @@ asteroid_launch:
     cp      0
     ret     z
 
+    ; set distance to 0
+    ld      e,0
+
+    ; set random velocity
+    call    math_random
+    and     %0000_0111
+    add     4
+    ld      c,a
+
     ; vary angle by 64
     call    math_random
     and     %0011_1111
     add     128
     add     b
-
-    ; set distance to 0
-    ld      e,0
-
-    ; TODO set random velocity
-    ld      c,8
+    ld      d,a; store angle
 
     ; TODO select a random polygon size (2-4)
     ld      b,POLYGON_MEDIUM
+    ld      a,d
     call    asteroid_create
     decx    [asteroidMediumAvailable]
-
     ret
 
 asteroid_queue:
@@ -187,7 +192,7 @@ asteroid_update:
 
     ; collide with other asteroids
     ld      d,COLLISION_ASTEROID
-    ld      c,3
+    ld      c,5
     call    collide_with_group
     cp      0
     jr      z,.rotate
