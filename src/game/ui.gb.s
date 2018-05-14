@@ -30,7 +30,6 @@ ui_text:; bc = x/y, hl = data pointer
     add     b
     ld      l,a
 
-    brk
     ld      d,text_table >> 8
     ld      a,text_table & $ff
     add     e

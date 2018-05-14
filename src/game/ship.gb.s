@@ -191,10 +191,17 @@ ship_update:
     cp      BUTTON_B
     jr      nz,.no_bullet
 
-    ; set up limit
+    ; check if outside of screen bounds
+    call    _within_border
+    cp      1
+    jr      z,.no_bullet
+
+    ; set bullet spawn location
     ldxa    [bulletX],[polygonX]
     ldxa    [bulletY],[polygonY]
     ldxa    [bulletRotation],[polygonRotation]
+
+    ; set up limit
     ldxa    [bulletDelay],BULLET_DELAY
     ldxa    [bulletFired],1
 
@@ -206,6 +213,24 @@ ship_update:
     ld      a,1
     ret
 
+_within_border:
+    ld      a,[polygonX]
+    cp      12; TODO variable
+    jr      c,.within
+    cp      178; TODO variable
+    jr      nc,.within
+
+    ld      a,[polygonY]
+    cp      12; TODO variable
+    jr      c,.within
+    cp      162; TODO variable
+    jr      nc,.within
+    xor     a
+    ret
+
+.within:
+    ld      a,1
+    ret
 
 ; Bullets ---------------------------------------------------------------------
 bullet_update:
@@ -216,7 +241,7 @@ bullet_update:
     ld      [polygonDataA],a
 
     ld      d,COLLISION_ASTEROID
-    ld      c,5
+    ld      c,4; TODO variable
     call    collide_with_group
     cp      1
     jr      z,.destroy

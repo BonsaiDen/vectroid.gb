@@ -33,14 +33,15 @@ game_init:
 
     ; Setup test polygons
     createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
-    ;createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID, 128,  96,  64, medium_asteroid_polygon, asteroid_update)
-    ;createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  96,  64, 128, medium_asteroid_polygon, asteroid_update)
-    ;createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  64,  64, 192, medium_asteroid_polygon, asteroid_update)
-    ;createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112,  24,   0,       large_asteroid_polygon, asteroid_update)
-    ;createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       large_asteroid_polygon, asteroid_update)
+    ; createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID, 128,  96,  64, medium_asteroid_polygon, asteroid_update)
+    ; createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  96,  64, 128, medium_asteroid_polygon, asteroid_update)
+    ; createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  64,  64, 192, medium_asteroid_polygon, asteroid_update)
+    ; createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112,  24,   0,       large_asteroid_polygon, asteroid_update)
+    ; createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       large_asteroid_polygon, asteroid_update)
     ; createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   giant_asteroid_polygon, asteroid_update)
 
     ; setup test asteroid
+
     ; ldxa    [polygonX],40
     ; ldxa    [polygonY],80
     ; ld      a,50
@@ -49,29 +50,28 @@ game_init:
     ; ld      e,0
     ; call    asteroid_create
 
-    ;ldxa    [polygonX],80
-    ;ldxa    [polygonY],40
-    ;ld      a,50
-    ;ld      b,POLYGON_MEDIUM
-    ;ld      c,0
-    ;ld      e,0
-    ;call    asteroid_create
+    ; ldxa    [polygonX],80
+    ; ldxa    [polygonY],40
+    ; ld      a,50
+    ; ld      b,POLYGON_MEDIUM
+    ; ld      c,0
+    ; ld      e,0
+    ; call    asteroid_create
 
-    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64 + 7, 96,   0,         thrust_polygon_a, thrust_update)
-    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
-    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 48, 120,   0,          effect_polygon, effect_update)
-    ;createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64, 120,   0,          effect_polygon, effect_update)
-    ;createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 80, 120,   0,          small_asteroid_polygon, asteroid_update)
-    ;createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 96, 120,   0,          small_asteroid_polygon, asteroid_update)
+    ; createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64 + 7, 96,   0,         thrust_polygon_a, thrust_update)
+    ; createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
+    ; createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 48, 120,   0,          effect_polygon, effect_update)
+    ; createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64, 120,   0,          effect_polygon, effect_update)
+    ; createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 80, 120,   0,          small_asteroid_polygon, asteroid_update)
+    ; createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 96, 120,   0,          small_asteroid_polygon, asteroid_update)
 
-    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 16, 64,   $D7,          bullet_polygon, bullet_update)
-    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 32, 140,   0,          bullet_polygon, bullet_update)
-    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 48, 140,   0,          bullet_polygon, bullet_update)
-    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 64, 140,   0,          bullet_polygon, bullet_update)
+    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 16, 64,   $D7,          bullet_polygon, bullet_update)
+    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 32, 140,   0,          bullet_polygon, bullet_update)
+    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 48, 140,   0,          bullet_polygon, bullet_update)
+    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 64, 140,   0,          bullet_polygon, bullet_update)
 
-    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 80,  16,   0,          bullet_polygon, bullet_update)
-    ;createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 96,   8,   0,          bullet_polygon, bullet_update)
-
+    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 80,  16,   0,          bullet_polygon, bullet_update)
+    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 96,   8,   0,          bullet_polygon, bullet_update)
     ld      bc,$0000
     ld      hl,text_debug_ui_one
     call    ui_text
@@ -80,13 +80,19 @@ game_init:
     ld      hl,text_debug_ui_two
     call    ui_text
 
+    ld      bc,$0011
+    ld      hl,text_debug_ui_three
+    call    ui_text
     ret
 
 text_debug_ui_one:
     DS 18 "S:X/6 M:X/3 L:X/2\0"
 
 text_debug_ui_two:
-    DS 18 "G:X/1 B:X/4 R:XXX"
+    DS 12 "G:X/1 B:X/4\0"
+
+text_debug_ui_three:
+    DS 18 "X:XXX Y:XXX R:XXX\0"
 
 ; Main Loop -------------------------------------------------------------------
 game_loop:
@@ -101,12 +107,7 @@ game_loop:
     and     %0000_0011
     ret     z
 
-    ; TODO Support printing text strings
-    ld      a,[polygonState + 12]
-    ld      bc,$1001
-    ld      de,$03FF
-    call    ui_number_right_aligned
-
+    ; asteroid counts
     ld      a,[asteroidSmallAvailable]
     cpl
     inc     a
@@ -139,10 +140,28 @@ game_loop:
     ld      de,$01FF
     call    ui_number_right_aligned
 
+    ; bullet counts
     ld      a,[bulletCount]
     ld      bc,$0801
     ld      de,$01FF
     call    ui_number_right_aligned
+
+    ; player information
+    ld      a,[polygonState + 11]
+    ld      bc,$0411
+    ld      de,$03FF
+    call    ui_number_right_aligned
+
+    ld      a,[polygonState + 10]
+    ld      bc,$0A11
+    ld      de,$03FF
+    call    ui_number_right_aligned
+
+    ld      a,[polygonState + 12]
+    ld      bc,$1011
+    ld      de,$03FF
+    call    ui_number_right_aligned
+
 
     ret
 
