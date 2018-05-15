@@ -101,9 +101,7 @@ ship_fire_bullet:
     ld      bc,bullet_update
     ld      a,1; size
     call    polygon_create
-
     call    sound_effect_bullet
-
     xor     a
     ld      [bulletFired],a
     ret
@@ -136,6 +134,14 @@ ship_update:
 
     ldxa    [thrustActive],TRHUST_ACTIVE
 
+    ; Sound Effect only once per button press
+    ld      a,[coreInputOn]
+    and     BUTTON_A
+    cp      BUTTON_A
+    jr      nz,.pressed
+    call    sound_effect_thrust
+
+.pressed:
     ld      a,[coreLoopCounter]
     and     %0000_0010
     jr      z,.no_acceleration
@@ -254,14 +260,11 @@ bullet_update:
 .collide:
 
     ; DE points to half size of polygon, so we need to go 5 back to DataB
-    ; TODO optimize?
     dec     de
     dec     de
     dec     de
     dec     de
     dec     de
-
-    call    sound_effect_impact
 
     ; reduce asteroid hp
     ld      a,[de]
@@ -271,6 +274,7 @@ bullet_update:
 
 .hp_above_zero:
     ld      [de],a
+    call    sound_effect_impact
 
     ; reduce global bullet count
 .destroy:

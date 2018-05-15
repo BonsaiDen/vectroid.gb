@@ -17,16 +17,28 @@ sound_enable:
     ld      a,%1111_1111
     ld      [$ff25],a
 
+    ; master disable
+    ld      a,$00
+    ld      [$ff1A],a
+
     ret
 
 sound_effect_bullet:
     ;channelOne(4, 1, 3, $10, 2, 0, 0, $F, $0710, 1)
     channelOne(4, 1, 3, $10, 2, 1, 0, $F, $0730, 0)
+    ;channelThree($0730, 1)
+    ret
+
+sound_effect_thrust:
+    channelFour($00, 3, 0, $8, 4, 0, 3, 0)
     ret
 
 sound_effect_impact:
     ;channelTwo($13, 1, 0, 0, $F, $0360, 1)
+    ; TODO use channel two instead?
+    ; TODO or only play when bullet effect is not active?
     channelOne(1, 1, 3, $2F, 1, 7, 0, $F, $06B0, 1)
+    ;channelTwo($35, 1, 1, 0, $F, $06C0, 1)
     ret
 
 sound_effect_break:
@@ -39,16 +51,16 @@ sound_effect_break:
     jr      nz,.two
 
 .one:
-    channelThree($2A, 2, 0, $F, 4, 0, 6, 0)
+    channelFour($2A, 2, 0, $F, 4, 0, 6, 0)
     ret
 .two:
-    channelThree($2A, 2, 0, $F, 5, 0, 6, 0)
+    channelFour($2A, 2, 0, $F, 5, 0, 6, 0)
     ret
 .three:
-    channelThree($2A, 2, 0, $F, 4, 1, 7, 0)
+    channelFour($2A, 2, 0, $F, 4, 1, 7, 0)
     ret
 .four:
-    channelThree($2A, 2, 0, $F, 5, 1, 7, 0)
+    channelFour($2A, 2, 0, $F, 5, 1, 7, 0)
     ret
 
 
@@ -76,7 +88,7 @@ MACRO channelTwo(@length, @dutyCycle, @envSweep, @envDir, @envInVol, @frequency,
     ld      [$ff19],a
 ENDMACRO
 
-MACRO channelThree(@length, @envSweep, @envDir, @envInVol, @ratio, @step, @shift, @timed)
+MACRO channelFour(@length, @envSweep, @envDir, @envInVol, @ratio, @step, @shift, @timed)
     ld      a,@length
     ld      [$ff20],a
     ld      a,(@envInVol << 4) | (@envDir << 3) | @envSweep
@@ -87,4 +99,23 @@ MACRO channelThree(@length, @envSweep, @envDir, @envInVol, @ratio, @step, @shift
     ld      [$ff23],a
 ENDMACRO
 
+MACRO channelThree(@frequency, @timed)
+
+    ; master enable
+    ld      a,$80
+    ld      [$ff1A],a
+
+    ; volume
+    ld      a,%0110_0000
+    ld      [$ff1C],a
+
+    ld      a,$90
+    ld      [$ff1B],a
+
+    ld      a,@frequency & $ff
+    ld      [$ff1D],a
+
+    ld      a,((@frequency >> 8) & %0000_0111) | (@timed << 6) | $80
+    ld      [$ff1E],a
+ENDMACRO
 

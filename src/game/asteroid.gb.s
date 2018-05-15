@@ -73,18 +73,18 @@ asteroid_launch:
     ld      b,96
 
 .horizontal:
-    ; choose x between 16-144
+    ; choose y between 32-128
     call    math_random
-    and     %0111_1111
-    add     16
+    and     %0101_1111
+    add     32
     ld      [polygonY],a
     jr      .launch
 
 .vertical:
-    ; choose x between 16-176
+    ; choose x between 32-160
     call    math_random
-    and     %1001_1111
-    add     16
+    and     %0111_1111
+    add     32
     ld      [polygonX],a
 
 .launch:
@@ -191,6 +191,7 @@ asteroid_update:
     jr      z,.rotate
 
     ; collide with other asteroids
+    ; TODO skip when inside border?
     ld      d,COLLISION_ASTEROID
     ld      c,5
     call    collide_with_group

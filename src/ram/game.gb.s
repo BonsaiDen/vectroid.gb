@@ -22,6 +22,7 @@ DS                          160
 
 ; Game ------------------------------------------------------------------------
 SECTION "GameRam",WRAM0[$C0A0]
+debugDisplay:               DB
 paletteUpdated:             DB
 bulletRotation:             DB
 bulletX:                    DB
