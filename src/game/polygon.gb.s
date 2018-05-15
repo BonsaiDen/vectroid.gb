@@ -950,3 +950,35 @@ add_fixed_signed:
     ld      @increase,l
 ENDMACRO
 
+MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
+
+    ; rotation speed stuff
+    call    math_random_signed
+    ld      [polygonDataA],a
+
+    ; asteroid hp
+    ld      a,8
+    ld      [polygonDataB],a
+
+    ;call    math_random_signed
+    xor     a
+    ld      [polygonMX],a
+    ;call    math_random_signed
+    ld      [polygonMY],a
+
+    ld      a,@palette
+    ld      [polygonPalette],a
+    ld      a,@group
+    ld      [polygonGroup],a
+    ld      a,@x + SCROLL_BORDER
+    ld      [polygonX],a
+    ld      a,@y + SCROLL_BORDER
+    ld      [polygonY],a
+    ld      a,@r
+    ld      [polygonRotation],a
+    ld      de,@data
+    ld      bc,@update
+    ld      a,@size
+    call    polygon_create
+ENDMACRO
+

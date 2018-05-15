@@ -106,6 +106,20 @@ ship_fire_bullet:
     ld      [bulletFired],a
     ret
 
+ship_init:
+    ; reset player ship variables
+    xor     a
+    ld      [bulletFired],a
+    ld      [bulletDelay],a
+    ld      [bulletCount],a
+    ld      [thrustDelay],a
+    ld      [thrustType],a
+    ld      [thrustActive],a
+
+    createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
+    ret
+
+
 ship_update:
 
     ; Rotation Controls

@@ -7,16 +7,7 @@ game_init:
     ; update palette on next vblank
     ldxa    [paletteUpdated],1
 
-    ; reset player ship variables
-    xor     a
-    ld      [bulletFired],a
-    ld      [bulletDelay],a
-    ld      [bulletCount],a
-    ld      [thrustDelay],a
-    ld      [thrustType],a
-    ld      [thrustActive],a
-
-    ld      a,1
+    ;ld      a,1
     ld      [debugDisplay],a
 
     ; load UI tiles
@@ -29,12 +20,10 @@ game_init:
 
     ; init polygon data
     call    polygon_init
+    call    ship_init
     call    asteroid_init
     call    sound_enable
     call    game_debug_init
-
-    ; Setup player ship
-    createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
 
     ret
 
@@ -189,36 +178,4 @@ clear_bg:
     ld      bc,$400
     call    core_vram_set
     ret
-
-MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
-
-    ; rotation speed stuff
-    call    math_random_signed
-    ld      [polygonDataA],a
-
-    ; asteroid hp
-    ld      a,8
-    ld      [polygonDataB],a
-
-    ;call    math_random_signed
-    xor     a
-    ld      [polygonMX],a
-    ;call    math_random_signed
-    ld      [polygonMY],a
-
-    ld      a,@palette
-    ld      [polygonPalette],a
-    ld      a,@group
-    ld      [polygonGroup],a
-    ld      a,@x + SCROLL_BORDER
-    ld      [polygonX],a
-    ld      a,@y + SCROLL_BORDER
-    ld      [polygonY],a
-    ld      a,@r
-    ld      [polygonRotation],a
-    ld      de,@data
-    ld      bc,@update
-    ld      a,@size
-    call    polygon_create
-ENDMACRO
 
