@@ -56,8 +56,8 @@ asteroid_launch:
     jr      .horizontal
 
 .from_down:
-    ; set y to 160
-    ld      a,160
+    ; set y to 176
+    ld      a,176
     ld      [polygonY],a
 
     ; angle between  160 - 224
@@ -65,8 +65,8 @@ asteroid_launch:
     jr      .vertical
 
 .from_right:
-    ; set x to 176
-    ld      a,176
+    ; set x to 192
+    ld      a,192
     ld      [polygonX],a
 
     ; angle between  96 - 160
@@ -88,9 +88,6 @@ asteroid_launch:
     ld      [polygonX],a
 
 .launch:
-    ld      a,[asteroidMediumAvailable]
-    cp      0
-    ret     z
 
     ; set distance to 0
     ld      e,0
@@ -108,11 +105,47 @@ asteroid_launch:
     add     b
     ld      d,a; store angle
 
-    ; TODO select a random polygon size (2-4)
+    ; randomize size
+    call    math_random
+    and     %0000_0011
+    add     2
+    and     %0000_0111
+    cp      POLYGON_MEDIUM
+    jr      z,.medium
+    cp      POLYGON_LARGE
+    jr      z,.large
+
+.giant:
+    ld      a,[asteroidGiantAvailable]
+    cp      0
+    ret     z
+
+    ld      b,POLYGON_GIANT
+    ld      a,d
+    call    asteroid_create
+    decx    [asteroidGiantAvailable]
+    ret
+
+.medium:
+    ld      a,[asteroidMediumAvailable]
+    cp      0
+    ret     z
+
     ld      b,POLYGON_MEDIUM
     ld      a,d
     call    asteroid_create
     decx    [asteroidMediumAvailable]
+    ret
+
+.large:
+    ld      a,[asteroidLargeAvailable]
+    cp      0
+    ret     z
+
+    ld      b,POLYGON_LARGE
+    ld      a,d
+    call    asteroid_create
+    decx    [asteroidLargeAvailable]
     ret
 
 asteroid_queue:
@@ -523,7 +556,13 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     pop     bc
 
     ; set mx/my from rotation and velocity
-    ld      e,c; TODO add some random  influence
+    push    bc
+    call    math_random_signed
+    add     d
+    ld      d,a
+    pop     bc
+
+    ld      e,c
     push    hl
     call    angle_vector_16
     pop     hl

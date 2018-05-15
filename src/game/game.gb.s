@@ -33,63 +33,9 @@ game_init:
     call    sound_enable
     call    game_debug_init
 
-    ; Setup test polygons
+    ; Setup player ship
     createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
-    ; createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID, 128,  96,  64, medium_asteroid_polygon, asteroid_update)
-    ; createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  96,  64, 128, medium_asteroid_polygon, asteroid_update)
-    ; createPolygon(2, COLLISION_ASTEROID, PALETTE_ASTEROID,  64,  64, 192, medium_asteroid_polygon, asteroid_update)
-    ; createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112,  24,   0,       large_asteroid_polygon, asteroid_update)
-    ; createPolygon(3, COLLISION_ASTEROID, PALETTE_ASTEROID, 112, 112,   0,       large_asteroid_polygon, asteroid_update)
-    ; createPolygon(4, COLLISION_ASTEROID, PALETTE_ASTEROID,  24,  24,  50,   giant_asteroid_polygon, asteroid_update)
 
-    ; setup test asteroid
-
-    ; ldxa    [polygonX],40
-    ; ldxa    [polygonY],80
-    ; ld      a,50
-    ; ld      b,POLYGON_GIANT
-    ; ld      c,0
-    ; ld      e,0
-    ; call    asteroid_create
-
-    ; ldxa    [polygonX],80
-    ; ldxa    [polygonY],40
-    ; ld      a,50
-    ; ld      b,POLYGON_MEDIUM
-    ; ld      c,0
-    ; ld      e,0
-    ; call    asteroid_create
-
-    ; createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64 + 7, 96,   0,         thrust_polygon_a, thrust_update)
-    ; createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 32, 120,   0,          effect_polygon, effect_update)
-    ; createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 48, 120,   0,          effect_polygon, effect_update)
-    ; createPolygon(1,     COLLISION_NONE,   PALETTE_EFFECT, 64, 120,   0,          effect_polygon, effect_update)
-    ; createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 80, 120,   0,          small_asteroid_polygon, asteroid_update)
-    ; createPolygon(1,     COLLISION_ASTEROID,   PALETTE_ASTEROID, 96, 120,   0,          small_asteroid_polygon, asteroid_update)
-
-    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 16, 64,   $D7,          bullet_polygon, bullet_update)
-    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 32, 140,   0,          bullet_polygon, bullet_update)
-    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 48, 140,   0,          bullet_polygon, bullet_update)
-    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 64, 140,   0,          bullet_polygon, bullet_update)
-
-    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 80,  16,   0,          bullet_polygon, bullet_update)
-    ; createPolygon(1,   COLLISION_BULLET,   PALETTE_BULLET, 96,   8,   0,          bullet_polygon, bullet_update)
-    ret
-
-text_debug_ui_one:
-    DS 18 "S:X/6 M:X/3 L:X/2\0"
-
-text_debug_ui_two:
-    DS 12 "G:X/1 B:X/4\0"
-
-text_debug_ui_three:
-    DS 18 "X:XXX Y:XXX R:XXX\0"
-
-clear_bg:
-    ld      d,0
-    ld      hl,$9800
-    ld      bc,$400
-    call    core_vram_set
     ret
 
 ; Main Loop -------------------------------------------------------------------
@@ -99,7 +45,6 @@ game_loop:
     call    polygon_update
     call    ship_fire_bullet
     call    ship_fire_thrust
-    call    game_debug
     ret
 
 
@@ -225,45 +170,24 @@ game_draw_vram:
     call    load_palette_bg
 
 .draw_polygons:
+    call    game_debug
     call    polygon_draw
     ret
 
-effect_polygon:
-    DB      0; angle
-    DB      3; length
-    DB      64
-    DB      3; length
-    DB      128
-    DB      3; length
-    DB      192
-    DB      3; length
-    DB      0; angle
-    DB      3; length
-    DB      $ff,$ff
+text_debug_ui_one:
+    DS 18 "S:X/6 M:X/3 L:X/2\0"
 
-ship_other:
-    ld      a,[coreLoopCounter]
-    and     %0000_0011
-    jr      nz,.skip
-    ld      a,[polygonRotation]
-    dec     a
-    dec     a
-    dec     a
-    dec     a
-    ld      [polygonRotation],a
-.skip:
-    ld      a,1
-    ret
+text_debug_ui_two:
+    DS 12 "G:X/1 B:X/4\0"
 
-effect_update:
-    call    math_random
-    cp      64
-    jr      nc,.skip
-    ld      a,[polygonRotation]
-    add     8
-    ld      [polygonRotation],a
-.skip:
-    ld      a,1
+text_debug_ui_three:
+    DS 18 "X:XXX Y:XXX R:XXX\0"
+
+clear_bg:
+    ld      d,0
+    ld      hl,$9800
+    ld      bc,$400
+    call    core_vram_set
     ret
 
 MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)

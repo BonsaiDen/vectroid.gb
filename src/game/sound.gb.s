@@ -17,10 +17,6 @@ sound_enable:
     ld      a,%1111_1111
     ld      [$ff25],a
 
-    ; master disable
-    ld      a,$00
-    ld      [$ff1A],a
-
     ret
 
 sound_effect_bullet:

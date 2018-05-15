@@ -621,9 +621,6 @@ polygon_destroy:
     ld      a,b
     add     a; x2
     add     a; x4
-    ;add     a; x8
-    ;add     a; x16
-    ;add     a; x32
     ld      c,a
     ld      b,polygonCollisionGroups >> 8
 
@@ -902,7 +899,6 @@ add_fixed_signed:
     ; double speed so we get more "range" even though we only use 0-128 for M?
     sla     @increase
     sla     @increase
-    ;sla     @increase
 
     ld      a,@minor
     add     @increase
@@ -912,7 +908,6 @@ add_fixed_signed:
     ; minor overflowed so increase major
     ld      a,[@major]
     inc     a
-    ;inc     a TODO allow for higher speeds
 
     ; check if > @max
     cp      @max
@@ -932,7 +927,6 @@ add_fixed_signed:
     ; double speed so we get more "range" even though we only use 0-128 for M?
     sla     @increase
     sla     @increase
-    ;sla     @increase
 
     ; subtract
     ld      a,@minor
@@ -943,7 +937,6 @@ add_fixed_signed:
     ; minor underflowd so decrease major
     ld      a,[@major]
     dec     a
-    ;dec     a TODO allow for higher speeds
 
     ; check if > @max
     cp      @max
