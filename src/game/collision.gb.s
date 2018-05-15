@@ -68,7 +68,7 @@ collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d 
     ; calculate distance
 .check_distance:
     call    sqrt_length
-    cp      16
+    cp      SQRT_MAX_DISTANCE; exit if maximum distance
     jr      z,.no_collision
     ld      c,a; store distance
 

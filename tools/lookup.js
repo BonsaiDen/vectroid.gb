@@ -55,8 +55,8 @@ function tamilTable() {
 
 function sqrtLengthTable() {
     let values = [];
-    for(let x = 0; x < 16; x++) {
-        for(let y = 0; y < 16; y++) {
+    for(let x = 0; x < 32; x++) {
+        for(let y = 0; y < 32; y++) {
             values.push(Math.floor(Math.sqrt(x * x + y * y)));
         }
     }
@@ -103,9 +103,9 @@ function asciiTable() {
 
 }
 
-angleTable();
+//angleTable();
 sqrtLengthTable();
 //atan2Table();
 
-asciiTable();
+//asciiTable();
 

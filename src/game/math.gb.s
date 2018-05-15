@@ -1,3 +1,7 @@
+; Constants -------------------------------------------------------------------
+SQRT_MAX_DISTANCE   EQU 32
+
+
 SECTION "Math",ROM0
 angle_offset:; d = angle (column index), e = length -> bc = x/y
     ; offset with polygon drawing in mind
@@ -204,7 +208,6 @@ atan_2: ; bc = x/y -> d = angle 0-256 (0 - PI * 2)
     ld      a,d
     ret
 
-; TODO increase to 32x32
 sqrt_length:
 
     ; convert to positive length first
@@ -226,34 +229,48 @@ sqrt_length:
 .positive_y:
     ; limit x
     ld      a,b
-    cp      15
+    cp      SQRT_MAX_DISTANCE - 1
     jr      c,.x_small
     ; abort
-    ld      a,16
+    ld      a,SQRT_MAX_DISTANCE
     ret
 .x_small:
 
     ; limit y
     ld      a,c
-    cp      15
+    cp      SQRT_MAX_DISTANCE - 1
     jr      c,.y_small
     ; abort
-    ld      a,16
+    ld      a,SQRT_MAX_DISTANCE
     ret
 .y_small:
 
     ; lookup remainder length
-    ; x * 16
-    ld      a,b
-    add     a
-    add     a
-    add     a
-    add     a
+    ; x * 32
+    ld      h,0
+    ld      l,b
+    add     hl,hl; 2
+    add     hl,hl; 4
+    add     hl,hl; 8
+    add     hl,hl; 16
+    add     hl,hl; 32
 
     ; + y
-    add     c
-    ld      h,sqrt_table >> 8
-    ld      l,a
+    ld      a,c
+    addw    hl,a
+    ; ld      a,b
+    ; add     a
+    ; add     a
+    ; add     a
+    ; add     a
+
+    ld      a,sqrt_table >> 8
+    add     h
+    ld      h,a
+
+    ;add     c
+    ;ld      h,sqrt_table >> 8
+    ;ld      l,a
     ld      a,[hl]
     ret
 

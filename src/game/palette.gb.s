@@ -45,7 +45,7 @@ _load_palette:; de = palette memory, hl = palette data
 
 _background_palettes:
     DB      1
-    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(0, 0, 16)
     GBC_COLOR(128, 128, 128)
     GBC_COLOR(192, 192, 192)
     GBC_COLOR(255, 255, 255)
