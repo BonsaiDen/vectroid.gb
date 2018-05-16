@@ -38,3 +38,6 @@ thrustX:                    DB
 thrustY:                    DB
 testCounter:                DB
 
+SECTION "UiRam",WRAM0[$C100]
+uiOffscreenBuffer:          DS 576
+

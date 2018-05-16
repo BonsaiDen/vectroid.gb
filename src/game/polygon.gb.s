@@ -122,8 +122,8 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
 
     ; set old rotation to a different value to force initial update
     ld      a,[polygonRotation]
-    inc     a
-    ldxa    [hli],c
+    add     128
+    ld      [hli],a
 
     inc     hl; skip tile count
     inc     hl; skip tile offset
@@ -170,7 +170,6 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      a,[polygonHalfSize]
     ld      [hl],a
 
-
     ; divide L by 4 to get collision index
     div     l,4
     ld      a,l
@@ -211,12 +210,14 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
 polygon_update:
 
     ; update polygons
+    ldxa    [polygonIndex],0
     ld      hl,polygonState
 
 .loop:
     push    hl
     call    update_polygon
     pop     hl
+    incx    [polygonIndex]
 
     ; skip bytes
     addw    hl,POLYGON_BYTES

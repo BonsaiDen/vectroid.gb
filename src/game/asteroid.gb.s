@@ -7,7 +7,7 @@ asteroid_init:
     ldxa    [asteroidLargeAvailable],ASTEROID_LARGE_MAX
     ldxa    [asteroidGiantAvailable],ASTEROID_GIANT_MAX
     ldxa    [asteroidQueueLength],0
-    ldxa    [asteroidLaunchTick],15
+    ldxa    [asteroidLaunchTick],12
     ret
 
 asteroid_launch:
@@ -26,7 +26,7 @@ asteroid_launch:
     decx    [asteroidLaunchTick]
     cp      0
     ret     nz
-    ldxa    [asteroidLaunchTick],15; TODO variable to increase difficulty
+    ldxa    [asteroidLaunchTick],12; TODO variable to increase difficulty
 
     ; choose side
     call    math_random
@@ -226,7 +226,7 @@ asteroid_update:
     ; collide with other asteroids
     ; TODO skip when inside border?
     ld      d,COLLISION_ASTEROID
-    ld      c,5
+    ld      c,5; TODO adjust for different sizes?
     call    collide_with_group
     cp      0
     jr      z,.rotate
@@ -247,7 +247,8 @@ asteroid_update:
 
     ; rotate asteroid
 .rotate:
-    ld      a,[polygonDataA]
+    ; distribute rotation updats over several frames
+    ld      a,[polygonIndex]
     and     %0000_0111
     ld      b,a
     ld      a,[coreLoopCounter]
@@ -300,20 +301,26 @@ asteroid_update:
     cp      $04
     jr      nz,.medium
     incx    [asteroidSmallAvailable]
-    jr      .none
+    jr      .done
 
 .medium:
     cp      $08
     jr      nz,.large
     incx    [asteroidMediumAvailable]
-    jr      .none
+    jr      .done
 
 .large:
     cp      $0C
-    jr      nz,.none
+    jr      nz,.giant
     incx    [asteroidLargeAvailable]
+    jr      .done
 
-.none:
+.giant:
+    cp      $10
+    jr      nz,.done
+    incx    [asteroidGiantAvailable]
+
+.done:
     call    sound_effect_break
     xor     a
     ret

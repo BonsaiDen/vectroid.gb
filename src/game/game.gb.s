@@ -7,7 +7,7 @@ game_init:
     ; update palette on next vblank
     ldxa    [paletteUpdated],1
 
-    ;ld      a,1
+    ld      a,1
     ld      [debugDisplay],a
 
     ; load UI tiles
@@ -34,10 +34,29 @@ game_loop:
     call    polygon_update
     call    ship_fire_bullet
     call    ship_fire_thrust
+    call    game_debug
     ret
 
+game_draw_vram:
+    ; load / update palette
+    ld      a,[paletteUpdated]
+    cp      0
+    jr      z,.draw_polygons
+
+    ; update palette vram
+    xor     a
+    ld      [paletteUpdated],a
+    call    load_palette_sp
+    call    load_palette_bg
+
+.draw_polygons:
+    call    polygon_draw
+    call    ui_draw
+    ret
 
 game_debug:
+    ; TODO render into off-screen buffer
+    ; TODO copy in hblanks?
     ld      a,[coreInputOn]
     and     BUTTON_START
     cp      BUTTON_START
@@ -56,9 +75,9 @@ game_debug:
     cp      0
     ret     z
 
-    ; update ui only every 4 frames
+    ; update ui only every 7 frames
     ld      a,[coreLoopCounter]
-    and     %0000_0011
+    and     %0000_0111
     ret     z
 
     ; asteroid counts
@@ -144,23 +163,6 @@ game_debug_init:
 
 ; Timer -----------------------------------------------------------------------
 game_timer:
-    ret
-
-game_draw_vram:
-    ; load / update palette
-    ld      a,[paletteUpdated]
-    cp      0
-    jr      z,.draw_polygons
-
-    ; update palette vram
-    xor     a
-    ld      [paletteUpdated],a
-    call    load_palette_sp
-    call    load_palette_bg
-
-.draw_polygons:
-    call    game_debug
-    call    polygon_draw
     ret
 
 text_debug_ui_one:

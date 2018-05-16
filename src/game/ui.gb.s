@@ -1,5 +1,35 @@
 SECTION "UILogic",ROM0
 
+ui_draw:
+    ld      a,[debugDisplay]
+    cp      0
+    ret     z
+
+    ; only draw ui every 7 frames
+    ld      a,[coreLoopCounter]
+    and     %0000_0111
+    ret     z
+
+    ; wait for hardware DMA to complete
+    ld      a,[rHDMA5]
+    and     %1000_0000
+    ret     z
+
+    ; source
+    ld      a,uiOffscreenBuffer >> 8
+    ld      [rHDMA1],a
+    xor     a
+    ld      [rHDMA2],a
+
+    ; target
+    ld      a,$98
+    ld      [rHDMA3],a
+    xor     a
+    ld      [rHDMA4],a
+    ld      a,%0010_0011; 35 + 1 * 16 = 576
+    ld      [rHDMA5],a
+    ret
+
 ui_clear:; bc=x/y, a = length
     ; TODO
     ret
@@ -23,7 +53,7 @@ ui_text:; bc = x/y, hl = data pointer
     add     hl,hl
 
     ld      a,h
-    add     $98
+    add     uiOffscreenBuffer >> 8
     ld      h,a
 
     ld      a,l
@@ -36,7 +66,6 @@ ui_text:; bc = x/y, hl = data pointer
     ld      e,a
     ld      a,[de]
 
-    ; TODO not vblank safe
     ld      [hl],a
     pop     hl
     inc     hl
@@ -106,14 +135,13 @@ _digit: ; a = digit, bc=x/y
     add     hl,hl
 
     ld      a,h
-    add     $98
+    add     uiOffscreenBuffer >> 8
     ld      h,a
 
     ld      a,l
     add     b
     ld      l,a
 
-    ; TODO not vblank safe
     ld      [hl],d
     pop     hl
     ret
