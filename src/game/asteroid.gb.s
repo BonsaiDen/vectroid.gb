@@ -73,6 +73,7 @@ asteroid_launch:
     ld      b,96
 
 .left_right:
+    ; TODO double check these
     ; choose y between 32-128
     call    math_random
     and     %0101_1111
@@ -81,9 +82,10 @@ asteroid_launch:
     jr      .launch
 
 .top_bottom:
-    ; choose x between 32-160
+    ; TODO double check these
+    ; choose x between 32-144
     call    math_random
-    and     %0111_1111
+    and     %0110_1111
     add     32
     ld      [polygonX],a
 
@@ -104,7 +106,6 @@ asteroid_launch:
     ;add     128; invert direction
     add     b
     ld      d,a; store angle
-    ld      d,64
 
     ; randomize size
     call    math_random
