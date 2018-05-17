@@ -23,7 +23,7 @@ SECTION "PolygonBuffer",WRAM0[$CB00]
 polygonOffscreenBuffer:     DS     1280
 
 
-SECTION "PolygonVars",HRAM[$FF97]
+SECTION "PolygonVars",HRAM[$FF98]
 lineXI:                     DB
 lineYI:                     DB
 polygonX:                   DB

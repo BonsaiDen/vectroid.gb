@@ -8,6 +8,7 @@ coreRandomHigh:     DB
 coreRandomLow:      DB
 coreVBlankDone:     DB
 coreLoopCounter:    DB
+coreLoopCounter16:    DB
 coreTimerCounter:   DB
 coreInput:          DB; [Down][Up][Left][Right][Start][Select][B][A]
 coreInputOn:        DB

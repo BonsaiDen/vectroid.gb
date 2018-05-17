@@ -17,9 +17,11 @@ core_loop:
     ; Run the main game loop
     call    game_loop
 
-    ; Loop counter which goes from 0-7
-    ld      a,[coreLoopCounter]
+    ; Loop counters which go from 0-15 and 0-7
+    ld      a,[coreLoopCounter16]
     inc     a
+    and     %00001111
+    ld      [coreLoopCounter16],a
     and     %00000111
     ld      [coreLoopCounter],a
 

@@ -116,7 +116,7 @@ ship_init:
     ld      [thrustType],a
     ld      [thrustActive],a
 
-    createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  64,  96, 128,           ship_polygon, ship_update)
+    createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  80,  72, 192,           ship_polygon, ship_update)
     ret
 
 
@@ -180,6 +180,7 @@ ship_update:
 
     ; bc=cx/cy
     ; calculate magnitude
+    ; TODO increase atan2 to 32x32 to increase velocity resolution
     call    sqrt_length
     cp      15; TODO add maximum speed variable
     jr      c,.smaller

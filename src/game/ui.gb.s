@@ -5,9 +5,9 @@ ui_draw:
     cp      0
     ret     z
 
-    ; only draw ui every 7 frames
-    ld      a,[coreLoopCounter]
-    and     %0000_0111
+    ; only draw ui every 15 frames
+    ld      a,[coreLoopCounter16]
+    and     %0000_1111
     ret     z
 
     ; wait for hardware DMA to complete

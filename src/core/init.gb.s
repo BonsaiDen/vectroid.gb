@@ -37,6 +37,7 @@ core_init:
     xor     a
     ld      [coreVBlankDone],a
     ld      [coreLoopCounter],a
+    ld      [coreLoopCounter16],a
     ld      [coreTimerCounter],a
     ld      [coreInput],a
     ld      [coreInputOn],a

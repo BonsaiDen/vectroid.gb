@@ -7,7 +7,7 @@ game_init:
     ; update palette on next vblank
     ldxa    [paletteUpdated],1
 
-    ld      a,1
+    xor     a
     ld      [debugDisplay],a
 
     ; load UI tiles
@@ -75,9 +75,9 @@ game_debug:
     cp      0
     ret     z
 
-    ; update ui only every 7 frames
-    ld      a,[coreLoopCounter]
-    and     %0000_0111
+    ; update ui only every 15 frames
+    ld      a,[coreLoopCounter16]
+    and     %0000_1111
     ret     z
 
     ; asteroid counts

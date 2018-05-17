@@ -1,13 +1,13 @@
 # Build
 debug: convert
 	@mkdir -p build
-	@../../gbasm/bin/gbasm -O -d -o build/game.gb -m stdout -s build/game.sym src/main.gb.s
-	@cp build/game.gb ~/.wine_old/drive_c/Program\ Files/bgb/game.gb
+	@../../gbasm/bin/gbasm -O -d -o build/vectroid.gbc -m stdout -s build/game.sym src/main.gb.s
+	@cp build/vectroid.gbc ~/.wine_old/drive_c/Program\ Files/bgb/vectroid.gbc
 	@cp build/game.sym ~/.wine_old/drive_c/Program\ Files/bgb/game.sym
 
 release: convert
 	@mkdir -p build
-	@../../gbasm/bin/gbasm -O -o build/game.gb -m stdout -s build/game.sym src/main.gb.s
+	@../../gbasm/bin/gbasm -O -o build/vectroid.gbc -m stdout -s build/game.sym src/main.gb.s
 
 convert:
 	@mkdir -p src/data/bin
@@ -15,13 +15,13 @@ convert:
 
 # Emulation
 run: release
-	gngb -Y --res=640x576 -a --sound build/game.gb
+	gngb -Y --res=640x576 -a --sound build/vectroid.gbc
 
 gambatte: release
-	gambatte_sdl -s 2 build/game.gb
+	gambatte_sdl -s 2 build/vectroid.gbc
 
 bgb: debug
-	wine ~/.wine_old/drive_c/Program\ Files/bgb/bgb.exe ~/.wine_old/drive_c/Program\ Files/bgb/game.gb
+	wine ~/.wine_old/drive_c/Program\ Files/bgb/bgb.exe ~/.wine_old/drive_c/Program\ Files/bgb/vectroid.gbc
 
 # Others
 clean:
@@ -35,7 +35,7 @@ tiled:
 # Video
 record:
 	rm -f game_raw.mov
-	mednafen -sound.driver sdl -qtrecord "game_raw.mov" -qtrecord.vcodec png -qtrecord.h_double_threshold 144 -qtrecord.w_double_threshold 160 build/game.gb
+	mednafen -sound.driver sdl -qtrecord "game_raw.mov" -qtrecord.vcodec png -qtrecord.h_double_threshold 144 -qtrecord.w_double_threshold 160 build/vectroid.gbc
 
 webm:
 	ffmpeg -i game_raw.mov -vf scale=320:288 -sws_flags neighbor -c:v libvpx -crf 20 -b:v 1M -c:a libvorbis game.webm
