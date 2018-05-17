@@ -43,8 +43,8 @@ asteroid_launch:
     ld      [polygonY],a
 
     ; angle between 32-96
-    ld      b,0
-    jr      .vertical
+    ld      b,32
+    jr      .top_bottom
 
 .from_left:
     ; set x to 0
@@ -53,7 +53,7 @@ asteroid_launch:
 
     ; angle between  224 - 32
     ld      b,224
-    jr      .horizontal
+    jr      .left_right
 
 .from_down:
     ; set y to 176
@@ -62,7 +62,7 @@ asteroid_launch:
 
     ; angle between  160 - 224
     ld      b,160
-    jr      .vertical
+    jr      .top_bottom
 
 .from_right:
     ; set x to 192
@@ -72,7 +72,7 @@ asteroid_launch:
     ; angle between  96 - 160
     ld      b,96
 
-.horizontal:
+.left_right:
     ; choose y between 32-128
     call    math_random
     and     %0101_1111
@@ -80,7 +80,7 @@ asteroid_launch:
     ld      [polygonY],a
     jr      .launch
 
-.vertical:
+.top_bottom:
     ; choose x between 32-160
     call    math_random
     and     %0111_1111
@@ -94,16 +94,17 @@ asteroid_launch:
 
     ; set random velocity
     call    math_random
-    and     %0000_0111
-    add     4
+    and     ASTEROID_LAUNCH_MASK
+    add     ASTEROID_LAUNCH_VELOCITY
     ld      c,a
 
     ; vary angle by 64
     call    math_random
     and     %0011_1111
-    add     128
+    ;add     128; invert direction
     add     b
     ld      d,a; store angle
+    ld      d,64
 
     ; randomize size
     call    math_random
@@ -219,6 +220,7 @@ asteroid_update:
     jr      nc,.destroy_collide
 
     ; only collide every other frame
+    ; TODO reduce further by matching with polygon index?
     ld      a,[coreLoopCounter]
     and     %0000_0001
     jr      z,.rotate
@@ -366,7 +368,6 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidMediumAvailable]
 
     ; create new asteroids
-    ; TODO randomize things a bit
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_LARGE
@@ -431,7 +432,6 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidMediumAvailable]
 
     ; create new asteroids
-    ; TODO randomize things a bit
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_MEDIUM
@@ -460,7 +460,6 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidSmallAvailable]
 
     ; create new asteroids
-    ; TODO randomize things a bit
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_MEDIUM
@@ -487,7 +486,6 @@ _asteroid_split:; return 0 if actually split up
     decx    [asteroidSmallAvailable]
 
     ; create new asteroids
-    ; TODO randomize things a bit
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_SMALL
@@ -549,7 +547,9 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
 
     ; calculate offset from position
     push    hl
+    push    de
     call    angle_vector_16
+    pop     de
     pop     hl
 
     ; add to position of parent asteroid
@@ -563,12 +563,14 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     pop     bc
 
     ; set mx/my from rotation and velocity
-    push    bc
-    call    math_random_signed
-    add     d
-    ld      d,a
-    pop     bc
+    ;push    bc
+    ; TODO randomize again
+    ;call    math_random_signed; randomize rotation a bit
+    ;add     d
+    ;ld      d,a
+    ;pop     bc
 
+    ; set velocity
     ld      e,c
     push    hl
     call    angle_vector_16

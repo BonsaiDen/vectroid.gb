@@ -1,6 +1,8 @@
 ; Constants -------------------------------------------------------------------
 SCROLL_BORDER               EQU 16
 ASTEROID_MAX                EQU 12
+ASTEROID_LAUNCH_VELOCITY    EQU 4
+ASTEROID_LAUNCH_MASK        EQU %0000_0111
 
 COLLISION_NONE              EQU $ff
 COLLISION_ASTEROID          EQU 0

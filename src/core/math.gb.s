@@ -27,8 +27,10 @@
 ; S = R - 1
 ; an 8-bit unsigned integer
 math_random:
+    push    bc
     call    math_update_random
     ld      a,[coreRandomLow]
+    pop     bc
     ret
 
 math_random_signed:

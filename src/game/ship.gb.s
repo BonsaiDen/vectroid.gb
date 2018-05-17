@@ -5,6 +5,8 @@ THRUST_DELAY        EQU  4
 TRHUST_ACTIVE       EQU  10
 BULLET_DELAY        EQU  5
 BULLET_ACTIVE       EQU  48
+BULLET_SPEED        EQU  16
+SHIP_MAX_SPEED      EQU  15
 
 
 ; Logic -----------------------------------------------------------------------
@@ -75,7 +77,7 @@ ship_fire_bullet:
 
     ; movement vecotr
     ldxa    d,[bulletRotation]
-    ld      e,16
+    ld      e,BULLET_SPEED
     call    angle_vector_16
     sla     b
     sla     c
@@ -180,18 +182,27 @@ ship_update:
 
     ; bc=cx/cy
     ; calculate magnitude
-    ; TODO increase atan2 to 32x32 to increase velocity resolution
     call    sqrt_length
-    cp      15; TODO add maximum speed variable
+    cp      SHIP_MAX_SPEED
     jr      c,.smaller
-    ld      a,15; limit to max speed
+    ld      a,SHIP_MAX_SPEED; limit to max speed
+    cp      0
+    jr      z,.stop
 
 .smaller:
     ; calculate new MX/MY
     ld      e,a
+    ; TODO support 32
     call    angle_vector_16
     ldxa    [polygonMX],b
     ldxa    [polygonMY],c
+    jr      .no_acceleration
+
+.stop:
+    xor     a
+    ld      [polygonMX],a
+    ld      [polygonMY],a
+    jr      .no_acceleration
 
 .no_acceleration:
 

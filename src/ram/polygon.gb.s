@@ -1,7 +1,7 @@
 ; Constants -------------------------------------------------------------------
 POLYGON_BYTES               EQU 22
 POLYGON_COUNT               EQU 19
-POLYGON_COLLISION_BYTES     EQU 3 * 8 * 4
+POLYGON_COLLISION_BYTES     EQU 3 * 16 * 4
 POLYGON_GIANT               EQU 4
 POLYGON_LARGE               EQU 3
 POLYGON_MEDIUM              EQU 2

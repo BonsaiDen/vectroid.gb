@@ -3,7 +3,7 @@ function angleTable() {
     for(let x = 1; x <= 16; x += 1) {
         let line = '    DB ';
         let values = [];
-        for(let i = 0; i < 256; i++) {
+        for(let i = 0; i < 64; i++) {
             let a = (2 * Math.PI / 256) * i;
             let v = Math.sin(a) * 127;
             let l = (v * (x + 1) / 128);
@@ -14,6 +14,9 @@ function angleTable() {
                 values.push(Math.min(Math.floor(l), x));
             }
         }
+        for(let i = 0; i < 192; i++) {
+            values.push(0);
+        }
         // console.log(values[64], values[(64 + 64) % 256]);
         console.log(line + values.join(', '));
     }
@@ -23,20 +26,18 @@ function angleTable() {
 function atan2Table() {
     function atan2(y, x) {
         let r = ((((Math.PI + Math.atan2(y, x)) / (Math.PI * 2)) * 256 - 128) + 256) % 256;
-        console.log(x, y, r);
         return Math.round(r);
     }
 
     console.log('atan2_table:');
     let values = [];
     // TODO offset access by 16
-    for(let y = 0; y < 2; y++) {
-        for(let x = 0; x < 16; x++) {
+    for(let y = 0; y < 32; y++) {
+        for(let x = 0; x < 32; x++) {
             values.push(atan2(y, x));
         }
     }
     console.log('    DB ' + values.join(', '));
-    console.log(values[0x80]);
 }
 
 function tamilTable() {
@@ -103,8 +104,8 @@ function asciiTable() {
 
 }
 
-//angleTable();
-sqrtLengthTable();
+angleTable();
+//sqrtLengthTable();
 //atan2Table();
 
 //asciiTable();

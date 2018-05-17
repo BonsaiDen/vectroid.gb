@@ -10,13 +10,14 @@ collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d 
     add     a; x8
     add     a; x16
     add     a; x32
+    add     a; x64
     ld      l,a
     ld      h,polygonCollisionGroups >> 8
 
     ldxa    [polygonOffset],c
 
     ; max of 8 entries in the group
-    ld      b,8
+    ld      b,16
 .loop:
     ld      a,[hli]
     cp      $ff

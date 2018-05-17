@@ -3,114 +3,88 @@ SQRT_MAX_DISTANCE   EQU 32
 
 
 SECTION "Math",ROM0
-angle_offset:; d = angle (column index), e = length -> bc = x/y
-    ; offset with polygon drawing in mind
-    dec     e; table starts at 1
-    ld      l,d; index into column
-
-    ; sine
-    ld      a,angle_table >> 8
-    add     e; index into row
-    ld      h,a
-    ld      a,[polygonHalfSize]
-    add     [hl]; lookup sin() * length
-    ld      c,a
-
-    ; cosine
-    ld      a,l; shift column
-    add     64; offset by PI * 0.5
-    ld      l,a
-    ld      a,[polygonHalfSize]
-    add     [hl]; lookup sin() * length
-    ld      b,a
-    ret
-
-angle_vector_256:; d = angle (column index), e = length -> bc = x/y
-
-    ; divide e by 16
-    push    de
-    div     e,16
-
-    ; load last entry
-    ld      h,(angle_table + 256 * 15) >> 8
-    ld      l,d; index into column
-
-    ; load maximum sine
-    ld      c,[hl]
-
-    ; load maximum cosine
-    ld      a,l
-    add     64; offset by PI * 0.5
-    ld      l,a
-    ld      b,[hl]
-
-    ; multiply c by e
-    xor     a
-    cp      c
-    jr      z,.c_done
-
-    ld      d,e
-.mul_c:
-    add     c
-    dec     d
-    jr      nz,.mul_c
-
-.c_done:
-    ld      c,a
-
-    ; multiply b by e
-    xor     a
-    cp      b
-    jr      z,.b_done
-    ld      d,e
-.mul_b:
-    add     b
-    dec     d
-    jr      nz,.mul_b
-
-.b_done:
-    ld      b,a
-
-    pop     de
-
-    ; bc now contains the bigger part of the vector, we now need to calculate the remainder and add it
-    push    bc; store bigger part
-    ld      a,e
-    and     %0000_1111
-    ld      e,a
-    inc     a
-    call    angle_vector_16
-    pop     hl; restore previous vector into hl
-
-    ld      a,h
-    add     b
-    ld      b,a
-
-    ld      a,l
-    add     c
-    ld      c,a
-
-    ret
-
 angle_vector_16:; d = angle (column index), e = length -> bc = x/y
+    ld      b,0
+    jr      angle_offset_base
 
-    ld      l,d; index into column
-    dec     e; table starts at 1
+angle_offset:; d = angle (column index), c = offset, e = length -> bc = x/y
+    ; offset with polygon drawing in mind
+    ld      a,[polygonHalfSize]
+    ld      b,a
 
-    ; sine
-    ld      h,e; index into row
-    ld      bc,angle_table; add base
-    add     hl,bc; pointer
-    ld      c,[hl]; lookup sin() * length % 16
-
-    ; cosine
-    ld      a,l; shift column
-    add     64; offset by PI * 0.5
-    ld      l,a
-    ld      b,[hl]; lookup sin() * length
+angle_offset_base:; d = angle (column index), b = offset, e = length -> bc = x/y
+    ld      a,e; index into row
+    add     angle_table >> 8 - 1; add base (table starts at 1)
+    ld      h,a
+    call    _sine_lookup
+    ld      c,a
+    call    _cosine_lookup
+    ld      b,a
     ret
 
-; TODO increase to 32x32
+_cosine_lookup:; h = row, d = angle (column index), b = offset, e = length -> a = value
+    ld      a,64
+    add     d
+    ld      d,a
+
+_sine_lookup:; h = row, d = angle (column index), b = offset, e = length -> a = value
+    ld      a,d
+    cp      192
+    jr      nc,_quadrant_3
+    cp      128
+    jr      nc,_quadrant_2
+    cp      64
+    jr      nc,_quadrant_1
+
+; 0 - 63
+_quadrant_0:
+    ld      l,d
+    ; positive value
+    ld      a,b
+    add     [hl]; lookup sin() * length
+    ret
+
+; 64 - 127
+_quadrant_1:
+    ; invert angle direction
+    ld      a,63
+    sub     d
+    add     64
+    ld      l,a
+
+    ; positive value
+    ld      a,[hl]; lookup sin() * length
+    add     b
+    ret
+
+; 128 - 191
+_quadrant_2:
+    ld      a,d
+    sub     128
+    ld      l,a
+
+    ; negative value
+    ld      a,[hl]; lookup sin() * length
+    cpl
+    inc     a
+    add     b
+    ret
+
+; 192 - 255
+_quadrant_3:
+    ; invert angle direction
+    ld      a,63
+    sub     d
+    add     192
+    ld      l,a
+
+    ; negative value
+    ld      a,[hl]; lookup sin() * length
+    cpl
+    inc     a
+    add     b
+    ret
+
 atan_2: ; bc = x/y -> d = angle 0-256 (0 - PI * 2)
     push    bc
 
@@ -133,33 +107,37 @@ atan_2: ; bc = x/y -> d = angle 0-256 (0 - PI * 2)
 .positive_y:
     ; limit x
     ld      a,b
-    cp      15
+    cp      31
     jr      c,.x_small
-    ld      a,15
+    ld      a,31
     ld      b,a
 .x_small:
 
     ; limit y
     ld      a,c
-    cp      15
+    cp      31
     jr      c,.y_small
-    ld      a,15
+    ld      a,31
     ld      c,a
 .y_small:
 
-    ; lookup quadrant angle
-    ld      hl,atan2_table
-
-    ; y * 16
-    ld      a,c
-    add     a
-    add     a
-    add     a
-    add     a
+    ; y * 32
+    ld      h,0
+    ld      l,c
+    add     hl,hl; 2
+    add     hl,hl; 4
+    add     hl,hl; 8
+    add     hl,hl; 16
+    add     hl,hl; 32
 
     ; + x
-    add     b
-    ld      l,a
+    ld      a,b
+    addw    hl,a
+    ld      a,atan2_table >> 8
+    add     h
+    ld      h,a
+
+    ; load quadrant value
     ld      a,[hl]
 
     ; store quadrant angle into d
@@ -258,19 +236,11 @@ sqrt_length:
     ; + y
     ld      a,c
     addw    hl,a
-    ; ld      a,b
-    ; add     a
-    ; add     a
-    ; add     a
-    ; add     a
-
     ld      a,sqrt_table >> 8
     add     h
     ld      h,a
 
-    ;add     c
-    ;ld      h,sqrt_table >> 8
-    ;ld      l,a
+    ; load distance value
     ld      a,[hl]
     ret
 

@@ -143,12 +143,13 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      d,h
     ld      e,l
 
-    ; 32 bytes per group (4x8)
+    ; 64 bytes per group (4x16)
     add     a; x2
     add     a; x4
     add     a; x8
     add     a; x16
     add     a; x32
+    add     a; x64
     ld      l,a
     ld      h,polygonCollisionGroups >> 8
 
@@ -608,7 +609,6 @@ polygon_destroy:
     addw    hl,6
 
     ; check collision pointer
-    ;brk
     ld      a,[hl]
     cp      $ff
     jr      z,.no_collision
