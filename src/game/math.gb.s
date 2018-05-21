@@ -13,11 +13,27 @@ angle_offset:; d = angle (column index), c = offset, e = length -> bc = x/y
     ld      b,a
 
 angle_offset_base:; d = angle (column index), b = offset, e = length -> bc = x/y
-    ld      a,e; index into row
-    add     angle_table >> 8 - 1; add base (table starts at 1)
+
+    ; TODO optimize
+    ; multiply by 64 to get length offset into table
+    ld      h,0
+    dec     e
+    ld      l,e
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+    ld      e,l
+
+    ld      a,h
+    add     angle_table >> 8
     ld      h,a
+
     call    _sine_lookup
     ld      c,a
+    ld      l,e
     call    _cosine_lookup
     ld      b,a
     ret
@@ -38,10 +54,12 @@ _sine_lookup:; h = row, d = angle (column index), b = offset, e = length -> a = 
 
 ; 0 - 63
 _quadrant_0:
-    ld      l,d
+    ld      a,l
+    add     d
+    ld      l,a
     ; positive value
     ld      a,b
-    add     [hl]; lookup sin() * length
+    add     [hl]
     ret
 
 ; 64 - 127
@@ -50,10 +68,11 @@ _quadrant_1:
     ld      a,63
     sub     d
     add     64
+    add     l
     ld      l,a
 
     ; positive value
-    ld      a,[hl]; lookup sin() * length
+    ld      a,[hl]
     add     b
     ret
 
@@ -61,10 +80,11 @@ _quadrant_1:
 _quadrant_2:
     ld      a,d
     sub     128
+    add     l
     ld      l,a
 
     ; negative value
-    ld      a,[hl]; lookup sin() * length
+    ld      a,[hl]
     cpl
     inc     a
     add     b
@@ -76,14 +96,16 @@ _quadrant_3:
     ld      a,63
     sub     d
     add     192
+    add     l
     ld      l,a
 
     ; negative value
-    ld      a,[hl]; lookup sin() * length
+    ld      a,[hl]
     cpl
     inc     a
     add     b
     ret
+
 
 atan_2: ; bc = x/y -> d = angle 0-256 (0 - PI * 2)
     push    bc

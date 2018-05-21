@@ -7,26 +7,38 @@ asteroid_init:
     ldxa    [asteroidLargeAvailable],ASTEROID_LARGE_MAX
     ldxa    [asteroidGiantAvailable],ASTEROID_GIANT_MAX
     ldxa    [asteroidQueueLength],0
-    ldxa    [asteroidLaunchTick],12
+    ldxa    [asteroidScreenCount],0
+    ldxa    [asteroidLaunchTick],15
     ret
 
 asteroid_launch:
+
+    ; check if enabled
+    ; TODO ifdef support in gbasm?
+    ld      a,ASTEROID_ENABLED
+    cp      1
+    ret     nz
 
     ; timer
     ld      a,[coreTimerCounter]
     and     %0000_1110
     ret     nz
 
-    ; 50% chance
+    ; 25% chance
     call    math_random
-    cp      128; TODO variable to increase difficulty
+    cp      192; TODO variable to increase difficulty
     ret     c
+
+    ; limit on screen count
+    ld      a,[asteroidScreenCount]
+    cp      ASTEROID_MAX_ON_SCREEN
+    ret     nc
 
     ; ticks
     decx    [asteroidLaunchTick]
     cp      0
     ret     nz
-    ldxa    [asteroidLaunchTick],12; TODO variable to increase difficulty
+    ldxa    [asteroidLaunchTick],15; TODO variable to increase difficulty
 
     ; choose side
     call    math_random
@@ -203,6 +215,11 @@ asteroid_queue:
     ld      a,[polygonSize]
     call    polygon_create
 
+    ; increase on screen count
+    ld      a,[asteroidScreenCount]
+    inc     a
+    ld      [asteroidScreenCount],a
+
     pop     hl
 
     pop     bc
@@ -276,6 +293,16 @@ asteroid_update:
 
 .destroy_other_asteroid:
     call    _destroy_other_asteroid
+
+    ; reduce asteroid hp a bit with every collision
+    ld      a,[polygonDataB]
+    ; TODO make this dependend on the other asteroid size
+    sub     2; TODO variable for asteroid impact damage
+    jr      nc,.hp_above_zero
+    jr      .destroy_this_asteroid
+
+.hp_above_zero:
+    ld      [polygonDataB],a
     ld      a,1
     ret
 
@@ -324,6 +351,11 @@ asteroid_update:
     incx    [asteroidGiantAvailable]
 
 .done:
+    ; decrease screen count
+    ld      a,[asteroidScreenCount]
+    dec     a
+    ld      [asteroidScreenCount],a
+
     call    sound_effect_break
     xor     a
     ret

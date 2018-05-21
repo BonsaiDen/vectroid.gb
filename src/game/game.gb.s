@@ -34,6 +34,7 @@ game_loop:
     call    polygon_update
     call    ship_fire_bullet
     call    ship_fire_thrust
+    call    ship_out_of_bounds
     call    game_debug
     ret
 

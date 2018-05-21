@@ -1,14 +1,6 @@
 ; Main Game Logic -------------------------------------------------------------
 SECTION "ShipLogic",ROM0
 
-THRUST_DELAY        EQU  4
-TRHUST_ACTIVE       EQU  10
-BULLET_DELAY        EQU  5
-BULLET_ACTIVE       EQU  48
-BULLET_SPEED        EQU  16
-SHIP_MAX_SPEED      EQU  15
-
-
 ; Logic -----------------------------------------------------------------------
 ship_fire_thrust:
     ld      a,[thrustActive]
@@ -118,9 +110,73 @@ ship_init:
     ld      [thrustType],a
     ld      [thrustActive],a
 
-    createPolygon(2,     COLLISION_SHIP,     PALETTE_SHIP,  80,  72, 192,           ship_polygon, ship_update)
+    createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, -9, 72, 192, ship_polygon, ship_update)
     ret
 
+
+ship_out_of_bounds:
+    ld      a,[shipWithinBorder]
+    cp      0
+    jr      z,.reset
+
+    ; override ship sprite(s) and use as out of screen indicator
+    ld      hl,$C000
+    cp      1
+    jr      z,.top
+    cp      2
+    jr      z,.right
+    cp      3
+    jr      z,.bottom
+
+    ; TODO animate
+.left:
+    ld      a,[playerY]
+    sub     4
+    ; TODO limit y to 0-144
+    ld      [hli],a
+    ld      a,8
+    ld      [hli],a
+    ld      a,$66
+    ld      [hli],a
+    ret
+
+.top:
+    ld      a,16
+    ld      [hli],a
+    ld      a,[playerX]
+    sub     12
+    ; TODO limit x to 0-160
+    ld      [hli],a
+    ld      a,$60
+    ld      [hli],a
+    ret
+
+.right:
+    ld      a,[playerY]
+    sub     4
+    ; TODO limit y to 0-144
+    ld      [hli],a
+    ld      a,160
+    ld      [hli],a
+    ld      a,$62
+    ld      [hli],a
+    ret
+
+.bottom:
+    ld      a,152
+    ld      [hli],a
+    ld      a,[playerX]
+    sub     12
+    ; TODO limit x to 0-160
+    ld      [hli],a
+    ld      a,$64
+    ld      [hli],a
+    ret
+
+.reset:
+    ld      hl,$C002
+    ld      [hl],$80
+    ret
 
 ship_update:
 
@@ -130,7 +186,7 @@ ship_update:
     cp      BUTTON_LEFT
     jr      nz,.no_left
     ld      a,[polygonRotation]
-    sub     3
+    sub     SHIP_TURN_SPEED
     ld      [polygonRotation],a
 .no_left:
     ld      a,[coreInput]
@@ -138,7 +194,7 @@ ship_update:
     cp      BUTTON_RIGHT
     jr      nz,.no_right
     ld      a,[polygonRotation]
-    add     3
+    add     SHIP_TURN_SPEED
     ld      [polygonRotation],a
 .no_right:
 
@@ -164,7 +220,7 @@ ship_update:
 
     ; calculate ax/ay from angle
     ldxa    d,[polygonRotation]
-    ld      e,2
+    ld      e,SHIP_ACCELERATION
     call    angle_vector_16; bc = ax/ay
 
     ; add to mx/my
@@ -220,15 +276,18 @@ ship_update:
 
     ; shooting
 .bullet_ready:
+
+    ; check if outside of screen bounds
+    call    _within_border
+    ld      [shipWithinBorder],a
+    cp      0
+    jr      nz,.no_bullet
+
+    ; check for input
     ld      a,[coreInput]
     and     BUTTON_B
     cp      BUTTON_B
     jr      nz,.no_bullet
-
-    ; check if outside of screen bounds
-    call    _within_border
-    cp      1
-    jr      z,.no_bullet
 
     ; set bullet spawn location
     ldxa    [bulletX],[polygonX]
@@ -241,29 +300,42 @@ ship_update:
 
 .no_bullet:
     ; copy thrust location
-    ldxa    [thrustX],[polygonX]
-    ldxa    [thrustY],[polygonY]
+    ldxa    [playerX],[polygonX]
+    ldxa    [playerY],[polygonY]
     ldxa    [thrustRotation],[polygonRotation]
     ld      a,1
     ret
 
 _within_border:
     ld      a,[polygonX]
-    cp      12; TODO variable
-    jr      c,.within
-    cp      178; TODO variable
-    jr      nc,.within
+    cp      11; TODO variable
+    jr      c,.within_x_left
+    cp      182; TODO variable
+    jr      nc,.within_x_right
 
     ld      a,[polygonY]
-    cp      12; TODO variable
-    jr      c,.within
-    cp      162; TODO variable
-    jr      nc,.within
+    cp      11; TODO variable
+    jr      c,.within_y_top
+    cp      164; TODO variable
+    jr      nc,.within_y_bottom
+
     xor     a
     ret
 
-.within:
+.within_x_left:
+    ld      a,4
+    ret
+
+.within_x_right:
+    ld      a,2
+    ret
+
+.within_y_top:
     ld      a,1
+    ret
+
+.within_y_bottom:
+    ld      a,3
     ret
 
 ; Bullets ---------------------------------------------------------------------
@@ -327,11 +399,11 @@ thrust_update:
     ld      e,7
     call    angle_vector_16
 
-    ld      a,[thrustX]
+    ld      a,[playerX]
     sub     b
     ld      [polygonX],a
 
-    ld      a,[thrustY]
+    ld      a,[playerY]
     sub     c
     ld      [polygonY],a
 

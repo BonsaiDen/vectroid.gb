@@ -1,8 +1,14 @@
 ; Constants -------------------------------------------------------------------
 SCROLL_BORDER               EQU 16
-ASTEROID_MAX                EQU 12
-ASTEROID_LAUNCH_VELOCITY    EQU 4
-ASTEROID_LAUNCH_MASK        EQU %0000_0111
+
+THRUST_DELAY                EQU 4
+TRHUST_ACTIVE               EQU 10
+BULLET_DELAY                EQU 5
+BULLET_ACTIVE               EQU 48
+BULLET_SPEED                EQU 32
+SHIP_MAX_SPEED              EQU 31
+SHIP_TURN_SPEED             EQU 3
+SHIP_ACCELERATION           EQU 3
 
 COLLISION_NONE              EQU $ff
 COLLISION_ASTEROID          EQU 0
@@ -27,6 +33,7 @@ SECTION "GameRam",WRAM0[$C0A0]
 debugDisplay:               DB
 paletteUpdated:             DB
 bulletRotation:             DB
+shipWithinBorder:           DB
 bulletX:                    DB
 bulletY:                    DB
 bulletFired:                DB
@@ -36,8 +43,8 @@ thrustType:                 DB
 thrustDelay:                DB
 thrustRotation:             DB
 thrustActive:               DB
-thrustX:                    DB
-thrustY:                    DB
+playerX:                    DB
+playerY:                    DB
 testCounter:                DB
 
 SECTION "UiRam",WRAM0[$C100]

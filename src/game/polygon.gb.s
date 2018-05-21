@@ -899,7 +899,7 @@ add_fixed_signed:
 .positive:
     ; double speed so we get more "range" even though we only use 0-128 for M?
     sla     @increase
-    sla     @increase
+    ;sla     @increase
 
     ld      a,@minor
     add     @increase
@@ -927,7 +927,7 @@ add_fixed_signed:
     ld      @increase,a
     ; double speed so we get more "range" even though we only use 0-128 for M?
     sla     @increase
-    sla     @increase
+    ;sla     @increase
 
     ; subtract
     ld      a,@minor

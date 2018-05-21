@@ -63,7 +63,7 @@ _sprite_palettes:
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(255, 0, 0)
     GBC_COLOR(0, 0, 0)
-    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(255, 0, 0)
 
     ; Bullet
     GBC_COLOR(0, 0, 0)

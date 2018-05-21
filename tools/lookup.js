@@ -1,6 +1,6 @@
 function angleTable() {
     console.log('angle_table:');
-    for(let x = 1; x <= 16; x += 1) {
+    for(let x = 1; x <= 32; x += 1) {
         let line = '    DB ';
         let values = [];
         for(let i = 0; i < 64; i++) {
@@ -14,13 +14,8 @@ function angleTable() {
                 values.push(Math.min(Math.floor(l), x));
             }
         }
-        for(let i = 0; i < 192; i++) {
-            values.push(0);
-        }
-        // console.log(values[64], values[(64 + 64) % 256]);
         console.log(line + values.join(', '));
     }
-    //console.log(128 / 2 * 64);
 }
 
 function atan2Table() {
