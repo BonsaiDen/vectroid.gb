@@ -71,6 +71,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      [hli],a
 
     ; set update routine
+    ; TODO check if changed
     ldxa    [hli],b
     ldxa    [hli],c
 
@@ -97,6 +98,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
 
     ; skip half width
     ld      a,[hli]
+    ; TODO check if changed
     ld      [polygonHalfSize],a
 
     ; set x
@@ -106,6 +108,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ldxa    [hli],[polygonX]
 
     ; set rotation
+    ; TODO check if changed
     ldxa    [hli],[polygonRotation]
 
     ; setup palette
@@ -122,6 +125,8 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
 
     ; set old rotation to a different value to force initial update
     ld      a,[polygonRotation]
+    ; TODO if NOT changed DON'T add 128 so we avoid drawing the polygon when it
+    ; is already present in the rendered tiles
     add     128
     ld      [hli],a
 

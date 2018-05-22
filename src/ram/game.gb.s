@@ -43,6 +43,7 @@ thrustType:                 DB
 thrustDelay:                DB
 thrustRotation:             DB
 thrustActive:               DB
+playerShield:               DB
 playerX:                    DB
 playerY:                    DB
 testCounter:                DB

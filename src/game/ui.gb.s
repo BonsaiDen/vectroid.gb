@@ -1,9 +1,9 @@
 SECTION "UILogic",ROM0
 
 ui_draw:
-    ld      a,[debugDisplay]
-    cp      0
-    ret     z
+    ;ld      a,[debugDisplay]
+    ;cp      0
+    ;ret     z
 
     ; only draw ui every 15 frames
     ld      a,[coreLoopCounter16]

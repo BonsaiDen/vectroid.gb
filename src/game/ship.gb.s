@@ -2,6 +2,22 @@
 SECTION "ShipLogic",ROM0
 
 ; Logic -----------------------------------------------------------------------
+ship_init:
+    ; reset player ship variables
+    xor     a
+    ld      [bulletFired],a
+    ld      [bulletDelay],a
+    ld      [bulletCount],a
+    ld      [thrustDelay],a
+    ld      [thrustType],a
+    ld      [thrustActive],a
+
+    ld      a,0
+    ld      [playerShield],a
+
+    createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
+    ret
+
 ship_fire_thrust:
     ld      a,[thrustActive]
     cp      0
@@ -99,20 +115,6 @@ ship_fire_bullet:
     xor     a
     ld      [bulletFired],a
     ret
-
-ship_init:
-    ; reset player ship variables
-    xor     a
-    ld      [bulletFired],a
-    ld      [bulletDelay],a
-    ld      [bulletCount],a
-    ld      [thrustDelay],a
-    ld      [thrustType],a
-    ld      [thrustActive],a
-
-    createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
-    ret
-
 
 ship_out_of_bounds:
     ld      a,[shipWithinBorder]

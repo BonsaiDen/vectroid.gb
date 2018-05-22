@@ -36,7 +36,6 @@ _load_palette:; a = dark/light, de = palette memory, hl = palette data
     addw    hl,a
 
 .set:
-    brk
     ; loop counter
     ld      b,c
 .next_palette_entry:

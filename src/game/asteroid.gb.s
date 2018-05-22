@@ -115,7 +115,6 @@ asteroid_launch:
     ; vary angle by 64
     call    math_random
     and     %0011_1111
-    ;add     128; invert direction
     add     b
     ld      d,a; store angle
 
@@ -245,8 +244,9 @@ asteroid_update:
 
     ; collide with other asteroids
     ; TODO skip when inside border?
+    ; need to use half size
     ld      d,COLLISION_ASTEROID
-    ld      c,5; TODO adjust for different sizes?
+    ld      c,5; TODO adjust for different half-sizes?
     call    collide_with_group
     cp      0
     jr      z,.rotate
@@ -296,7 +296,7 @@ asteroid_update:
 
     ; reduce asteroid hp a bit with every collision
     ld      a,[polygonDataB]
-    ; TODO make this dependend on the other asteroid size
+    ; TODO make damage dependend on the other asteroid size
     sub     2; TODO variable for asteroid impact damage
     jr      nc,.hp_above_zero
     jr      .destroy_this_asteroid
@@ -310,7 +310,7 @@ asteroid_update:
     call    _destroy_other_asteroid
 
 .destroy_this_asteroid:
-    ld      a,$ff
+    ld      a,$FF
     ld      [polygonDataB],a
     ld      a,1
     ret
@@ -367,7 +367,7 @@ _destroy_other_asteroid:
     dec     de
     dec     de
     dec     de; hp
-    ld      a,$ff
+    ld      a,$FE
     ld      [de],a
     ret
 
@@ -534,6 +534,7 @@ _asteroid_split:; return 0 if actually split up
     ret
 
 _direction_vector:
+    ; TODO get direction vector of other asteroid if polygonDataB is $fe
     ldxa    b,[polygonMX]
     ldxa    c,[polygonMY]
     call    atan_2
