@@ -110,7 +110,7 @@ ship_init:
     ld      [thrustType],a
     ld      [thrustActive],a
 
-    createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, -9, 72, 192, ship_polygon, ship_update)
+    createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
     ret
 
 
@@ -119,8 +119,65 @@ ship_out_of_bounds:
     cp      0
     jr      z,.reset
 
+    ; limit x position
+    ld      a,[playerX]
+    sub     12
+
+    ; check if < 0
+    cp      176
+    jr      nc,.x_min
+
+    ; check if > 160
+    cp      160
+    jr      nc,.x_max
+
+    ; check if < 8
+    cp      8
+    jr      nc,.x
+
+.x_min:
+    ld      b,8
+    jr      .limit_y
+
+.x_max:
+    ld      b,160
+    jr      .limit_y
+
+.x:
+    ld      b,a
+
+    ; limit y position
+.limit_y:
+    ld      a,[playerY]
+    sub     4
+
+    ; check if < 0
+    cp      160
+    jr      nc,.y_min
+
+    ; check if > 160
+    cp      144
+    jr      nc,.y_max
+
+    ; check if < 8
+    cp      8
+    jr      nc,.y
+
+.y_min:
+    ld      c,8
+    jr      .direction
+
+.y_max:
+    ld      c,144
+    jr      .direction
+
+.y:
+    ld      c,a
+
     ; override ship sprite(s) and use as out of screen indicator
+.direction:
     ld      hl,$C000
+    ld      a,[shipWithinBorder]
     cp      1
     jr      z,.top
     cp      2
@@ -130,9 +187,7 @@ ship_out_of_bounds:
 
     ; TODO animate
 .left:
-    ld      a,[playerY]
-    sub     4
-    ; TODO limit y to 0-144
+    ld      a,c
     ld      [hli],a
     ld      a,8
     ld      [hli],a
@@ -143,18 +198,14 @@ ship_out_of_bounds:
 .top:
     ld      a,16
     ld      [hli],a
-    ld      a,[playerX]
-    sub     12
-    ; TODO limit x to 0-160
+    ld      a,b
     ld      [hli],a
     ld      a,$60
     ld      [hli],a
     ret
 
 .right:
-    ld      a,[playerY]
-    sub     4
-    ; TODO limit y to 0-144
+    ld      a,c
     ld      [hli],a
     ld      a,160
     ld      [hli],a
@@ -165,9 +216,7 @@ ship_out_of_bounds:
 .bottom:
     ld      a,152
     ld      [hli],a
-    ld      a,[playerX]
-    sub     12
-    ; TODO limit x to 0-160
+    ld      a,b
     ld      [hli],a
     ld      a,$64
     ld      [hli],a
@@ -307,18 +356,21 @@ ship_update:
     ret
 
 _within_border:
-    ld      a,[polygonX]
+    ld      a,[polygonY]
     cp      11; TODO variable
-    jr      c,.within_x_left
+    jr      c,.within_y_top
+
+    ld      a,[polygonX]
     cp      182; TODO variable
     jr      nc,.within_x_right
 
     ld      a,[polygonY]
-    cp      11; TODO variable
-    jr      c,.within_y_top
     cp      164; TODO variable
     jr      nc,.within_y_bottom
 
+    ld      a,[polygonX]
+    cp      11; TODO variable
+    jr      c,.within_x_left
     xor     a
     ret
 

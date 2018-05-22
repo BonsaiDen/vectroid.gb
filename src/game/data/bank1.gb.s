@@ -89,7 +89,7 @@ DataUITiles:
     INCBIN  "/data/bin/ui.bg.bin"
 
 
-SECTION "UITextMap",ROM0
+SECTION "UITextMap",ROM0[$3800]
 text_table:
     DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
     DB $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
