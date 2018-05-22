@@ -12,7 +12,7 @@ ship_init:
     ld      [thrustType],a
     ld      [thrustActive],a
 
-    ld      a,0
+    ld      a,64
     ld      [playerShield],a
 
     createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
@@ -354,6 +354,25 @@ ship_update:
     ldxa    [playerX],[polygonX]
     ldxa    [playerY],[polygonY]
     ldxa    [thrustRotation],[polygonRotation]
+
+    ; only check every other frame
+    ld      a,[coreLoopCounter]
+    and     %0000_0001
+    cp      0
+    jr      z,.no_collision
+
+    ; collision detection
+    ld      d,COLLISION_ASTEROID
+    ld      c,8; TODO adjust for different half-sizes?
+    call    collide_with_group
+    cp      0
+    jr      z,.no_collision
+.collision:
+    ; TODO destroy asteroid if size is <= MEDIUM and reduce shield
+    ; TODO set shield to 0 if size is >= LARGE
+    ; TODO destroy ship if shield <= 0
+
+.no_collision:
     ld      a,1
     ret
 

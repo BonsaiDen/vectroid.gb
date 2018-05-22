@@ -247,7 +247,7 @@ update_polygon:; hl = polygon state pointer
 
     push    hl
 
-    ; load data vlaues
+    ; load data values
     ldxa    [polygonDataA],[hli]
     ldxa    [polygonDataB],[hli]
 
@@ -902,9 +902,7 @@ add_fixed_signed:
     jr      c,.negative
 
 .positive:
-    ; double speed so we get more "range" even though we only use 0-128 for M?
     sla     @increase
-    ;sla     @increase
 
     ld      a,@minor
     add     @increase
@@ -930,9 +928,8 @@ add_fixed_signed:
     cpl
     inc     a
     ld      @increase,a
-    ; double speed so we get more "range" even though we only use 0-128 for M?
+
     sla     @increase
-    ;sla     @increase
 
     ; subtract
     ld      a,@minor

@@ -44,8 +44,8 @@ SECTION "CoreInput",ROM0
 SECTION "CoreTimer",ROM0
     INCLUDE "timer.gb.s"
 
-SECTION "CoreFar",ROM0
-    INCLUDE "far.gb.s"
+;SECTION "CoreFar",ROM0
+;    INCLUDE "far.gb.s"
 
 SECTION "Core $0100",ROM0[$100]
     nop

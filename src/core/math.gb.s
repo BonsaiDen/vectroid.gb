@@ -40,6 +40,13 @@ math_random_signed:
     sub     8
     ret
 
+math_random_signed_half:
+    call    math_update_random
+    ld      a,[coreRandomLow]
+    div     a,32
+    sub     4
+    ret
+
 math_update_random:
     ld      a,[rDIV]
     ld      b,a

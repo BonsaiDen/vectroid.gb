@@ -195,15 +195,23 @@ asteroid_queue:
     ; load polygon hp
     ld      a,[polygonSize]
     dec     a
+    ; TODO add more HP in case of gray/hard asteroid
     ld      hl,_polygon_hp
     addw    hl,a
     ld      a,[hl]
     ld      [polygonDataB],a
 
     ; load polygon data for size
+    call    math_random
+    and     %0000_0001
+    add     a; x2
+    ld      b,a
     ld      a,[polygonSize]
     dec     a
     add     a; x2
+    add     a; x4
+    add     b
+
     ld      hl,_polygon_sizes
     addw    hl,a
     ld      a,[hli]
@@ -597,15 +605,17 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     pop     bc
 
     ; set mx/my from rotation and velocity
-    ;push    bc
-    ; TODO randomize again
-    ;call    math_random_signed; randomize rotation a bit
-    ;add     d
-    ;ld      d,a
-    ;pop     bc
+    push    bc
+    call    math_random_signed_half; randomize rotation a bit
+    add     d
+    ld      d,a
+    pop     bc
 
     ; set velocity
-    ld      e,c
+    call    math_random
+    and     %0000_0111
+    add     c
+    ld      e,a
     push    hl
     call    angle_vector_16
     pop     hl
@@ -628,10 +638,14 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
 
 ; Asteroid Layout -------------------------------------------------------------
 _polygon_sizes:
-    DW      small_asteroid_polygon
-    DW      medium_asteroid_polygon
-    DW      large_asteroid_polygon
-    DW      giant_asteroid_polygon
+    DW      small_asteroid_polygon_a
+    DW      small_asteroid_polygon_b
+    DW      medium_asteroid_polygon_a
+    DW      medium_asteroid_polygon_b
+    DW      large_asteroid_polygon_a
+    DW      large_asteroid_polygon_b
+    DW      giant_asteroid_polygon_a
+    DW      giant_asteroid_polygon_b
 
 _polygon_hp:
     DB      2
@@ -639,73 +653,82 @@ _polygon_hp:
     DB      15
     DB      32
 
-small_asteroid_polygon:
-    DB      0; angle
-    DB      3; length
-    DB      32
-    DB      2; length
-    DB      96
-    DB      3; length
-    DB      156
-    DB      2; length
-    DB      220
-    DB      3; length
-    DB      0; angle
-    DB      3; length
+small_asteroid_polygon_a:
+    DB        0,3
+    DB       32,2
+    DB       96,3
+    DB      156,2
+    DB      220,3
+    DB        0,3
     DB      $ff,$ff
 
-medium_asteroid_polygon:
-    DB      0; angle
-    DB      7; length
-
-    DB      35; angle
-    DB      4; length
-
-    DB      85; angle
-    DB      6; length
-
-    DB      135; angle
-    DB      3; length
-
-    DB      200; angle
-    DB      5; length
-
-    DB      220; angle
-    DB      6; length
-
-    DB      0; angle
-    DB      7; length
+small_asteroid_polygon_b:
+    DB        0,2
+    DB       25,3
+    DB      126,3
+    DB      176,2
+    DB      240,3
+    DB        0,2
     DB      $ff,$ff
 
-large_asteroid_polygon:
-    DB      0; angle
-    DB      11; length
-    DB      35; angle
-    DB      10; length
-    DB      85; angle
-    DB      11; length
-    DB      135; angle
-    DB      11; length
-    DB      200; angle
-    DB      7; length
-    DB      0; angle
-    DB      11; length
+medium_asteroid_polygon_a:
+    DB        0,7
+    DB       35,4
+    DB       85,6
+    DB      135,3
+    DB      200,5
+    DB      220,6
+    DB        0,7
     DB      $ff,$ff
 
-giant_asteroid_polygon:
-    DB      0; angle
-    DB      13; length
-    DB      25; angle
-    DB      15; length
-    DB      85; angle
-    DB      14; length
-    DB      125; angle
-    DB      13; length
-    DB      165; angle
-    DB      15; length
-    DB      230; angle
-    DB      14; length
-    DB      0; angle
-    DB      13; length
+medium_asteroid_polygon_b:
+    DB        0,6
+    DB       15,3
+    DB       55,6
+    DB       95,7
+    DB      130,5
+    DB      190,5
+    DB      230,7
+    DB        0,6
+    DB      $ff,$ff
+
+large_asteroid_polygon_a:
+    DB        0,11
+    DB       35,10
+    DB       85,11
+    DB      105,10
+    DB      135,11
+    DB      200,7
+    DB        0,11
+    DB      $ff,$ff
+
+large_asteroid_polygon_b:
+    DB        0,11
+    DB       35,9
+    DB       85,7
+    DB      135,10
+    DB      200,8
+    DB      230,10
+    DB        0,11
+    DB      $ff,$ff
+
+giant_asteroid_polygon_a:
+    DB        0,13
+    DB       25,15
+    DB       85,14
+    DB      125,13
+    DB      165,15
+    DB      230,14
+    DB        0,13
+    DB      $ff,$ff
+
+giant_asteroid_polygon_b:
+    DB        0,15
+    DB       65,13
+    DB      105,14
+    DB      155,15
+    DB      205,12
+    DB      240,12
+    DB        0,15
     DB      $ff,$ff
 

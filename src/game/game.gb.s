@@ -252,7 +252,6 @@ game_hud_update:
 
 ; Timer -----------------------------------------------------------------------
 game_timer:
-    incx    [playerShield]
     ret
 
 text_hud_shield:
