@@ -8,7 +8,7 @@ asteroid_init:
     ldxa    [asteroidGiantAvailable],ASTEROID_GIANT_MAX
     ldxa    [asteroidQueueLength],0
     ldxa    [asteroidScreenCount],0
-    ldxa    [asteroidLaunchTick],15
+    ldxa    [asteroidLaunchTick],1
     ret
 
 asteroid_launch:
@@ -38,7 +38,7 @@ asteroid_launch:
     decx    [asteroidLaunchTick]
     cp      0
     ret     nz
-    ldxa    [asteroidLaunchTick],15; TODO variable to increase difficulty
+    ldxa    [asteroidLaunchTick],12; TODO variable to increase difficulty
 
     ; choose side
     call    math_random
@@ -196,7 +196,7 @@ asteroid_queue:
     ld      a,[polygonSize]
     dec     a
     ; TODO add more HP in case of gray/hard asteroid
-    ld      hl,_polygon_hp
+    ld      hl,_asteroid_hp
     addw    hl,a
     ld      a,[hl]
     ld      [polygonDataB],a
@@ -212,7 +212,7 @@ asteroid_queue:
     add     a; x4
     add     b
 
-    ld      hl,_polygon_sizes
+    ld      hl,_asteroid_polygons
     addw    hl,a
     ld      a,[hli]
     ld      e,a
@@ -637,7 +637,7 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
 
 
 ; Asteroid Layout -------------------------------------------------------------
-_polygon_sizes:
+_asteroid_polygons:
     DW      small_asteroid_polygon_a
     DW      small_asteroid_polygon_b
     DW      medium_asteroid_polygon_a
@@ -647,11 +647,17 @@ _polygon_sizes:
     DW      giant_asteroid_polygon_a
     DW      giant_asteroid_polygon_b
 
-_polygon_hp:
+_asteroid_hp:
     DB      2
     DB      8
     DB      15
     DB      32
+
+asteroid_points:
+    DB      50
+    DB      100
+    DB      150
+    DB      250
 
 small_asteroid_polygon_a:
     DB        0,3

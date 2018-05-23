@@ -16,6 +16,7 @@ game_init:
 
     ; game mode
     ldxa    [gameMode],GAME_MODE_PLAY
+    call    game_score_reset
 
     ; load UI tiles
     ld      hl,DataUITiles
@@ -45,6 +46,46 @@ game_loop:
 
 .paused:
     call    game_hud_update
+    ret
+
+game_score_increase:; a = increase
+    ld      b,a
+.loop:
+    ld      a,b
+    cp      0
+    ret     z
+
+    cp      50
+    jr      nc,.add_50
+
+.remainder:
+    ld      a,[playerScore]
+    add     b
+    ld      b,0
+    jr      .overflow_check
+
+.add_50:
+    sub     50
+    ld      b,a
+    ld      a,[playerScore]
+    add     50
+
+.overflow_check:
+    cp      100
+    jr      nc,.overflow
+    ld      [playerScore],a
+    jr      .loop
+
+.overflow:
+    sub     100
+    ld      [playerScore],a
+    incx    [playerScore + 1]
+    jr      .loop
+
+game_score_reset:
+    xor     a
+    ld      [playerScore],a
+    ld      [playerScore + 1],a
     ret
 
 game_draw_vram:
@@ -208,7 +249,8 @@ game_hud_update:
     ld      [hli],a
     ld      [hli],a
 
-    ld      hl,uiOffscreenBuffer + $0E + 544
+    ld      hl,uiOffscreenBuffer + $0D + 544
+    ld      [hli],a
     ld      [hli],a
     ld      [hli],a
     ld      [hli],a
@@ -217,10 +259,20 @@ game_hud_update:
     ld      [hli],a
 
     ; points
-    ld      hl,uiOffscreenBuffer + $0E
+    ld      hl,uiOffscreenBuffer + $0D
     ld      [hl],$70
-    ld      hl,uiOffscreenBuffer + $0F
+    ld      hl,uiOffscreenBuffer + $0E
     ld      [hl],$71
+
+    ld      a,[playerScore + 1]
+    ld      bc,$1100
+    ld      de,$0300
+    call    ui_number_right_aligned
+
+    ld      a,[playerScore]
+    ld      bc,$1300
+    ld      de,$0200
+    call    ui_number_right_aligned
 
     ; right / left
     ld      hl,uiOffscreenBuffer + $0A
@@ -243,7 +295,8 @@ game_hud_update:
     ld      [hli],a
     ld      [hli],a
 
-    ld      hl,uiOffscreenBuffer + $0E
+    ld      hl,uiOffscreenBuffer + $0D
+    ld      [hli],a
     ld      [hli],a
     ld      [hli],a
     ld      [hli],a
@@ -252,10 +305,20 @@ game_hud_update:
     ld      [hli],a
 
     ; points
-    ld      hl,uiOffscreenBuffer + $0E + 544
+    ld      hl,uiOffscreenBuffer + $0D + 544
     ld      [hl],$70
-    ld      hl,uiOffscreenBuffer + $0F + 544
+    ld      hl,uiOffscreenBuffer + $0E + 544
     ld      [hl],$71
+
+    ld      a,[playerScore + 1]
+    ld      bc,$1111
+    ld      de,$0300
+    call    ui_number_right_aligned
+
+    ld      a,[playerScore]
+    ld      bc,$1311
+    ld      de,$0200
+    call    ui_number_right_aligned
 
     ; right / left
     ld      hl,uiOffscreenBuffer + $0A + 544
@@ -362,6 +425,8 @@ game_hud_over:
 
 ; Timer -----------------------------------------------------------------------
 game_timer:
+    ; ld      a,50
+    ; call    game_score_increase
     ret
 
 

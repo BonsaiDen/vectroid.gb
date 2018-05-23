@@ -511,7 +511,7 @@ bullet_update:
     ld      [polygonDataA],a
 
     ld      d,COLLISION_ASTEROID
-    ld      c,4; TODO variable
+    ld      c,4; TODO variable for collision range tweaking
     call    collide_with_group
     cp      1
     jr      z,.collide
@@ -520,6 +520,13 @@ bullet_update:
     ret
 
 .collide:
+
+    ; setup points index
+    ld      a,[de]
+    srl     a
+    srl     a
+    dec     a
+    ld      b,a
 
     ; DE points to half size of polygon, so we need to go 5 back to DataB
     dec     de
@@ -530,8 +537,19 @@ bullet_update:
 
     ; reduce asteroid hp
     ld      a,[de]
+    cp      0
+    jr      z,.hp_above_zero
     sub     3; TODO variable for bullet damage
     jr      nc,.hp_above_zero
+
+    ; destroyed, increase points
+    ld      hl,asteroid_points
+    ld      a,b
+    addw    hl,a
+    ld      a,[hl]
+    call    game_score_increase
+
+    ; limit hp to 0
     xor     a
 
 .hp_above_zero:
