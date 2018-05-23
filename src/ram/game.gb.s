@@ -15,12 +15,21 @@ COLLISION_ASTEROID          EQU 0
 COLLISION_BULLET            EQU 1
 COLLISION_SHIP              EQU 2
 
+IFRAME_COUNT                EQU 90
+SHIELD_DAMAGE_SMALL         EQU 8
+SHIELD_DAMAGE_MEDIUM        EQU 16
+
 PALETTE_ASTEROID            EQU 0
 PALETTE_SHIP                EQU 1
 PALETTE_BULLET              EQU 2
 PALETTE_THRUST_A            EQU 3
 PALETTE_THRUST_B            EQU 4
 PALETTE_EFFECT              EQU 5
+
+GAME_MODE_TITLE             EQU 0
+GAME_MODE_PLAY              EQU 1
+GAME_MODE_OVER              EQU 2
+GAME_MODE_PAUSE             EQU 3
 
 
 ; OAM -------------------------------------------------------------------------
@@ -31,6 +40,7 @@ DS                          160
 ; Game ------------------------------------------------------------------------
 SECTION "GameRam",WRAM0[$C0A0]
 debugDisplay:               DB
+gameMode:                   DB
 paletteUpdated:             DB
 bulletRotation:             DB
 shipWithinBorder:           DB
@@ -41,8 +51,9 @@ bulletDelay:                DB
 bulletCount:                DB
 thrustType:                 DB
 thrustDelay:                DB
-thrustRotation:             DB
+playerRotation:             DB
 thrustActive:               DB
+playerIFrames:              DB
 playerShield:               DB
 playerX:                    DB
 playerY:                    DB

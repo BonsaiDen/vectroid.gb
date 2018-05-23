@@ -14,6 +14,9 @@ game_init:
     xor     a
     ld      [debugDisplay],a
 
+    ; game mode
+    ldxa    [gameMode],GAME_MODE_PLAY
+
     ; load UI tiles
     ld      hl,DataUITiles
     ld      de,$8000
@@ -29,12 +32,18 @@ game_init:
 
 ; Main Loop -------------------------------------------------------------------
 game_loop:
+    ld      a,[gameMode]
+    cp      GAME_MODE_PAUSE
+    jr      z,.paused
+
     call    asteroid_launch
     call    asteroid_queue
     call    polygon_update
     call    ship_fire_bullet
     call    ship_fire_thrust
-    call    ship_out_of_bounds
+    call    ship_special_update
+
+.paused:
     call    game_hud_update
     ret
 
@@ -78,21 +87,27 @@ game_hud_init:
 
 .game:
     call    clear_bg
-    ;ld      bc,$0000
-    ;ld      hl,text_hud_shield
-    ;call    ui_text
     ret
 
 game_hud_update:
-
-    ; TODO render into off-screen buffer
-    ; TODO copy in hblanks?
     ld      a,[coreInputOn]
     and     BUTTON_START
     cp      BUTTON_START
+    jp      z,.toggle_pause
+
+    ; check game mode
+    ld      a,[gameMode]
+    cp      GAME_MODE_OVER
+    jp      z,.game_over
+    cp      GAME_MODE_PLAY
+    ret     nz
+
+    ; toggle debgu
+    ld      a,[coreInputOn]
+    and     BUTTON_SELECT
+    cp      BUTTON_SELECT
     jr      nz,.update
 
-    ; toggle
     ld      a,[debugDisplay]
     inc     a
     and     %0000_0001
@@ -168,7 +183,12 @@ game_hud_update:
     ret
 
 .game:
-    ; TODO check playerY and switch hud position around
+    ; check if destroyed
+    ld      a,[playerShield]
+    cp      0
+    ret     z
+
+    ; check playerY and switch hud position around
     ld      a,[playerY]
     cp      80
     jr      c,.bottom
@@ -187,6 +207,20 @@ game_hud_update:
     ld      [hli],a
     ld      [hli],a
     ld      [hli],a
+
+    ld      hl,uiOffscreenBuffer + $0E + 544
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+
+    ; points
+    ld      hl,uiOffscreenBuffer + $0E
+    ld      [hl],$70
+    ld      hl,uiOffscreenBuffer + $0F
+    ld      [hl],$71
 
     ; right / left
     ld      hl,uiOffscreenBuffer + $0A
@@ -209,6 +243,21 @@ game_hud_update:
     ld      [hli],a
     ld      [hli],a
 
+    ld      hl,uiOffscreenBuffer + $0E
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+
+    ; points
+    ld      hl,uiOffscreenBuffer + $0E + 544
+    ld      [hl],$70
+    ld      hl,uiOffscreenBuffer + $0F + 544
+    ld      [hl],$71
+
+    ; right / left
     ld      hl,uiOffscreenBuffer + $0A + 544
     ld      [hl],$6F
     ld      hl,uiOffscreenBuffer + $00 + 544
@@ -247,6 +296,67 @@ game_hud_update:
     ld      c,a
     dec     b
     jr      nz,.loop
+
+    ; TODO points display
+    ret
+
+.game_over:
+    ; update ui only every 15 frames
+    ld      a,[coreLoopCounter16]
+    and     %0000_1111
+    ret     z
+
+    ; TODO flash selected choice
+    ; TODO draw underline under selected choice only
+    ret
+
+.toggle_pause:
+    ld      a,[gameMode]
+    cp      GAME_MODE_OVER
+    ret     z
+
+    ; TODO pause toggle sound effect
+    ; TODO need a simply sound effect queue system to play multiple notes
+    ; TODO in succession
+    cp      GAME_MODE_PAUSE
+    jr      z,.unpause
+
+    call    clear_bg
+    ld      bc,$0009
+    ld      hl,text_game_paused
+    call    ui_text
+    ldxa    [gameMode],GAME_MODE_PAUSE
+    ret
+
+.unpause:
+    call    clear_bg
+    ldxa    [gameMode],GAME_MODE_PLAY
+    ret
+
+game_hud_over:
+    ldxa    [gameMode],GAME_MODE_OVER
+    call    clear_bg
+
+    ld      bc,$0003
+    ld      hl,text_game_over_0
+    call    ui_text
+
+    ld      bc,$0007
+    ld      hl,text_game_over_1
+    call    ui_text
+
+    ; TODO display actual points
+    ld      bc,$0009
+    ld      hl,text_game_over_2
+    call    ui_text
+
+    ld      bc,$000B
+    ld      hl,text_game_over_3
+    call    ui_text
+
+    ld      bc,$000E
+    ld      hl,text_game_over_4
+    call    ui_text
     ret
 
 
@@ -254,18 +364,8 @@ game_hud_update:
 game_timer:
     ret
 
-text_hud_shield:
-    DS 5 "SHLD\0"
 
-text_debug_ui_one:
-    DS 18 "S:X/6 M:X/3 L:X/2\0"
-
-text_debug_ui_two:
-    DS 12 "G:X/1 B:X/4\0"
-
-text_debug_ui_three:
-    DS 18 "X:XXX Y:XXX R:XXX\0"
-
+; Helper ----------------------------------------------------------------------
 init_bg:
     ld      d,0
     ld      hl,$9800
@@ -279,4 +379,33 @@ clear_bg:
     ld      bc,576
     call    core_mem_set
     ret
+
+
+; Text Data -------------------------------------------------------------------
+text_game_over_0:
+    DS 16 "     GAME OVER!\0"
+text_game_over_1:
+    DS 18 "   Your Score was\0"
+text_game_over_2:
+    DS 14 "       000000\0"
+text_game_over_3:
+    DS 14 "       Points\0"
+text_game_over_4:
+    DS 16 "     Try again?\0"
+text_game_over_yes:
+    DS 4 "YES\0"
+text_game_over_no:
+    DS 3 "NO\0"
+
+text_game_paused:
+    DS 14 "       PAUSED\0"
+
+text_debug_ui_one:
+    DS 18 "S:X/6 M:X/3 L:X/2\0"
+
+text_debug_ui_two:
+    DS 12 "G:X/1 B:X/4\0"
+
+text_debug_ui_three:
+    DS 18 "X:XXX Y:XXX R:XXX\0"
 

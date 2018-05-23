@@ -15,6 +15,9 @@ ship_init:
     ld      a,64
     ld      [playerShield],a
 
+    ld      a,0
+    ld      [playerIFrames],a
+
     createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
     ret
 
@@ -60,7 +63,7 @@ ship_fire_thrust:
     ld      de,thrust_polygon_a
 
 .create:
-    ld      a,[thrustRotation]
+    ld      a,[playerRotation]
     add     128
     ld      [polygonRotation],a
 
@@ -116,7 +119,8 @@ ship_fire_bullet:
     ld      [bulletFired],a
     ret
 
-ship_out_of_bounds:
+ship_special_update:
+    ; check for out of screen
     ld      a,[shipWithinBorder]
     cp      0
     jr      z,.reset
@@ -225,11 +229,42 @@ ship_out_of_bounds:
     ret
 
 .reset:
+    ; check for destroyed
+    ld      a,[playerShield]
+    cp      0
+    jr      z,.blink
+
+    ; check for iframes
+    ld      a,[playerIFrames]
+    cp      0
+    jr      nz,.iframes
     ld      hl,$C002
     ld      [hl],$80
     ret
 
+.iframes:
+    and     %0000_0100
+    cp      0
+    jr      nz,.blink
+    ld      hl,$C002
+    ld      [hl],$80
+    ld      hl,$C006
+    ld      [hl],$82
+    ret
+
+.blink:
+    ld      hl,$C002
+    ld      [hl],$F0
+    ld      hl,$C006
+    ld      [hl],$F0
+    ret
+
 ship_update:
+
+    ; disable controls when destroyed
+    ld      a,[playerShield]
+    cp      0
+    jp      z,.no_bullet
 
     ; Rotation Controls
     ld      a,[coreInput]
@@ -332,7 +367,7 @@ ship_update:
     call    _within_border
     ld      [shipWithinBorder],a
     cp      0
-    jr      nz,.no_bullet
+    jp      nz,.no_collision
 
     ; check for input
     ld      a,[coreInput]
@@ -350,16 +385,17 @@ ship_update:
     ldxa    [bulletFired],1
 
 .no_bullet:
-    ; copy thrust location
-    ldxa    [playerX],[polygonX]
-    ldxa    [playerY],[polygonY]
-    ldxa    [thrustRotation],[polygonRotation]
 
     ; only check every other frame
     ld      a,[coreLoopCounter]
     and     %0000_0001
     cp      0
     jr      z,.no_collision
+
+    ; check for iframes
+    ld      a,[playerIFrames]
+    cp      0
+    jr      nz,.iframe_period
 
     ; collision detection
     ld      d,COLLISION_ASTEROID
@@ -368,11 +404,66 @@ ship_update:
     cp      0
     jr      z,.no_collision
 .collision:
-    ; TODO destroy asteroid if size is <= MEDIUM and reduce shield
-    ; TODO set shield to 0 if size is >= LARGE
-    ; TODO destroy ship if shield <= 0
+
+    ; check asteroid size
+    ld      a,[de]
+    cp      4
+    jr      z,.hit_small
+    cp      8
+    jr      z,.hit_medium
+    jr      .destroy
+
+    ; hit by small / medium asteroid
+.hit_small:
+    ld      b,SHIELD_DAMAGE_SMALL
+    jr      .damage
+
+.hit_medium:
+    ld      b,SHIELD_DAMAGE_MEDIUM
+
+.damage:
+    ld      a,[playerShield]
+    sub     b
+    jr      c,.destroy
+    ld      [playerShield],a
+
+    ; set iframes
+    ld      a,IFRAME_COUNT
+    ld      [playerIFrames],a
+
+    ; destroy asteroid
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de; hp
+    ; TODO special HIT sound
+    ; TODO use different value to indicate that we want to skip the sound here
+    ; TODO and player another one instead
+    ld      a,$FE
+    ld      [de],a
+    jr      .no_collision
+
+.iframe_period:
+    dec     a
+    ld      [playerIFrames],a
+    jr      .no_collision
+
+.destroy:
+    ; TODO wait for destroy FX to be over
+    call    game_hud_over
+    ; TODO destroy FX and sound
+    ; TODO game over screen with points and retry option
+    xor     a
+    ld      [thrustActive],a
+    ld      [playerShield],a
+    ld      a,2
+    ret
 
 .no_collision:
+    ldxa    [playerX],[polygonX]
+    ldxa    [playerY],[polygonY]
+    ldxa    [playerRotation],[polygonRotation]
     ld      a,1
     ret
 
@@ -467,7 +558,7 @@ thrust_update:
 .place:
 
     ; calculate offset
-    ld      a,[thrustRotation]
+    ld      a,[playerRotation]
     ld      d,a
     ld      e,7
     call    angle_vector_16
@@ -480,7 +571,7 @@ thrust_update:
     sub     c
     ld      [polygonY],a
 
-    ld      a,[thrustRotation]
+    ld      a,[playerRotation]
     add     128
     ld      [polygonRotation],a
 

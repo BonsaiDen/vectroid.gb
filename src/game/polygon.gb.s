@@ -268,7 +268,7 @@ update_polygon:; hl = polygon state pointer
     call    _update_polygon
     pop     hl
 
-    ; if update left 0 in accumulator we deactive the polygon
+    ; if update left 0 in accumulator we deactivated the polygon
     cp      0
     jr      nz,.update_momentum
 
@@ -281,6 +281,8 @@ update_polygon:; hl = polygon state pointer
     ret
 
 .update_momentum:
+    cp      2
+    jp      z,.stop_momentum
 
     ; re-assign data so it can be used as a counter etc.
     ldxa    [hli],[polygonDataA]
@@ -313,6 +315,19 @@ update_polygon:; hl = polygon state pointer
     addFixedSigned(polygonX, d, c, 192)
     pop     hl
     ldxa    [hli],d; store updated dx
+    jr      .update_sprite
+
+.stop_momentum:
+    ; re-assign data so it can be used as a counter etc.
+    ldxa    [hli],[polygonDataA]
+    ldxa    [hli],[polygonDataB]
+
+    ; reset mx/my/dx/dy
+    xor     a
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
+    ld      [hli],a
 
 .update_sprite:
 
