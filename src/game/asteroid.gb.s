@@ -338,24 +338,28 @@ asteroid_update:
     ld      a,[polygonHalfSize]
     cp      $04
     jr      nz,.medium
+    call    screen_shake_small
     incx    [asteroidSmallAvailable]
     jr      .done
 
 .medium:
     cp      $08
     jr      nz,.large
+    call    screen_shake_medium
     incx    [asteroidMediumAvailable]
     jr      .done
 
 .large:
     cp      $0C
     jr      nz,.giant
+    call    screen_shake_large
     incx    [asteroidLargeAvailable]
     jr      .done
 
 .giant:
     cp      $10
     jr      nz,.done
+    call    screen_shake_giant
     incx    [asteroidGiantAvailable]
 
 .done:

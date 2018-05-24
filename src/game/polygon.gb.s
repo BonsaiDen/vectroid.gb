@@ -351,20 +351,24 @@ update_polygon:; hl = polygon state pointer
     ld      [polygonHalfSize],a
 
     ; update sprite position
+    ldxa    c,[polygonOY]
     ldxa    [hli],[polygonY]
 
     ; offset for sprite rendering
     sub     d
     add     16
     sub     SCROLL_BORDER
+    add     c
     ld      b,a
 
+    ldxa    c,[polygonOX]
     ldxa    [hli],[polygonX]
 
     ; offset for sprite rendering
     sub     d
     add     8
     sub     SCROLL_BORDER
+    add     c
     ld      c,a
 
     ; update sprites

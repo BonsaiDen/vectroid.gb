@@ -29,6 +29,7 @@ game_init:
 
 ; Main Loop -------------------------------------------------------------------
 game_reset:
+    call    screen_init
     call    polygon_init
     call    ship_init
     call    asteroid_init
@@ -417,10 +418,19 @@ game_hud_over:
     ld      hl,text_game_over_1
     call    ui_text
 
-    ; TODO display actual points
     ld      bc,$0009
     ld      hl,text_game_over_2
     call    ui_text
+
+    ld      a,[playerScore + 1]
+    ld      bc,$0A09
+    ld      de,$0300
+    call    ui_number_right_aligned
+
+    ld      a,[playerScore]
+    ld      bc,$0C09
+    ld      de,$0200
+    call    ui_number_right_aligned
 
     ld      bc,$000B
     ld      hl,text_game_over_3
@@ -434,8 +444,7 @@ game_hud_over:
 
 ; Timer -----------------------------------------------------------------------
 game_timer:
-    ; ld      a,50
-    ; call    game_score_increase
+    call    screen_shake_timer
     ret
 
 

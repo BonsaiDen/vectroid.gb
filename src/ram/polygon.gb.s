@@ -24,8 +24,11 @@ polygonOffscreenBuffer:     DS     1280
 
 
 SECTION "PolygonVars",HRAM[$FF98]
+temp:                       DB
 lineXI:                     DB
 lineYI:                     DB
+polygonOX:                  DB
+polygonOY:                  DB
 polygonX:                   DB
 polygonY:                   DB
 polygonMX:                  DB

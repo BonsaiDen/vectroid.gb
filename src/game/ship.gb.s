@@ -15,8 +15,12 @@ ship_init:
     ld      a,64
     ld      [playerShield],a
 
-    ld      a,0
+    ld      a,60
     ld      [playerIFrames],a
+
+    xor     a
+    ld      [playerScore],a
+    ld      [playerScore + 1],a
 
     createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
     ret
@@ -424,6 +428,7 @@ ship_update:
 .damage:
     ld      a,[playerShield]
     sub     b
+    jr      z,.destroy
     jr      c,.destroy
     ld      [playerShield],a
 
@@ -454,6 +459,7 @@ ship_update:
     call    game_hud_over
     ; TODO destroy FX and sound
     ; TODO game over screen with points and retry option
+    call    screen_shake_ship
     xor     a
     ld      [thrustActive],a
     ld      [playerShield],a

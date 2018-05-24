@@ -40,6 +40,8 @@ DS                          160
 ; Game ------------------------------------------------------------------------
 SECTION "GameRam",WRAM0[$C0A0]
 debugDisplay:               DB
+screenShakeStrength:        DB
+screenShakeTicks:           DB
 gameMode:                   DB
 paletteUpdated:             DB
 bulletRotation:             DB
