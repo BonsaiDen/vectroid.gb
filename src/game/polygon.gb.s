@@ -19,6 +19,20 @@ polygon_init:
     call    core_mem_cpy
     ret
 
+polygon_reset:
+    ld      hl,polygonState
+
+.loop:
+    ld      a,$ff
+    cp      [hl]; check for end marker
+    ret     z
+
+    ; disable active bit
+    res     7,[hl]
+    ; skip bytes
+    addw    hl,POLYGON_BYTES
+    jp      .loop
+
 ; _polygon_available:; a = size, b = count -> carry if available
 ;     ld      [polygonSize],a
 ;     ld      hl,polygonState

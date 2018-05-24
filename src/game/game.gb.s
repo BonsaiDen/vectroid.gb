@@ -24,6 +24,11 @@ game_init:
     call    core_decode_eom
 
     ; init polygon data
+    call    game_reset
+    ret
+
+; Main Loop -------------------------------------------------------------------
+game_reset:
     call    polygon_init
     call    ship_init
     call    asteroid_init
@@ -31,7 +36,6 @@ game_init:
     call    game_hud_init
     ret
 
-; Main Loop -------------------------------------------------------------------
 game_loop:
     ld      a,[gameMode]
     cp      GAME_MODE_PAUSE
@@ -376,7 +380,7 @@ game_hud_update:
 .toggle_pause:
     ld      a,[gameMode]
     cp      GAME_MODE_OVER
-    ret     z
+    jr      z,.game_over_select
 
     ; TODO pause toggle sound effect
     ; TODO need a simply sound effect queue system to play multiple notes
@@ -394,6 +398,11 @@ game_hud_update:
 .unpause:
     call    clear_bg
     ldxa    [gameMode],GAME_MODE_PLAY
+    ret
+
+.game_over_select:
+    ldxa    [gameMode],GAME_MODE_PLAY
+    call    game_reset
     ret
 
 game_hud_over:
