@@ -455,12 +455,18 @@ ship_update:
     jr      .no_collision
 
 .destroy:
+    ld      a,[playerShield]
+    cp      0
+    ret     z
+
     ; TODO wait for destroy FX to be over
     call    game_hud_over
     ; TODO destroy FX and sound
     ; TODO game over screen with points and retry option
+    call    sound_effect_ship_destroy
     call    screen_shake_ship
     xor     a
+    ld      [playerShield],a
     ld      [thrustActive],a
     ld      [playerShield],a
     ld      a,2

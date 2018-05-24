@@ -389,6 +389,7 @@ game_hud_update:
     cp      GAME_MODE_PAUSE
     jr      z,.unpause
 
+    call    sound_effect_pause
     call    clear_bg
     ld      bc,$0009
     ld      hl,text_game_paused
@@ -397,6 +398,7 @@ game_hud_update:
     ret
 
 .unpause:
+    call    sound_effect_unpause
     call    clear_bg
     ldxa    [gameMode],GAME_MODE_PLAY
     ret

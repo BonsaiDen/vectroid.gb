@@ -19,6 +19,14 @@ sound_enable:
 
     ret
 
+sound_effect_pause:
+    channelOne(2, 0, 6, 1, 2, 7, 0, $F, $0200, 0)
+    ret
+
+sound_effect_unpause:
+    channelOne(3, 0, 7, 1, 2, 7, 0, $F, $04E0, 0)
+    ret
+
 sound_effect_bullet:
     ;channelOne(4, 1, 3, $10, 2, 0, 0, $F, $0710, 1)
     channelOne(4, 1, 3, $10, 2, 1, 0, $F, $0730, 0)
@@ -37,7 +45,17 @@ sound_effect_impact:
     ;channelTwo($35, 1, 1, 0, $F, $06C0, 1)
     ret
 
+sound_effect_ship_destroy:
+    channelFour($00, 7, 0, $F, 4, 0, 6, 0)
+    ret
+
 sound_effect_break:
+    ; TODO have a actual sound engine with playback priority and other stuff
+    ; TODO so we can remove this hack
+    ld      a,[playerShield]
+    cp      0
+    ret     z
+
     call    math_random
     bit     3,a
     jr      nz,.four
