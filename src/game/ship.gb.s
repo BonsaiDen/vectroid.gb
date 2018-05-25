@@ -22,6 +22,11 @@ ship_init:
     ld      [playerScore],a
     ld      [playerScore + 1],a
 
+    ld      a,80
+    ld      [playerY],a
+
+    ld      a,72
+    ld      [playerX],a
     createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
     ret
 
@@ -460,9 +465,8 @@ ship_update:
     ret     z
 
     ; TODO wait for destroy FX to be over
-    call    game_hud_over
-    ; TODO destroy FX and sound
-    ; TODO game over screen with points and retry option
+    call    game_over
+    ; TODO destroy FX
     call    sound_effect_ship_destroy
     call    screen_shake_ship
     xor     a
@@ -552,7 +556,9 @@ bullet_update:
     cp      0
     jr      z,.hp_above_zero
     sub     3; TODO variable for bullet damage
+    jr      z,.now_zero
     jr      nc,.hp_above_zero
+.now_zero:
 
     ; destroyed, increase points
     ld      hl,asteroid_points

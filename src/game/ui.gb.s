@@ -1,14 +1,18 @@
 SECTION "UILogic",ROM0
 
 ui_draw:
-    ;ld      a,[debugDisplay]
-    ;cp      0
-    ;ret     z
+    ld      a,[forceUIUpdate]
+    cp      1
+    jr      z,.update
 
     ; only draw ui every 15 frames
     ld      a,[coreLoopCounter16]
     and     %0000_1111
-    ret     z
+    ret     nz
+
+.update:
+    xor     a
+    ld      [forceUIUpdate],a
 
     ; wait for hardware DMA to complete
     ld      a,[rHDMA5]
@@ -28,10 +32,6 @@ ui_draw:
     ld      [rHDMA4],a
     ld      a,%0010_0011; 35 + 1 * 16 = 576
     ld      [rHDMA5],a
-    ret
-
-ui_clear:; bc=x/y, a = length
-    ; TODO
     ret
 
 ui_text:; bc = x/y, hl = data pointer
@@ -71,6 +71,34 @@ ui_text:; bc = x/y, hl = data pointer
     inc     hl
     inc     b
     jr      .next
+
+ui_character:; bc = x/y, d = length, e = character
+.next:
+
+    ; draw character
+    ld      h,0
+    ld      l,c
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+    add     hl,hl
+
+    ld      a,h
+    add     uiOffscreenBuffer >> 8
+    ld      h,a
+
+    ld      a,l
+    add     b
+    ld      l,a
+
+    ld      a,e
+    ld      [hl],a
+    inc     b
+
+    dec     d
+    jr      nz,.next
+    ret
 
 
 ui_number_right_aligned:; a = number, bc = x/y, d = fill width, e = fill tile index
