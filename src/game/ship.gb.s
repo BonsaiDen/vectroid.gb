@@ -30,6 +30,23 @@ ship_init:
     createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
     ret
 
+ship_title:
+    createPolygon(4, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon_title, ship_title_rotate)
+    ret
+
+ship_title_rotate:
+    ld      a,[coreLoopCounter]
+    and     %0000_0011
+    jr      nz,.no_rotation
+
+    ld      a,[polygonRotation]
+    add     3
+    ld      [polygonRotation],a
+
+.no_rotation:
+    ld      a,1
+    ret
+
 ship_fire_thrust:
     ld      a,[thrustActive]
     cp      0
@@ -635,6 +652,17 @@ bullet_polygon:
     DB      1; length
     DB      0; angle
     DB      1; length
+    DB      $ff,$ff
+
+ship_polygon_title:
+    DB      0; angle
+    DB      15; length
+    DB      85 + 15; angle
+    DB      15; length
+    DB      85 + 85 - 15; angle
+    DB      15; length
+    DB      0; angle
+    DB      15; length
     DB      $ff,$ff
 
 ship_polygon:

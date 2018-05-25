@@ -44,17 +44,6 @@ menu_play_init:
 
 menu_play_update:
 
-    ; check game mode
-    ld      a,[gameMode]
-    cp      GAME_MODE_OVER
-    jp      z,menu_game_over_update
-    cp      GAME_MODE_TITLE
-    jp      z,menu_game_title_update
-    cp      GAME_MODE_PLAY
-    jr      z,.playing
-    cp      GAME_MODE_PAUSE
-    jr      z,.paused
-
     ; toggle debug
     ld      a,[coreInputOn]
     and     BUTTON_SELECT
@@ -67,21 +56,22 @@ menu_play_update:
     ld      [menuDebug],a
     call    menu_play_init
 
-    ; only update when active
 .update:
-    ; update ui only every 15 frames
-    ld      a,[coreLoopCounter16]
-    and     %0000_1111
-    ret     nz
-    call    menu_play_render
-    ret
-
-.playing:
-.paused:
     ld      a,[coreInputOn]
     and     BUTTON_START
     cp      BUTTON_START
     jp      z,.toggle_pause
+
+    ld      a,[gameMode]
+    cp      GAME_MODE_PAUSE
+    ret     z
+
+    ; only update ui only every 15 frames
+    ld      a,[coreLoopCounter16]
+    and     %0000_1111
+    ret     nz
+
+    call    menu_play_render
     ret
 
 .toggle_pause:
@@ -439,6 +429,8 @@ menu_game_title_init:
 
     ldxa    [gameMode],GAME_MODE_TITLE
     call    clear_bg
+
+    call    ship_title
 
     ld      bc,$0003
     ld      hl,text_game_title_0

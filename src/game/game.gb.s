@@ -49,8 +49,9 @@ game_loop:
     ld      a,[gameMode]
     cp      GAME_MODE_PAUSE
     jr      z,.paused
+
     cp      GAME_MODE_TITLE
-    jr      z,.paused
+    jr      z,.title
 
     call    asteroid_launch
     call    asteroid_queue
@@ -58,6 +59,22 @@ game_loop:
     call    ship_fire_bullet
     call    ship_fire_thrust
     call    ship_special_update
+
+    ld      a,[gameMode]
+    cp      GAME_MODE_OVER
+    jr      z,.game_over
+
+    call    menu_play_update
+    ret
+
+.game_over:
+    call    menu_game_over_update
+    ret
+
+.title:
+    call    polygon_update
+    call    menu_game_title_update
+    ret
 
 .paused:
     call    menu_play_update
