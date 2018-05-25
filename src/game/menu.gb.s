@@ -361,6 +361,7 @@ menu_game_over_update:
     jr      nz,.right
     xor     a
     ld      [menuButton],a
+    call    sound_effect_select
     jr      .blink
 
 .right:
@@ -369,6 +370,7 @@ menu_game_over_update:
     jr      nz,.blink
     ld      a,1
     ld      [menuButton],a
+    call    sound_effect_select
 
 .blink:
     ; update ui only every 15 frames
@@ -417,14 +419,15 @@ menu_game_over_update:
     ret
 
 .select_button:
-    ; TODO SFX for button confirm
     ld      a,[menuButton]
     cp      0
     jr      z,.restart
+    call    sound_effect_cancel
     call    game_title
     ret
 
 .restart:
+    call    sound_effect_confirm
     call    game_start
     ret
 
@@ -476,6 +479,7 @@ menu_game_title_update:
     ; TODO SFX for button confirm
     xor     a
     ld      [coreInputOn],a
+    call    sound_effect_confirm
     call    game_start
     ret
 

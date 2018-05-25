@@ -19,12 +19,24 @@ sound_enable:
 
     ret
 
+sound_effect_confirm:
+    channelOne(4, 0, 7, 1, 2, 7, 0, $F, $05F0, 1)
+    ret
+
+sound_effect_cancel:
+    channelOne(4, 1, 7, 1, 2, 7, 0, $F, $05F0, 1)
+    ret
+
+sound_effect_select:
+    channelOne(2, 0, 7, 0, 2, 7, 0, $F, $0540, 1)
+    ret
+
 sound_effect_pause:
-    channelOne(2, 0, 6, 1, 2, 7, 0, $F, $0200, 0)
+    channelOne(2, 0, 6, 1, 2, 7, 0, $F, $0200, 1)
     ret
 
 sound_effect_unpause:
-    channelOne(3, 0, 7, 1, 2, 7, 0, $F, $04E0, 0)
+    channelOne(3, 0, 7, 1, 2, 7, 0, $F, $04E0, 1)
     ret
 
 sound_effect_bullet:
