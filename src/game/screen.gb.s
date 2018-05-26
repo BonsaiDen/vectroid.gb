@@ -63,23 +63,39 @@ screen_flash_in:
     ldxa    [screenFlashPointer + 1],l
     ret
 
-screen_flash_short:
-    ld      hl,_screen_flash_short
+screen_flash_explosion_tiny:
+    ; ignore if already flashing
+    ld      a,[screenFlashPointer]
+    cp      $FF
+    ret     nz
+
+    ld      hl,_screen_flash_explosion_tiny
     ldxa    [screenFlashPointer],h
     ldxa    [screenFlashPointer + 1],l
     ret
 
-_screen_flash_short:
-    DB      0,2,6,14,22,31
-    DB      22,14,6,2,0
+screen_flash_explosion_ship:
+    ld      hl,_screen_flash_explosion_ship
+    ldxa    [screenFlashPointer],h
+    ldxa    [screenFlashPointer + 1],l
+    ret
+
+_screen_flash_explosion_ship:
+    DB      8,15,24,32,32,32,32,32,32,32,32
+    DB      31,27,24,22,19,17,15,13,11,9,7,5,3,1,0
+    DB      $FF
+
+_screen_flash_explosion_tiny:
+    DB      0,2,5,8,9
+    DB      8,5,2,0
     DB      $FF
 
 _screen_flash_out:
-    DB      0,-4,-10,-14,-22,-31
+    DB      0,-4,-10,-14,-22,-32
     DB      $FF
 
 _screen_flash_in:
-    DB      -31,-22,-14,-10,-4,0
+    DB      -32,-22,-14,-10,-4,0
     DB      $FF
 
 screen_flash_update:

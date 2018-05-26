@@ -32,6 +32,9 @@ game_title:
     ret
 
 game_over:
+    ld      a,1
+    ld      [forceUIUpdate],a
+    call    clear_bg
     ldxa    [gameDelay],200
     ldxa    [gameModeNext],GAME_MODE_OVER
     ret

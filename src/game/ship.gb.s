@@ -361,7 +361,6 @@ ship_update:
 .smaller:
     ; calculate new MX/MY
     ld      e,a
-    ; TODO support 32
     call    angle_vector_16
     ldxa    [polygonMX],b
     ldxa    [polygonMY],c
@@ -455,6 +454,8 @@ ship_update:
     jr      c,.destroy
     ld      [playerShield],a
 
+    call    screen_flash_explosion_tiny
+
     ; set iframes
     ld      a,IFRAME_COUNT
     ld      [playerIFrames],a
@@ -484,6 +485,7 @@ ship_update:
 
     ; TODO destroy FX
     ; TODO wait for destroy FX to be over
+    call    screen_flash_explosion_ship
     call    game_over
     call    sound_effect_ship_destroy
     call    screen_shake_ship

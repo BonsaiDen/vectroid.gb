@@ -492,7 +492,7 @@ menu_game_title_update:
     ret
 
 .test:
-    call    screen_flash_out
+    call    screen_flash_explosion_ship
     ret
 
 ; Text Data -------------------------------------------------------------------
