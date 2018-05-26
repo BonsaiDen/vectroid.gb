@@ -43,8 +43,10 @@ screenShakeStrength:        DB
 screenShakeTicks:           DB
 menuDebug:                  DB
 menuButton:                 DB
-forceUIUpdate:              DB
+gameDelay:                  DB
+gameModeNext:               DB
 gameMode:                   DB
+forceUIUpdate:              DB
 paletteUpdated:             DB
 bulletRotation:             DB
 shipWithinBorder:           DB

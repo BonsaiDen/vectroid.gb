@@ -430,7 +430,7 @@ menu_game_over_update:
 
 .restart:
     call    sound_effect_confirm
-    call    game_start
+    call    game_play
     ret
 
 
@@ -488,7 +488,7 @@ menu_game_title_update:
     xor     a
     ld      [coreInputOn],a
     call    sound_effect_confirm
-    call    game_start
+    call    game_play
     ret
 
 

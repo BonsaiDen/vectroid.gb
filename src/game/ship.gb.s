@@ -482,9 +482,9 @@ ship_update:
     cp      0
     ret     z
 
+    ; TODO destroy FX
     ; TODO wait for destroy FX to be over
     call    game_over
-    ; TODO destroy FX
     call    sound_effect_ship_destroy
     call    screen_shake_ship
     xor     a

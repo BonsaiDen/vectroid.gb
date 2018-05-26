@@ -12,13 +12,30 @@ game_init:
     ; update palette on next vblank
     ldxa    [paletteUpdated],1
 
-    ; init polygon data
-    call    game_title
-    ;call    game_over
+    ; setup title
+    xor     a
+    ld      [gameDelay],a
+    call    game_title_run
     ret
 
+
 ; Main Loop -------------------------------------------------------------------
-game_start:
+game_play:
+    ldxa    [gameDelay],24
+    ldxa    [gameModeNext],GAME_MODE_PLAY
+    ret
+
+game_title:
+    ldxa    [gameDelay],24
+    ldxa    [gameModeNext],GAME_MODE_TITLE
+    ret
+
+game_over:
+    ldxa    [gameDelay],200
+    ldxa    [gameModeNext],GAME_MODE_OVER
+    ret
+
+game_play_run:
     ldxa    [gameMode],GAME_MODE_PLAY
     call    game_score_reset
     call    screen_init
@@ -29,7 +46,7 @@ game_start:
     call    menu_play_init
     ret
 
-game_title:
+game_title_run:
     call    screen_init
     call    ship_init
     call    polygon_init
@@ -37,7 +54,7 @@ game_title:
     call    menu_game_title_init
     ret
 
-game_over:
+game_over_run:
     call    menu_game_over_init
     ret
 
@@ -46,6 +63,32 @@ game_timer:
     ret
 
 game_loop:
+
+    ; handle transitions
+    ld      a,[gameDelay]
+    cp      0
+    jr      z,.handle_mode
+
+    ; ignore inputs during delay
+    xor     a
+    ld      [coreInputOn],a
+
+    ld      a,[gameDelay]
+    dec     a
+    ld      [gameDelay],a
+    cp      0
+    jr      nz,.handle_mode
+
+    ; switch game mode
+    ld      a,[gameModeNext]
+    cp      GAME_MODE_TITLE
+    call    z,game_title_run
+    cp      GAME_MODE_PLAY
+    call    z,game_play_run
+    cp      GAME_MODE_OVER
+    call    z,game_over_run
+
+.handle_mode:
     ld      a,[gameMode]
     cp      GAME_MODE_PAUSE
     jr      z,.paused

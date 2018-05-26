@@ -41,7 +41,7 @@ sound_effect_unpause:
 
 sound_effect_bullet:
     ;channelOne(4, 1, 3, $10, 2, 0, 0, $F, $0710, 1)
-    channelOne(4, 1, 3, $10, 2, 1, 0, $F, $0730, 0)
+    channelOne(4, 1, 3, $10, 2, 1, 0, $F, $0730, 1)
     ;channelThree($0730, 1)
     ret
 
