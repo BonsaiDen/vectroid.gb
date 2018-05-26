@@ -1,6 +1,6 @@
 SECTION "PaletteLogic",ROM0
 palette_init:
-    ldxa    [paletteLightness],0
+    ldxa    [paletteLightness],-31
     call    palette_update
     ret
 

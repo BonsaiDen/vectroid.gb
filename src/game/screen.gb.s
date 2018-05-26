@@ -1,6 +1,13 @@
 SECTION "ScreenLogic",ROM0
 
 screen_init:
+    ld      a,$FF
+    ld      [screenFlashPointer],a
+    ld      [screenFlashPointer + 1],a
+    call    screen_reset
+    ret
+
+screen_reset:
     xor     a
     ld      [polygonOX],a
     ld      [polygonOY],a
@@ -44,12 +51,72 @@ screen_shake_ship:
     call    screen_shake
     ret
 
-screen_flash_timer:
-    ;ld      a,[paletteLightness]
-    ;add     3
-    ;and     %0001_1111
-    ;ld      [paletteLightness],a
-    ;call    palette_update
+screen_flash_out:
+    ld      hl,_screen_flash_out
+    ldxa    [screenFlashPointer],h
+    ldxa    [screenFlashPointer + 1],l
+    ret
+
+screen_flash_in:
+    ld      hl,_screen_flash_in
+    ldxa    [screenFlashPointer],h
+    ldxa    [screenFlashPointer + 1],l
+    ret
+
+screen_flash_short:
+    ld      hl,_screen_flash_short
+    ldxa    [screenFlashPointer],h
+    ldxa    [screenFlashPointer + 1],l
+    ret
+
+_screen_flash_short:
+    DB      0,2,6,14,22,31
+    DB      22,14,6,2,0
+    DB      $FF
+
+_screen_flash_out:
+    DB      0,-4,-10,-14,-22,-31
+    DB      $FF
+
+_screen_flash_in:
+    DB      -31,-22,-14,-10,-4,0
+    DB      $FF
+
+screen_flash_update:
+
+    ; only update every other frame
+    ld      a,[coreLoopCounter16]
+    and     %0000_0001
+    ret     z
+
+    ; check for active flash point
+    ld      a,[screenFlashPointer]
+    cp      $FF
+    ret     z
+
+    ; load pointer
+    ld      h,a
+    ld      a,[screenFlashPointer + 1]
+    ld      l,a
+
+    ; load data value
+    ld      a,[hl]
+    cp      $FF
+    jr      z,.done
+
+    ld      [paletteLightness],a
+
+    ; update pointer
+    inc     hl
+    ldxa    [screenFlashPointer],h
+    ldxa    [screenFlashPointer + 1],l
+
+    call    palette_update
+    ret
+
+.done:
+    ld      a,$FF
+    ld      [screenFlashPointer],a
     ret
 
 screen_shake_timer:

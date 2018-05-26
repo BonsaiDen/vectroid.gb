@@ -461,6 +461,8 @@ menu_game_title_update:
     ld      a,[coreInputOn]
     cp      BUTTON_START
     jr      z,.start
+    cp      BUTTON_UP
+    jr      z,.test
 
     ; update ui only every 15 frames
     ld      a,[coreLoopCounter16]
@@ -489,6 +491,9 @@ menu_game_title_update:
     call    game_play
     ret
 
+.test:
+    call    screen_flash_out
+    ret
 
 ; Text Data -------------------------------------------------------------------
 text_game_title_0:

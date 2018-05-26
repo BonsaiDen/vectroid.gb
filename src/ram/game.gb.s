@@ -44,6 +44,7 @@ DS                          160
 SECTION "GameRam",WRAM0[$C0A0]
 screenShakeStrength:        DB
 screenShakeTicks:           DB
+screenFlashPointer:         DW
 menuDebug:                  DB
 menuButton:                 DB
 gameDelay:                  DB
