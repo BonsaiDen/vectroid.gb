@@ -1,28 +1,77 @@
-load_palette_bg:; a = dark/light
-    ld      hl,_background_palettes
-    ld      de,$ff68
-    call    _load_palette
+SECTION "PaletteLogic",ROM0
+palette_init:
+    ldxa    [paletteLightness],0
+    call    palette_update
     ret
 
-load_palette_sp:; a = dark/light
-    ld      hl,_sprite_palettes
-    ld      de,$ff6A
-    call    _load_palette
-    ret
-
-_load_palette:; a = dark/light, de = palette memory, hl = palette data
-    ; store
+palette_update:; a = dark/light
     ld      b,a
 
-    ; start transfer
+    push    bc
+
+    ld      c,PALETTE_BACKGROUND_COUNT
+    ld      hl,_background_palettes
+    ld      de,paletteBuffer
+    call    _update_palette
+    pop     bc
+
+    ld      c,PALETTE_SPRITE_COUNT
+    ld      de,paletteBuffer + PALETTE_BACKGROUND_COUNT * 4 * 2
+    ld      hl,_sprite_palettes
+    call    _update_palette
+
+    ld      a,1
+    ld      [paletteUpdated],a
+    ret
+
+palette_copy:
+    ; only copy if we're still in vblank
+    ld      a,[rLY]
+    cp      90
+    ret     c
+
+    ; background setup
+    ld      b,PALETTE_BACKGROUND_COUNT * 4
+    ld      hl,paletteBuffer
+    ld      de,$FF68
+
+    ; background transfer
     ld      a,%10000000
     ld      [de],a
-    inc     de
-
-    ; load entry count
+    inc     e
+.loop_background:
     ld      a,[hli]
-    ld      c,a
+    ld      [de],a
+    ld      a,[hli]
+    ld      [de],a
 
+    dec     b
+    jr      nz,.loop_background
+
+    ; sprite setup
+    ld      b,PALETTE_SPRITE_COUNT * 4
+    ld      hl,paletteBuffer + PALETTE_BACKGROUND_COUNT * 4 * 2
+    ld      de,$FF6A
+
+    ; sprite transfer
+    ld      a,%10000000
+    ld      [de],a
+    inc     e
+.loop_foreground:
+    ld      a,[hli]
+    ld      [de],a
+    ld      a,[hli]
+    ld      [de],a
+
+    dec     b
+    jr      nz,.loop_foreground
+
+    ; reset update flag
+    xor     a
+    ld      [paletteUpdated],a
+    ret
+
+_update_palette:; b = dark/light, c = entry count, de = palette buffer, hl = palette data
     ; check if light mode
     ld      a,b
     cp      1
@@ -40,18 +89,59 @@ _load_palette:; a = dark/light, de = palette memory, hl = palette data
     ld      b,c
 .next_palette_entry:
 
-    ; 2 bytes per color and 4 colors per palette entry, so 8 bytes
-    ld      c,8
+    ; 2 bytes per color and 4 colors per palette entry
+    ld      c,4
 .next_color_byte:
+    push    bc
+    push    de
 
-    ; wait for vblank
-    ld      a,[rSTAT]       ; <---+
-    and     STATF_BUSY      ;     |
-    jr      nz,@-4          ; ----+
+    ld      a,[paletteLightness]
+    ld      d,a
 
-    ; load into palette mem
+    ; green byte
     ld      a,[hli]
+    call    _mix_32
+    rrc     a
+    rrc     a
+    rrc     a
+    ld      e,a
+
+    ; blue byte
+    ld      a,[hli]
+    call    _mix_32
+    rlc     a
+    rlc     a
+    ld      b,a
+
+    ; combine with green
+    ld      a,e
+    and     %0000_0011
+    or      b
+    ld      b,a
+
+    ; red byte
+    ld      a,[hli]
+    call    _mix_32
+    ld      c,a
+
+    ; combine with green
+    ld      a,e
+    and     %1110_0000
+    or      c
+    ld      c,a
+
+    ; load into palette memory
+    pop     de
+
+    ld      a,c
     ld      [de],a
+    inc     de
+
+    ld      a,b
+    ld      [de],a
+    inc     de
+
+    pop     bc
     dec     c
     jr      nz,.next_color_byte
 
@@ -59,8 +149,25 @@ _load_palette:; a = dark/light, de = palette memory, hl = palette data
     jr      nz,.next_palette_entry
     ret
 
+_mix_32:; a = value, d = addition
+    bit     7,d
+    jr      nz,.negative
+    add     d
+    cp      32
+    ret     c
+    ; limit to 31
+    ld      a,31
+    ret
+
+.negative:
+    add     d
+    cp      32
+    ret     c
+    ; limit to 0
+    xor     a
+    ret
+
 _background_palettes:
-    DB      1
     ; Dark
     GBC_COLOR(0, 0, 16)
     GBC_COLOR(128, 128, 128)
@@ -74,7 +181,6 @@ _background_palettes:
     GBC_COLOR(0, 0, 0)
 
 _sprite_palettes:
-    DB      6
 
     ; Asteroids (Dark)
     GBC_COLOR(0, 0, 0)
@@ -152,7 +258,8 @@ _sprite_palettes:
 
 ; Helpers ---------------------------------------------------------------------
 MACRO GBC_COLOR(@r, @g, @b)
-    DB  (((FLOOR(@b / 8) & 31) << 10) | ((FLOOR(@g / 8) & 31) << 5) | (FLOOR(@r / 8) & 31)) & $ff
-    DB  (((FLOOR(@b / 8) & 31) << 10) | ((FLOOR(@g / 8) & 31) << 5) | (FLOOR(@r / 8) & 31)) >> 8
+    DB (FLOOR(@g / 8) & 31)
+    DB (FLOOR(@b / 8) & 31)
+    DB (FLOOR(@r / 8) & 31)
 ENDMACRO
 

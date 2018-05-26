@@ -31,6 +31,9 @@ GAME_MODE_PLAY              EQU 1
 GAME_MODE_OVER              EQU 2
 GAME_MODE_PAUSE             EQU 3
 
+PALETTE_BACKGROUND_COUNT    EQU 1
+PALETTE_SPRITE_COUNT        EQU 6
+
 
 ; OAM -------------------------------------------------------------------------
 SECTION "OAM",WRAM0[$C000]
@@ -65,6 +68,9 @@ playerX:                    DB
 playerY:                    DB
 playerScore:                DS 3
 
-SECTION "UiRam",WRAM0[$C100]
+SECTION "PaletteRam",WRAM0[$C100]
+paletteBuffer:              DS (PALETTE_BACKGROUND_COUNT + PALETTE_SPRITE_COUNT) * 4 * 2
+
+SECTION "UiRam",WRAM0[$C200]
 uiOffscreenBuffer:          DS 576
 

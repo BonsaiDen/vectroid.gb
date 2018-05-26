@@ -483,8 +483,6 @@ menu_game_title_update:
     ret
 
 .start:
-    ; TODO switch between title and replay
-    ; TODO SFX for button confirm
     xor     a
     ld      [coreInputOn],a
     call    sound_effect_confirm

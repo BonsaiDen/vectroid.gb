@@ -7,10 +7,8 @@ core_vblank_handler:
     push    de
     push    hl
 
-    call    game_draw_vram
-
-    ; just copy sprites in case no room update was required
     call    $ff80
+    call    game_draw_vram
 
     ; Set vblank flag, this will cause the core loop to run the game loop once
 .done:

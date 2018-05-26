@@ -24,7 +24,7 @@ polygonOffscreenBuffer:     DS     1280
 
 
 SECTION "PolygonVars",HRAM[$FF98]
-temp:                       DB
+paletteLightness:           DB
 lineXI:                     DB
 lineYI:                     DB
 polygonOX:                  DB

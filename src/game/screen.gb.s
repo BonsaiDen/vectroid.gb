@@ -44,6 +44,13 @@ screen_shake_ship:
     call    screen_shake
     ret
 
+screen_flash_timer:
+    ;ld      a,[paletteLightness]
+    ;add     3
+    ;and     %0001_1111
+    ;ld      [paletteLightness],a
+    ;call    palette_update
+    ret
 
 screen_shake_timer:
     ld      a,[screenShakeTicks]

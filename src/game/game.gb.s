@@ -7,10 +7,8 @@ game_init:
     call    init_bg
     call    menu_init
     call    polygon_init
+    call    palette_init
     call    sound_enable
-
-    ; update palette on next vblank
-    ldxa    [paletteUpdated],1
 
     ; setup title
     xor     a
@@ -60,6 +58,7 @@ game_over_run:
 
 game_timer:
     call    screen_shake_timer
+    call    screen_flash_timer
     ret
 
 game_loop:
@@ -190,10 +189,8 @@ game_draw_vram:
     jr      z,.draw_polygons
 
     ; update palette vram
-    xor     a
-    ld      [paletteUpdated],a
-    call    load_palette_sp
-    call    load_palette_bg
+    call    palette_copy
+    ret
 
 .draw_polygons:
     call    polygon_draw
