@@ -82,6 +82,8 @@ game_loop:
 
 game_score_increase:; a = increase
     ld      b,a
+    cp      0
+    ret     z
 
     ; schedule points redraw
     ld      a,1
@@ -116,6 +118,20 @@ game_score_increase:; a = increase
     sub     100
     ld      [playerScore],a
     incx    [playerScore + 1]
+    cp      100
+    jr      nc,.overflow_2
+    jr      .loop
+
+.overflow_2:
+    xor     a
+    ld      [playerScore + 1],a
+    incx    [playerScore + 2]
+    sub     100
+    jr      nc,.overflow_3
+    jr      .loop
+
+.overflow_3:
+    ldxa    [playerScore + 2],99
     jr      .loop
 
 game_score_reset:

@@ -61,7 +61,7 @@ playerIFrames:              DB
 playerShield:               DB
 playerX:                    DB
 playerY:                    DB
-playerScore:                DS 2
+playerScore:                DS 3
 
 SECTION "UiRam",WRAM0[$C100]
 uiOffscreenBuffer:          DS 576

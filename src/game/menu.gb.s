@@ -6,7 +6,6 @@ menu_init:
     ld      [menuButton],a
     call    clear_bg
 
-    ; load UI tiles
     ld      hl,DataUITiles
     ld      de,$8000
     call    core_decode_eom
@@ -188,7 +187,8 @@ menu_play_render:
     ld      [hli],a
     ld      [hli],a
 
-    ld      hl,uiOffscreenBuffer + $0D + 544
+    ld      hl,uiOffscreenBuffer + $0C + 544
+    ld      [hli],a
     ld      [hli],a
     ld      [hli],a
     ld      [hli],a
@@ -198,14 +198,19 @@ menu_play_render:
     ld      [hli],a
 
     ; points
-    ld      hl,uiOffscreenBuffer + $0D
+    ld      hl,uiOffscreenBuffer + $0C
     ld      [hl],$70
-    ld      hl,uiOffscreenBuffer + $0E
+    ld      hl,uiOffscreenBuffer + $0D
     ld      [hl],$71
+
+    ld      a,[playerScore + 2]
+    ld      bc,$0F00
+    ld      de,$0200
+    call    ui_number_right_aligned
 
     ld      a,[playerScore + 1]
     ld      bc,$1100
-    ld      de,$0300
+    ld      de,$0200
     call    ui_number_right_aligned
 
     ld      a,[playerScore]
@@ -234,7 +239,8 @@ menu_play_render:
     ld      [hli],a
     ld      [hli],a
 
-    ld      hl,uiOffscreenBuffer + $0D
+    ld      hl,uiOffscreenBuffer + $0C
+    ld      [hli],a
     ld      [hli],a
     ld      [hli],a
     ld      [hli],a
@@ -244,14 +250,19 @@ menu_play_render:
     ld      [hli],a
 
     ; points
-    ld      hl,uiOffscreenBuffer + $0D + 544
+    ld      hl,uiOffscreenBuffer + $0C + 544
     ld      [hl],$70
-    ld      hl,uiOffscreenBuffer + $0E + 544
+    ld      hl,uiOffscreenBuffer + $0D + 544
     ld      [hl],$71
+
+    ld      a,[playerScore + 2]
+    ld      bc,$0F11
+    ld      de,$0200
+    call    ui_number_right_aligned
 
     ld      a,[playerScore + 1]
     ld      bc,$1111
-    ld      de,$0300
+    ld      de,$0200
     call    ui_number_right_aligned
 
     ld      a,[playerScore]
@@ -316,13 +327,14 @@ menu_game_over_init:
     ld      hl,text_game_over_1
     call    ui_text
 
-    ld      bc,$0008
-    ld      hl,text_game_over_2
-    call    ui_text
+    ld      a,[playerScore + 2]
+    ld      bc,$0808
+    ld      de,$0200
+    call    ui_number_right_aligned
 
     ld      a,[playerScore + 1]
     ld      bc,$0A08
-    ld      de,$0300
+    ld      de,$0200
     call    ui_number_right_aligned
 
     ld      a,[playerScore]
@@ -432,13 +444,17 @@ menu_game_title_init:
 
     call    ship_title
 
-    ld      bc,$0003
+    ld      bc,$0002
     ld      hl,text_game_title_0
     call    ui_text
 
-    ld      bc,$000E
+    ld      bc,$000D
     ld      hl,text_game_title_1
     call    ui_text
+
+    ; ld      bc,$000F
+    ; ld      hl,text_game_title_2
+    ; call    ui_text
     ret
 
 menu_game_title_update:
@@ -460,8 +476,8 @@ menu_game_title_update:
     ld      a,1
     ld      [forceUIUpdate],a
 
-    ld      bc,$040F
-    ld      de,$0C00
+    ld      bc,$050E
+    ld      de,$0A00
     ld      e,h
     call    ui_character
     ret
@@ -480,14 +496,14 @@ menu_game_title_update:
 text_game_title_0:
     DS 20 "   -- VECTROID --\0"
 text_game_title_1:
-    DS 17 "    Press  Start\0"
+    DS 16 "     Start Game\0"
+text_game_title_2:
+    DS 16 "     Highscores\0"
 
 text_game_over_0:
     DS 16 "     GAME OVER!\0"
 text_game_over_1:
     DS 18 "   Your Score was\0"
-text_game_over_2:
-    DS 14 "       000000\0"
 text_game_over_3:
     DS 14 "       Points\0"
 text_game_over_4:

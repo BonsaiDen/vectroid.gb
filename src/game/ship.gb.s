@@ -21,6 +21,7 @@ ship_init:
     xor     a
     ld      [playerScore],a
     ld      [playerScore + 1],a
+    ld      [playerScore + 2],a
 
     ld      a,80
     ld      [playerY],a
@@ -31,7 +32,7 @@ ship_init:
     ret
 
 ship_title:
-    createPolygon(4, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon_title, ship_title_rotate)
+    createPolygon(4, COLLISION_SHIP, PALETTE_SHIP, 80, 64, 192, ship_polygon_title, ship_title_rotate)
     ret
 
 ship_title_rotate:
@@ -580,7 +581,10 @@ bullet_update:
     ; destroyed, increase points
     ld      hl,asteroid_points
     ld      a,b
+    add     a; x2
     addw    hl,a
+    ld      a,[hli]
+    call    game_score_increase
     ld      a,[hl]
     call    game_score_increase
 

@@ -102,15 +102,8 @@ asteroid_launch:
     ld      [polygonX],a
 
 .launch:
-
     ; set distance to 0
     ld      e,0
-
-    ; set random velocity
-    call    math_random
-    and     ASTEROID_LAUNCH_MASK
-    add     ASTEROID_LAUNCH_VELOCITY
-    ld      c,a
 
     ; vary angle by 64
     call    math_random
@@ -416,13 +409,11 @@ _asteroid_split:; return 0 if actually split up
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_LARGE
-    ld      c,ASTEROID_SPLIT_VELOCITY_LARGE
     ld      e,ASTEROID_SPLIT_DISTANCE_LARGE
     call    asteroid_create
 
     ld      a,d
     sub     ASTEROID_SPLIT_OFFSET
-    ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
     ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
     ld      b,POLYGON_MEDIUM
     call    asteroid_create
@@ -448,7 +439,6 @@ _asteroid_split:; return 0 if actually split up
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET_THIRD
     ld      b,POLYGON_MEDIUM
-    ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
     ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
     call    asteroid_create
 
@@ -459,7 +449,6 @@ _asteroid_split:; return 0 if actually split up
 
     ld      a,d
     sub     ASTEROID_SPLIT_OFFSET_THIRD
-    ld      c,ASTEROID_SPLIT_VELOCITY_SMALL
     ld      e,ASTEROID_SPLIT_DISTANCE_SMALL
     ld      b,POLYGON_SMALL
     call    asteroid_create
@@ -480,7 +469,6 @@ _asteroid_split:; return 0 if actually split up
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_MEDIUM
-    ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
     ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
     call    asteroid_create
 
@@ -508,13 +496,11 @@ _asteroid_split:; return 0 if actually split up
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_MEDIUM
-    ld      c,ASTEROID_SPLIT_VELOCITY_MEDIUM
     ld      e,ASTEROID_SPLIT_DISTANCE_MEDIUM
     call    asteroid_create
 
     ld      a,d
     sub     ASTEROID_SPLIT_OFFSET
-    ld      c,ASTEROID_SPLIT_VELOCITY_SMALL
     ld      e,ASTEROID_SPLIT_DISTANCE_SMALL
     ld      b,POLYGON_SMALL
     call    asteroid_create
@@ -534,7 +520,6 @@ _asteroid_split:; return 0 if actually split up
     call    _direction_vector
     add     ASTEROID_SPLIT_OFFSET
     ld      b,POLYGON_SMALL
-    ld      c,ASTEROID_SPLIT_VELOCITY_SMALL
     ld      e,ASTEROID_SPLIT_DISTANCE_SMALL
     call    asteroid_create
 
@@ -561,6 +546,43 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
 
     ; store rotation
     ld      d,a
+
+    ; calculate velocity based on current score
+    push    de
+    ld      a,[playerScore + 2]
+    cp      0
+    jr      nz,.max_velocity
+    ld      a,[playerScore + 1]
+    jr      .velocity
+
+.max_velocity:
+    ld      a,99
+
+.velocity:
+    div     a,4
+    ld      de,_asteroid_launch_velocity
+    addw    de,a
+    ld      a,[de]
+    ld      c,a; store base velocity
+
+    ; add random velocity
+    call    math_random
+    and     ASTEROID_LAUNCH_RANDOM
+
+    ; combine with base
+    add     c;
+    ld      c,a
+
+    ; combine with bonus speed for size
+    ld      a,b
+    dec     a
+    ld      de,_asteroid_launch_velocity_bonus
+    addw    de,a
+    ld      a,[de]
+    add     c
+    ld      c,a
+
+    pop     de
 
     ; get pointer into queue
     ld      hl,asteroidQueue
@@ -616,10 +638,10 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     pop     bc
 
     ; set velocity
-    call    math_random
-    and     %0000_0111
-    add     c
-    ld      e,a
+    ;call    math_random
+    ;and     %0000_0111
+    ;add     c
+    ld      e,c
     push    hl
     call    angle_vector_16
     pop     hl
@@ -641,6 +663,43 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
 
 
 ; Asteroid Layout -------------------------------------------------------------
+_asteroid_launch_velocity:
+    DB      5
+    DB      6
+    DB      7
+    DB      8
+    DB      9
+    DB      10
+    DB      11
+    DB      12
+
+    DB      13
+    DB      14
+    DB      15
+    DB      16
+    DB      17
+    DB      18
+    DB      20
+    DB      21
+
+    DB      22
+    DB      23
+    DB      25
+    DB      27
+    DB      29
+    DB      30
+    DB      32
+    DB      33
+
+    DB      34
+    DB      35
+
+_asteroid_launch_velocity_bonus:
+    DB      8
+    DB      5
+    DB      2
+    DB      0
+
 _asteroid_polygons:
     DW      small_asteroid_polygon_a
     DW      small_asteroid_polygon_b
@@ -658,9 +717,13 @@ _asteroid_hp:
     DB      32
 
 asteroid_points:
-    DB      50
     DB      100
+    DB      0
+    DB      200
+    DB      0
     DB      150
+    DB      150
+    DB      250
     DB      250
 
 small_asteroid_polygon_a:
