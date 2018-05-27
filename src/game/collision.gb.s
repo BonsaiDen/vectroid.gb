@@ -58,7 +58,6 @@ collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d 
 
     ; check if distance is 0
     ; (if so we assume that we're checking against the same polygon and skip it)
-    ; TODO re-place with some actual check
     cp      0; check y for 0 distance
     jr      nz,.check_distance
 

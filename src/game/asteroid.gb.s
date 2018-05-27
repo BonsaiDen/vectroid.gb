@@ -14,7 +14,6 @@ asteroid_init:
 asteroid_launch:
 
     ; check if enabled
-    ; TODO ifdef support in gbasm?
     ld      a,ASTEROID_ENABLED
     cp      1
     ret     nz
@@ -85,20 +84,18 @@ asteroid_launch:
     ld      b,96
 
 .left_right:
-    ; TODO double check these
     ; choose y between 32-128
     call    math_random
     and     %0101_1111
-    add     32; TODO variable
+    add     32
     ld      [polygonY],a
     jr      .launch
 
 .top_bottom:
-    ; TODO double check these
     ; choose x between 32-144
     call    math_random
     and     %0110_1111
-    add     32; TODO variable
+    add     32
     ld      [polygonX],a
 
 .launch:
@@ -273,13 +270,11 @@ asteroid_update:
     jr      nc,.destroy_collide
 
     ; only collide every other frame
-    ; TODO reduce further by matching with polygon index?
     ld      a,[coreLoopCounter]
     and     %0000_0001
     jr      z,.rotate
 
     ; collide with other asteroids
-    ; TODO skip when inside border?
     ; need to use half size
     ld      d,COLLISION_ASTEROID
     ld      c,5; TODO adjust for different half-sizes?
@@ -330,10 +325,21 @@ asteroid_update:
 .destroy_other_asteroid:
     call    _destroy_other_asteroid
 
+    ; divide by 4 and sub 1 to get index into damage table
+    srl     b
+    srl     b
+    dec     b
+    ld      de,_asteroid_asteroid_damage
+    ld      a,b
+    add     a
+    add     c
+    addw    de,a
+    ld      a,[de]
+    ld      b,a
+
     ; reduce asteroid hp a bit with every collision
     ld      a,[polygonDataB]
-    ; TODO make damage dependend on the other asteroid size / heavy
-    sub     2; TODO variable for asteroid impact damage
+    sub     b
     jr      nc,.hp_above_zero
     jr      .destroy_this_asteroid
 
@@ -410,12 +416,20 @@ asteroid_update:
     xor     a
     ret
 
-_destroy_other_asteroid:
+_destroy_other_asteroid:; -> b = half size, c = flags
+    ; store half size
+    ld      a,[de]
+    ld      b,a
     dec     de
     dec     de
     dec     de
     dec     de
     dec     de
+
+    ; store flags
+    ld      a,[de]
+    and     %0000_0001
+    ld      c,a
     dec     de; hp
     ld      a,$FE
     ld      [de],a
@@ -781,6 +795,16 @@ _asteroid_launch_velocity_bonus:
     DB      5
     DB      2
     DB      0
+
+_asteroid_asteroid_damage:
+    DB      2
+    DB      4
+    DB      4
+    DB      8
+    DB      8
+    DB      16
+    DB      16
+    DB      32
 
 _asteroid_polygons:
     DW      small_asteroid_polygon_a

@@ -956,8 +956,6 @@ polygon_draw:
     ld      [rHDMA5],a
     ret
 
-
-; TODO fix indexing with macros defined above their invocation point
 MACRO addFixedSigned(@major, @minor, @increase, @max)
 add_fixed_signed:
 

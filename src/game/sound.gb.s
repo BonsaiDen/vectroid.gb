@@ -40,9 +40,7 @@ sound_effect_unpause:
     ret
 
 sound_effect_bullet:
-    ;channelOne(4, 1, 3, $10, 2, 0, 0, $F, $0710, 1)
     channelOne(4, 1, 3, $10, 2, 1, 0, $F, $0730, 1)
-    ;channelThree($0730, 1)
     ret
 
 sound_effect_thrust:
@@ -50,16 +48,10 @@ sound_effect_thrust:
     ret
 
 sound_effect_impact:
-    ; TODO use channel two instead?
-    ; TODO or only play when bullet effect is not active?
-    ;channelOne(1, 1, 3, $2F, 1, 7, 0, $F, $06B0, 1)
     channelTwo($34, 2, 1, 0, $D, $0310, 1)
     ret
 
 sound_effect_impact_heavy:
-    ; TODO use channel two instead?
-    ; TODO or only play when bullet effect is not active?
-    ;channelOne(1, 1, 2, $2F, 2, 7, 0, $F, $0770, 1)
     channelTwo($3B, 2, 1, 0, $8, $0700, 1)
     ret
 
@@ -72,8 +64,7 @@ sound_effect_shield_damage:
     ret
 
 sound_effect_break:
-    ; TODO have a actual sound engine with playback priority and other stuff
-    ; TODO so we can remove this hack
+    ; TODO remove once actual sound engine is implemented
     ld      a,[playerShield]
     cp      0
     ret     z

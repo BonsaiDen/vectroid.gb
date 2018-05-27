@@ -68,7 +68,6 @@ core_decode_eom: ; HL = source, DE = target, coreDecodeAddress
     jr      nz,@-4          ; ----+
 
     ; copy the next byte
-    ; TODO fix vram access issues (since we copy from / to vram)
     ld      a,[hli]
     ld      [de],a
     inc     de

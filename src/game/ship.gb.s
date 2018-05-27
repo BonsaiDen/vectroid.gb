@@ -218,7 +218,6 @@ ship_special_update:
     cp      3
     jr      z,.bottom
 
-    ; TODO animate out of screen indicator?
 .left:
     ld      a,c
     ld      [hli],a
@@ -441,12 +440,10 @@ ship_update:
 
     ; hit by small / medium asteroid
 .hit_small:
-    ; TODO double the damage for heavy asteroids
     ld      b,SHIELD_DAMAGE_SMALL
     jr      .damage
 
 .hit_medium:
-    ; TODO double the damage for heavy asteroids
     ld      b,SHIELD_DAMAGE_MEDIUM
 
 .damage:
@@ -481,7 +478,6 @@ ship_update:
     cp      0
     ret     z
 
-    ; TODO destroy GFX
     call    sound_effect_ship_destroy
     call    screen_flash_explosion_ship
     call    screen_shake_ship
@@ -565,7 +561,6 @@ bullet_update:
     ld      b,a
 
     ; DE points to half size of polygon, so we need to go 5 back to DataB
-    ; TODO add a subw instruction to gbasm
     dec     de
     dec     de
     dec     de
@@ -592,7 +587,6 @@ bullet_update:
     add     a; x2
     addw    hl,a
 
-    ; TODO double the points for heavy asteroids
     ld      a,[hli]
     call    game_score_increase
     ld      a,[hl]
