@@ -62,6 +62,9 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      [polygonSize],a
     ld      hl,polygonState
 
+    xor     a
+    ld      [polygonChanged],a
+
     ; find unused polygon of the desired size
 .loop:
     ld      a,$ff
@@ -77,15 +80,41 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      [hli],a
 
     ; set update routine
-    ; TODO check if changed
-    ldxa    [hli],b
-    ldxa    [hli],c
+    ld      a,[hl]
+    cp      b
+    jr      z,.hi_unchanged
 
+    ld      a,1
+    ld      [polygonChanged],a
+    ldxa    [hli],b
+    jr      .hi_changed
+
+.hi_unchanged:
+    inc     hl
+
+.hi_changed:
+    ld      a,[hl]
+    cp      c
+    jr      z,.lo_unchanged
+
+    ld      a,1
+    ld      [polygonChanged],a
+    ldxa    [hli],c
+    jr      .lo_changed
+
+.lo_unchanged:
+    inc     hl
+
+.lo_changed:
     ; data values
     ld      a,[polygonDataA]
     ld      [hli],a
 
     ld      a,[polygonDataB]
+    ld      [hli],a
+
+    ; flags
+    ld      a,[polygonFlags]
     ld      [hli],a
 
     ; reset momentum and delta
@@ -104,7 +133,6 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
 
     ; skip half width
     ld      a,[hli]
-    ; TODO check if changed
     ld      [polygonHalfSize],a
 
     ; set x
@@ -114,9 +142,19 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ldxa    [hli],[polygonX]
 
     ; set rotation
-    ; TODO check if changed
-    ldxa    [hli],[polygonRotation]
+    ld      a,[polygonRotation]
+    cp      [hl]
+    jr      z,.rot_unchanged
 
+    ld      a,1
+    ld      [polygonChanged],a
+    ldxa    [hli],[polygonRotation]
+    jr      .rot_changed
+
+.rot_unchanged:
+    inc     hl
+
+.rot_changed:
     ; setup palette
     push    bc
     push    de
@@ -129,13 +167,23 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     pop     de
     pop     bc
 
+    ; check if changed
+    ld      a,[polygonChanged]
+    cp      0
+    jr      z,.unchanged
+
     ; set old rotation to a different value to force initial update
     ld      a,[polygonRotation]
-    ; TODO if NOT changed DON'T add 128 so we avoid drawing the polygon when it
-    ; is already present in the rendered tiles
     add     128
     ld      [hli],a
+    jr      .changed
 
+.unchanged:
+    ; set old rotation to same value in order to re-use the already drawn tile data
+    ld      a,[polygonRotation]
+    ld      [hli],a
+
+.changed:
     inc     hl; skip tile count
     inc     hl; skip tile offset
     inc     hl
@@ -257,6 +305,9 @@ update_polygon:; hl = polygon state pointer
     ldxa    [polygonDataA],[hli]
     ldxa    [polygonDataB],[hli]
 
+    ; TODO use third data value
+    inc     hl
+
     ; skip momentum and delta
     ldxa    [polygonMY],[hli]
     ldxa    [polygonMX],[hli]
@@ -293,6 +344,7 @@ update_polygon:; hl = polygon state pointer
     ; re-assign data so it can be used as a counter etc.
     ldxa    [hli],[polygonDataA]
     ldxa    [hli],[polygonDataB]
+    inc     hl
 
     ; b = my
     ldxa    [hli],[polygonMY]
@@ -307,16 +359,12 @@ update_polygon:; hl = polygon state pointer
     push    hl
     addFixedSigned(polygonY, d, b, 176)
     addFixedSigned(polygonY, d, b, 176)
-    addFixedSigned(polygonY, d, b, 176)
-    addFixedSigned(polygonY, d, b, 176)
     pop     hl
     ldxa    [hli],d; store updated dy
 
     ; px += dx.mx
     ld      d,[hl]
     push    hl
-    addFixedSigned(polygonX, d, c, 192)
-    addFixedSigned(polygonX, d, c, 192)
     addFixedSigned(polygonX, d, c, 192)
     addFixedSigned(polygonX, d, c, 192)
     pop     hl
@@ -327,6 +375,7 @@ update_polygon:; hl = polygon state pointer
     ; re-assign data so it can be used as a counter etc.
     ldxa    [hli],[polygonDataA]
     ldxa    [hli],[polygonDataB]
+    inc     hl
 
     ; reset mx/my/dx/dy
     xor     a
@@ -629,7 +678,7 @@ polygon_destroy:
     res     7,[hl]
 
     ; skip over other attributes
-    addw    hl,13
+    addw    hl,POLYGON_ATTR_BYTES
 
     ; load sprite size
     ld      a,[hli]
@@ -909,11 +958,9 @@ polygon_draw:
 
 
 ; TODO fix indexing with macros defined above their invocation point
-; TODO optimize
 MACRO addFixedSigned(@major, @minor, @increase, @max)
 add_fixed_signed:
 
-    ; TODO we currently don't clear @minor in case the direction changed
     ld      l,@increase
 
     ; ignore if zero
@@ -929,6 +976,25 @@ add_fixed_signed:
 .positive:
     sla     @increase
 
+.positive_one:
+    ld      a,@minor
+    add     @increase
+    ld      @minor,a
+    jr      nc,.positive_two
+
+    ; minor overflowed so increase major
+    ld      a,[@major]
+    inc     a
+
+    ; check if > @max
+    cp      @max
+    jr      c,.positive_one_no_wrap
+    add     256 - @max; wrap over to 0
+
+.positive_one_no_wrap:
+    ld      [@major],a
+
+.positive_two:
     ld      a,@minor
     add     @increase
     ld      @minor,a
@@ -940,10 +1006,10 @@ add_fixed_signed:
 
     ; check if > @max
     cp      @max
-    jr      c,.positive_no_wrap
+    jr      c,.positive_two_no_wrap
     add     256 - @max; wrap over to 0
 
-.positive_no_wrap:
+.positive_two_no_wrap:
     ld      [@major],a
     jr      .done
 
@@ -953,10 +1019,28 @@ add_fixed_signed:
     cpl
     inc     a
     ld      @increase,a
-
     sla     @increase
 
     ; subtract
+.negative_one:
+    ld      a,@minor
+    add     @increase
+    ld      @minor,a
+    jr      nc,.negative_two
+
+    ; minor underflowd so decrease major
+    ld      a,[@major]
+    dec     a
+
+    ; check if > @max
+    cp      @max
+    jr      c,.negative_one_no_wrap
+    sub     256 - @max; wrap over to 176
+
+.negative_one_no_wrap:
+    ld      [@major],a
+
+.negative_two:
     ld      a,@minor
     add     @increase
     ld      @minor,a
@@ -968,12 +1052,12 @@ add_fixed_signed:
 
     ; check if > @max
     cp      @max
-    jr      c,.negative_no_wrap
+    jr      c,.negative_two_no_wrap
     sub     256 - @max; wrap over to 176
 
-.negative_no_wrap:
+.negative_two_no_wrap:
     ld      [@major],a
-    jr      .done
+
 .done:
     ld      @increase,l
 ENDMACRO
@@ -988,10 +1072,9 @@ MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
     ld      a,8
     ld      [polygonDataB],a
 
-    ;call    math_random_signed
     xor     a
+    ld      [polygonFlags],a
     ld      [polygonMX],a
-    ;call    math_random_signed
     ld      [polygonMY],a
 
     ld      a,@palette

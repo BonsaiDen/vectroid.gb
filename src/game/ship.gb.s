@@ -135,7 +135,7 @@ ship_fire_bullet:
 
     ldxa    [polygonPalette],PALETTE_BULLET
     ldxa    [polygonGroup],COLLISION_BULLET
-    ldxa    [polygonRotation],[bulletRotation]
+    ldxa    [polygonRotation],0
     ldxa    [polygonDataA],BULLET_ACTIVE
     ld      de,bullet_polygon
     ld      bc,bullet_update
@@ -568,6 +568,8 @@ bullet_update:
     ld      b,a
 
     ; DE points to half size of polygon, so we need to go 5 back to DataB
+    ; TODO add a subw instruction
+    dec     de
     dec     de
     dec     de
     dec     de
@@ -647,20 +649,12 @@ thrust_update:
 
 ; Layout ----------------------------------------------------------------------
 bullet_polygon:
-    DB      0; angle
-    DB      1; length
-    DB      42
-    DB      1; length
-    DB      42 * 2
-    DB      1; length
-    DB      42 * 3
-    DB      1; length
-    DB      42 * 4
-    DB      1; length
-    DB      42 * 5
-    DB      1; length
-    DB      0; angle
-    DB      1; length
+    DB      0,1
+    DB      42,1
+    DB      42 * 2,1
+    DB      42 * 3 + 1,1
+    DB      42 * 5 + 1,1
+    DB      0,1
     DB      $ff,$ff
 
 debris_polygon:

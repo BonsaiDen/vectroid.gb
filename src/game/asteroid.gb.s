@@ -365,8 +365,8 @@ asteroid_update:
     xor     a
     ret
 
-
 _destroy_other_asteroid:
+    dec     de
     dec     de
     dec     de
     dec     de
@@ -377,6 +377,8 @@ _destroy_other_asteroid:
     ret
 
 _asteroid_split:; return 0 if actually split up
+    ; TODO get palette?
+
     ld      a,[polygonHalfSize]
     cp      $04
     jr      z,.small

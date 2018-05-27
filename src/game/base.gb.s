@@ -119,6 +119,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -138,6 +139,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 2x2
     DB      %0000_0010; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX
@@ -161,6 +163,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -180,6 +183,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 2x2
     DB      %0000_0010; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX
@@ -203,6 +207,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -222,6 +227,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 1x1 2
     DB      %0000_0001; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX
@@ -245,6 +251,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -264,6 +271,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 1x1 4
     DB      %0000_0001; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX
@@ -287,6 +295,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -306,6 +315,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 1x1 6
     DB      %0000_0001; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX
@@ -329,6 +339,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -348,6 +359,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 1x1 8
     DB      %0000_0001; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX
@@ -371,6 +383,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -390,6 +403,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 1x1 10
     DB      %0000_0001; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX
@@ -413,6 +427,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -432,6 +447,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 1x1 12
     DB      %0000_0001; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX
@@ -455,6 +471,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -476,6 +493,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      $ffff; Update routine
     DB      $00; Data
     DB      $00; Data
+    DB      $00; Data
     DB      $00; MX
     DB      $00; MY
     DB      $00; PX
@@ -495,6 +513,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     ; 4x4
     DB      %0000_0100; active / size
     DW      $ffff; Update routine
+    DB      $00; Data
     DB      $00; Data
     DB      $00; Data
     DB      $00; MX

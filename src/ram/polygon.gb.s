@@ -1,5 +1,6 @@
 ; Constants -------------------------------------------------------------------
-POLYGON_BYTES               EQU 22
+POLYGON_BYTES               EQU 23
+POLYGON_ATTR_BYTES          EQU 14
 POLYGON_COUNT               EQU 19
 POLYGON_COLLISION_BYTES     EQU 3 * 16 * 4
 POLYGON_GIANT               EQU 4
@@ -13,6 +14,7 @@ polygonState:               DS     POLYGON_COUNT * POLYGON_BYTES + 1
 polygonPalette:             DB
 polygonDrawState:           DB
 polygonGroup:               DB
+polygonChanged:             DB
 
 
 SECTION "CollisionRam",WRAM0[$CA00]
@@ -40,3 +42,4 @@ polygonOffset:              DW
 polygonRotation:            DB
 polygonHalfSize:            DB
 polygonIndex:               DB
+polygonFlags:               DB
