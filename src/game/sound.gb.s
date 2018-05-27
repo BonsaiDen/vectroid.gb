@@ -50,15 +50,25 @@ sound_effect_thrust:
     ret
 
 sound_effect_impact:
-    ;channelTwo($13, 1, 0, 0, $F, $0360, 1)
     ; TODO use channel two instead?
     ; TODO or only play when bullet effect is not active?
-    channelOne(1, 1, 3, $2F, 1, 7, 0, $F, $06B0, 1)
-    ;channelTwo($35, 1, 1, 0, $F, $06C0, 1)
+    ;channelOne(1, 1, 3, $2F, 1, 7, 0, $F, $06B0, 1)
+    channelTwo($34, 2, 1, 0, $D, $0310, 1)
+    ret
+
+sound_effect_impact_heavy:
+    ; TODO use channel two instead?
+    ; TODO or only play when bullet effect is not active?
+    ;channelOne(1, 1, 2, $2F, 2, 7, 0, $F, $0770, 1)
+    channelTwo($3B, 2, 1, 0, $8, $0700, 1)
     ret
 
 sound_effect_ship_destroy:
     channelFour($00, 7, 0, $F, 4, 0, 6, 0)
+    ret
+
+sound_effect_shield_damage:
+    channelFour(00, 3, 0, $F, 3, 1, 5, 0)
     ret
 
 sound_effect_break:

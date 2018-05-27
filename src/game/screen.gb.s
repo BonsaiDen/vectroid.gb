@@ -21,6 +21,12 @@ screen_shake:; a = duration in seconds / 8, b = strength
     ld      [screenShakeStrength],a
     ret
 
+screen_shake_shield:
+    ld      a,7
+    ld      b,2
+    call    screen_shake
+    ret
+
 screen_shake_small:
     ld      a,6
     ld      b,1

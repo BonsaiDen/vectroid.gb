@@ -111,14 +111,35 @@ asteroid_launch:
     add     b
     ld      d,a; store angle
 
-    ; TODO chance for heavy asteroid
-    ;call    math_random
-    ;and     %000
-    ;ld      a,1
+    ; chance for heavy asteroid to be spawned
+    ld      a,[playerScore + 2]
+    cp      0
+    jr      nz,.max_heavy_chance
+    ld      a,[playerScore + 1]
+    jr      .heavy_chance
+
+.max_heavy_chance:
+    ld      a,99
+
+.heavy_chance:
+    div     a,4
+    ld      hl,_asteroid_heavy_chance
+    addw    hl,a
+    call    math_random
+    cp      [hl]
+    jr      nc,.normal_type
+
+.heavy_type:
+    ld      a,1
+    ld      [polygonFlags],a
+    jr      .randomize_size
+
+.normal_type:
     xor     a
     ld      [polygonFlags],a
 
     ; randomize size
+.randomize_size:
     call    math_random
     and     %0000_0011
     add     2
@@ -192,9 +213,10 @@ asteroid_queue:
 
     push    hl
 
-    ; load heavy flag
-    ld      a,[polygonFlags]
+    ; set heavy flag based on palette
+    ld      a,[polygonPalette]
     and     %0000_0001
+    ld      [polygonFlags],a
     ld      b,a
 
     ; load polygon hp
@@ -336,15 +358,17 @@ asteroid_update:
 
 .destroy_collide:
     call    _asteroid_split
-    ; we can't ignore the destruction here and will just skip the creation
-    ; of new asteroids
 
-    ; increase available counter
 .destroyed:
+    ld      a,[polygonDataB]
+    cp      $FD
+    jr      z,.ship
+
     ld      a,[polygonHalfSize]
     cp      $04
     jr      nz,.medium
     call    screen_shake_small
+    call    sound_effect_break
     incx    [asteroidSmallAvailable]
     jr      .done
 
@@ -352,6 +376,7 @@ asteroid_update:
     cp      $08
     jr      nz,.large
     call    screen_shake_medium
+    call    sound_effect_break
     incx    [asteroidMediumAvailable]
     jr      .done
 
@@ -359,14 +384,22 @@ asteroid_update:
     cp      $0C
     jr      nz,.giant
     call    screen_shake_large
+    call    sound_effect_break
     incx    [asteroidLargeAvailable]
     jr      .done
 
 .giant:
-    cp      $10
-    jr      nz,.done
+    ;cp      $10
+    ;jr      nz,.sfx
     call    screen_shake_giant
+    call    sound_effect_break
     incx    [asteroidGiantAvailable]
+    jr      .done
+
+.ship:
+    call    screen_shake_shield
+    call    screen_flash_explosion_tiny
+    call    sound_effect_shield_damage
 
 .done:
     ; decrease screen count
@@ -374,7 +407,6 @@ asteroid_update:
     dec     a
     ld      [asteroidScreenCount],a
 
-    call    sound_effect_break
     xor     a
     ret
 
@@ -660,9 +692,6 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     pop     bc
 
     ; set velocity
-    ;call    math_random
-    ;and     %0000_0111
-    ;add     c
     ld      e,c
     push    hl
     call    angle_vector_16
@@ -715,6 +744,37 @@ _asteroid_launch_velocity:
 
     DB      34
     DB      35
+
+_asteroid_heavy_chance:
+    DB      0
+    DB      0
+    DB      4
+    DB      4
+    DB      8
+    DB      8
+    DB      8
+    DB      8
+
+    DB      16
+    DB      16
+    DB      16
+    DB      16
+    DB      16
+    DB      32
+    DB      32
+    DB      32
+
+    DB      32
+    DB      48
+    DB      48
+    DB      48
+    DB      48
+    DB      64
+    DB      64
+    DB      64
+
+    DB      255
+    DB      255
 
 _asteroid_launch_velocity_bonus:
     DB      8

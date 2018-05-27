@@ -432,7 +432,6 @@ ship_update:
 .collision:
 
     ; check asteroid size
-    ; TODO increase damage taken for gray asteroids
     ld      a,[de]
     cp      4
     jr      z,.hit_small
@@ -442,10 +441,12 @@ ship_update:
 
     ; hit by small / medium asteroid
 .hit_small:
+    ; TODO double the damage for heavy asteroids
     ld      b,SHIELD_DAMAGE_SMALL
     jr      .damage
 
 .hit_medium:
+    ; TODO double the damage for heavy asteroids
     ld      b,SHIELD_DAMAGE_MEDIUM
 
 .damage:
@@ -454,8 +455,6 @@ ship_update:
     jr      z,.destroy
     jr      c,.destroy
     ld      [playerShield],a
-
-    call    screen_flash_explosion_tiny
 
     ; set iframes
     ld      a,IFRAME_COUNT
@@ -466,11 +465,9 @@ ship_update:
     dec     de
     dec     de
     dec     de
+    dec     de
     dec     de; hp
-    ; TODO special HIT sound
-    ; TODO use different value to indicate that we want to skip the sound here
-    ; TODO and play another one instead
-    ld      a,$FE
+    ld      a,$FD
     ld      [de],a
     jr      .no_collision
 
@@ -484,8 +481,7 @@ ship_update:
     cp      0
     ret     z
 
-    ; TODO destroy FX
-    ; TODO wait for destroy FX to be over
+    ; TODO destroy GFX
     call    sound_effect_ship_destroy
     call    screen_flash_explosion_ship
     call    screen_shake_ship
@@ -569,15 +565,19 @@ bullet_update:
     ld      b,a
 
     ; DE points to half size of polygon, so we need to go 5 back to DataB
-    ; TODO add a subw instruction
-    dec     de
+    ; TODO add a subw instruction to gbasm
     dec     de
     dec     de
     dec     de
     dec     de
     dec     de
 
+    ; load flags
+    ld      a,[de]
+    ld      c,a
+
     ; reduce asteroid hp
+    dec     de
     ld      a,[de]
     cp      0
     jr      z,.hp_above_zero
@@ -603,6 +603,18 @@ bullet_update:
 
 .hp_above_zero:
     ld      [de],a
+
+    ; check for heavy
+    ld      a,c
+    and     %0000_0001
+    cp      0
+    jr      z,.normal_type
+
+.heavy_type:
+    call    sound_effect_impact_heavy
+    jr      .destroy
+
+.normal_type:
     call    sound_effect_impact
 
     ; reduce global bullet count
