@@ -62,7 +62,8 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      [polygonSize],a
     ld      hl,polygonState
 
-    xor     a
+    ld      a,1; TODO Re-enable once we figured out the bug which sometimes causes
+               ; false polygon sprites when re-using
     ld      [polygonChanged],a
 
     ; find unused polygon of the desired size

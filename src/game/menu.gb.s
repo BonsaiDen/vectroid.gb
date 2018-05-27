@@ -463,6 +463,8 @@ menu_game_title_update:
     ld      a,[coreInputOn]
     cp      BUTTON_START
     jr      z,.start
+    cp      BUTTON_A
+    jr      z,.start
     cp      BUTTON_UP
     jr      z,.test
 

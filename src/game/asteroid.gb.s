@@ -267,7 +267,7 @@ asteroid_update:
     cp      0
     jr      z,.destroy
     cp      128
-    jr      nc,.destroy_collide
+    jp      nc,.destroy_collide
 
     ; only collide every other frame
     ld      a,[coreLoopCounter]
@@ -360,6 +360,27 @@ asteroid_update:
 .destroy:
     call    _asteroid_split
     jr      c,.ignore
+
+.points:
+    ; setup points index
+    ; TODO give out more points for heavy asteroids
+    ld      a,[polygonHalfSize]
+    srl     a
+    srl     a
+    dec     a
+    ld      b,a
+
+    ; increase points
+    ld      hl,asteroid_points
+    ld      a,b
+    add     a; x2
+    addw    hl,a
+
+    ld      a,[hli]
+    call    game_score_increase
+    ld      a,[hl]
+    call    game_score_increase
+
     jr      .destroyed
 
 .destroy_collide:
@@ -641,6 +662,12 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     add     c
     ld      c,a
 
+    ; limit to 40
+    cp      40
+    jr      c,.velocity_done
+    ld      c,40
+
+.velocity_done:
     pop     de
 
     ; get pointer into queue

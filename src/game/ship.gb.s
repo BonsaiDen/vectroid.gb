@@ -553,13 +553,6 @@ bullet_update:
 
 .collide:
 
-    ; setup points index
-    ld      a,[de]
-    srl     a
-    srl     a
-    dec     a
-    ld      b,a
-
     ; DE points to half size of polygon, so we need to go 5 back to DataB
     dec     de
     dec     de
@@ -580,18 +573,6 @@ bullet_update:
     jr      z,.now_zero
     jr      nc,.hp_above_zero
 .now_zero:
-
-    ; increase points
-    ld      hl,asteroid_points
-    ld      a,b
-    add     a; x2
-    addw    hl,a
-
-    ld      a,[hli]
-    call    game_score_increase
-    ld      a,[hl]
-    call    game_score_increase
-
     ; limit hp to 0
     xor     a
 
