@@ -359,6 +359,8 @@ menu_game_over_update:
     ld      a,[coreInputOn]
     cp      BUTTON_START
     jr      z,.select_button
+    cp      BUTTON_A
+    jr      z,.select_button
     cp      BUTTON_LEFT
     jr      nz,.right
     xor     a
