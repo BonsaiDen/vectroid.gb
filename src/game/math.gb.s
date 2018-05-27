@@ -3,6 +3,19 @@ SQRT_MAX_DISTANCE   EQU 32
 
 
 SECTION "Math",ROM0
+angle_vector_16_zero:; d = angle (column index), e = length -> bc = x/y
+    ; guard against underflow
+    xor     a
+    cp      e
+    jr      z,.zero
+
+    ld      b,0
+    jr      angle_offset_base
+
+.zero:
+    ld      bc,0
+    ret
+
 angle_vector_16:; d = angle (column index), e = length -> bc = x/y
     ld      b,0
     jr      angle_offset_base

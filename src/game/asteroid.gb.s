@@ -670,7 +670,7 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     ; calculate offset from position
     push    hl
     push    de
-    call    angle_vector_16
+    call    angle_vector_16_zero
     pop     de
     pop     hl
 
@@ -748,28 +748,28 @@ _asteroid_launch_velocity:
 _asteroid_heavy_chance:
     DB      0
     DB      0
+    DB      2
+    DB      2
     DB      4
     DB      4
     DB      8
     DB      8
+
     DB      8
     DB      8
-
+    DB      8
     DB      16
     DB      16
     DB      16
-    DB      16
-    DB      16
-    DB      32
-    DB      32
-    DB      32
+    DB      24
+    DB      24
 
     DB      32
+    DB      32
+    DB      32
     DB      48
     DB      48
     DB      48
-    DB      48
-    DB      64
     DB      64
     DB      64
 
