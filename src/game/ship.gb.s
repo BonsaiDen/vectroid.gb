@@ -218,7 +218,7 @@ ship_special_update:
     cp      3
     jr      z,.bottom
 
-    ; TODO animate
+    ; TODO animate?
 .left:
     ld      a,c
     ld      [hli],a
@@ -468,7 +468,7 @@ ship_update:
     dec     de; hp
     ; TODO special HIT sound
     ; TODO use different value to indicate that we want to skip the sound here
-    ; TODO and player another one instead
+    ; TODO and play another one instead
     ld      a,$FE
     ld      [de],a
     jr      .no_collision
@@ -485,10 +485,13 @@ ship_update:
 
     ; TODO destroy FX
     ; TODO wait for destroy FX to be over
-    call    screen_flash_explosion_ship
-    call    game_over
     call    sound_effect_ship_destroy
+    call    screen_flash_explosion_ship
     call    screen_shake_ship
+    ld      de,bullet_update
+    call    polygon_disable_type
+    call    game_over
+
     xor     a
     ld      [playerShield],a
     ld      [thrustActive],a
@@ -505,19 +508,19 @@ ship_update:
 
 _within_border:
     ld      a,[polygonY]
-    cp      11; TODO variable
+    cp      SCREEN_BORDER_TOP
     jr      c,.within_y_top
 
     ld      a,[polygonX]
-    cp      182; TODO variable
+    cp      SCREEN_BORDER_RIGHT
     jr      nc,.within_x_right
 
     ld      a,[polygonY]
-    cp      164; TODO variable
+    cp      SCREEN_BORDER_BOTTOM
     jr      nc,.within_y_bottom
 
     ld      a,[polygonX]
-    cp      11; TODO variable
+    cp      SCREEN_BORDER_LEFT
     jr      c,.within_x_left
     xor     a
     ret
@@ -547,7 +550,7 @@ bullet_update:
     ld      [polygonDataA],a
 
     ld      d,COLLISION_ASTEROID
-    ld      c,4; TODO variable for collision range tweaking
+    ld      c,BULLET_COLLISION_RANGE
     call    collide_with_group
     cp      1
     jr      z,.collide
@@ -575,7 +578,7 @@ bullet_update:
     ld      a,[de]
     cp      0
     jr      z,.hp_above_zero
-    sub     3; TODO variable for bullet damage
+    sub     BULLET_DAMAGE
     jr      z,.now_zero
     jr      nc,.hp_above_zero
 .now_zero:
@@ -658,6 +661,12 @@ bullet_polygon:
     DB      1; length
     DB      0; angle
     DB      1; length
+    DB      $ff,$ff
+
+debris_polygon:
+    DB      0,3
+    DB      32,3
+    DB      64,3
     DB      $ff,$ff
 
 ship_polygon_title:

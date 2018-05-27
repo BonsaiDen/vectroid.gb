@@ -188,6 +188,12 @@ _sprite_palettes:
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
+    ; Asteroids 2 (Dark)
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(255, 255, 255)
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(0, 0, 0)
+
     ; Ship (Dark)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(255, 0, 0)
@@ -212,18 +218,18 @@ _sprite_palettes:
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
-    ; Effect Placeholer (Dark)
-    GBC_COLOR(0, 0, 0)
-    GBC_COLOR(255, 255, 255)
-    GBC_COLOR(0, 0, 0)
-    GBC_COLOR(0, 0, 0)
-
     ; Asteroids (Light)
 ._sprite_light:
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(106, 71, 36)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
+
+    ; Asteroids 2 (Light)
+    GBC_COLOR(255, 255, 255)
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(255, 255, 255)
+    GBC_COLOR(255, 255, 255)
 
     ; Ship (Light)
     GBC_COLOR(0, 0, 0)
@@ -248,12 +254,6 @@ _sprite_palettes:
     GBC_COLOR(255, 64, 0)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
-
-    ; Effect Placeholer (Light)
-    GBC_COLOR(255, 255, 255)
-    GBC_COLOR(0, 0, 0)
-    GBC_COLOR(255, 255, 255)
-    GBC_COLOR(255, 255, 255)
 
 
 ; Helpers ---------------------------------------------------------------------

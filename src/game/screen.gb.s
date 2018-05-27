@@ -86,8 +86,8 @@ _screen_flash_explosion_ship:
     DB      $FF
 
 _screen_flash_explosion_tiny:
-    DB      0,2,5,8,9
-    DB      8,5,2,0
+    DB      2,5,9
+    DB      5,2,0
     DB      $FF
 
 _screen_flash_out:
