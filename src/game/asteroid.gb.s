@@ -89,7 +89,7 @@ asteroid_launch:
     ; choose y between 32-128
     call    math_random
     and     %0101_1111
-    add     32
+    add     32; TODO variable
     ld      [polygonY],a
     jr      .launch
 
@@ -98,7 +98,7 @@ asteroid_launch:
     ; choose x between 32-144
     call    math_random
     and     %0110_1111
-    add     32
+    add     32; TODO variable
     ld      [polygonX],a
 
 .launch:
@@ -110,6 +110,13 @@ asteroid_launch:
     and     %0011_1111
     add     b
     ld      d,a; store angle
+
+    ; TODO chance for heavy asteroid
+    ;call    math_random
+    ;and     %000
+    ;ld      a,1
+    xor     a
+    ld      [polygonFlags],a
 
     ; randomize size
     call    math_random
@@ -185,10 +192,16 @@ asteroid_queue:
 
     push    hl
 
+    ; load heavy flag
+    ld      a,[polygonFlags]
+    and     %0000_0001
+    ld      b,a
+
     ; load polygon hp
     ld      a,[polygonSize]
     dec     a
-    ; TODO add more HP in case of gray/hard asteroid
+    add     a; multiply by two
+    add     b; add heavy offset
     ld      hl,_asteroid_hp
     addw    hl,a
     ld      a,[hl]
@@ -297,7 +310,7 @@ asteroid_update:
 
     ; reduce asteroid hp a bit with every collision
     ld      a,[polygonDataB]
-    ; TODO make damage dependend on the other asteroid size
+    ; TODO make damage dependend on the other asteroid size / heavy
     sub     2; TODO variable for asteroid impact damage
     jr      nc,.hp_above_zero
     jr      .destroy_this_asteroid
@@ -377,8 +390,6 @@ _destroy_other_asteroid:
     ret
 
 _asteroid_split:; return 0 if actually split up
-    ; TODO get palette?
-
     ld      a,[polygonHalfSize]
     cp      $04
     jr      z,.small
@@ -599,10 +610,19 @@ asteroid_create:; a = rotation, b=size, c = velocity, e = distance
     ldxa    [hli],b
 
     ; Set palette
-    ; TODO make configurable
+    ld      a,[polygonFlags]
+    and     %0000_0001
+    cp      1
+    jr      z,.heavy
+.normal:
     ldxa    [hli],PALETTE_ASTEROID
+    jr      .rotation_speed
+
+.heavy:
+    ldxa    [hli],PALETTE_ASTEROID_HEAVY
 
     ; Set random rotation speed
+.rotation_speed:
     call    math_random_signed
     cp      0
     jr      nz,.rotation
@@ -714,9 +734,13 @@ _asteroid_polygons:
 
 _asteroid_hp:
     DB      2
+    DB      4
     DB      8
+    DB      16
     DB      15
+    DB      30
     DB      32
+    DB      64
 
 asteroid_points:
     DB      100

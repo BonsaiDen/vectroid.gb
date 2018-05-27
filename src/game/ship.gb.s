@@ -218,7 +218,7 @@ ship_special_update:
     cp      3
     jr      z,.bottom
 
-    ; TODO animate?
+    ; TODO animate out of screen indicator?
 .left:
     ld      a,c
     ld      [hli],a
@@ -432,6 +432,7 @@ ship_update:
 .collision:
 
     ; check asteroid size
+    ; TODO increase damage taken for gray asteroids
     ld      a,[de]
     cp      4
     jr      z,.hit_small
@@ -585,11 +586,13 @@ bullet_update:
     jr      nc,.hp_above_zero
 .now_zero:
 
-    ; destroyed, increase points
+    ; increase points
     ld      hl,asteroid_points
     ld      a,b
     add     a; x2
     addw    hl,a
+
+    ; TODO double the points for heavy asteroids
     ld      a,[hli]
     call    game_score_increase
     ld      a,[hl]

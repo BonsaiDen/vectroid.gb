@@ -190,7 +190,7 @@ _sprite_palettes:
 
     ; Asteroids 2 (Dark)
     GBC_COLOR(0, 0, 0)
-    GBC_COLOR(255, 255, 255)
+    GBC_COLOR(168, 159, 141)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 

@@ -305,8 +305,8 @@ update_polygon:; hl = polygon state pointer
     ldxa    [polygonDataA],[hli]
     ldxa    [polygonDataB],[hli]
 
-    ; TODO use third data value
-    inc     hl
+    ; load flags
+    ldxa    [polygonFlags],[hli]
 
     ; skip momentum and delta
     ldxa    [polygonMY],[hli]

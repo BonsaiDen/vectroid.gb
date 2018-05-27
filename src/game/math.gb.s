@@ -153,8 +153,7 @@ atan_2: ; bc = x/y -> d = angle 0-256 (0 - PI * 2)
     add     hl,hl; 32
 
     ; + x
-    ld      a,b
-    addw    hl,a
+    addw    hl,b
     ld      a,atan2_table >> 8
     add     h
     ld      h,a
@@ -256,8 +255,7 @@ sqrt_length:
     add     hl,hl; 32
 
     ; + y
-    ld      a,c
-    addw    hl,a
+    addw    hl,c
     ld      a,sqrt_table >> 8
     add     h
     ld      h,a
