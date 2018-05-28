@@ -10,7 +10,7 @@ angle_vector_16_zero:; d = angle (column index), e = length -> bc = x/y
     jr      z,.zero
 
     ld      b,0
-    jr      angle_offset_base
+    jr      angle_offset
 
 .zero:
     ld      bc,0
@@ -18,15 +18,9 @@ angle_vector_16_zero:; d = angle (column index), e = length -> bc = x/y
 
 angle_vector_16:; d = angle (column index), e = length -> bc = x/y
     ld      b,0
-    jr      angle_offset_base
+    jr      angle_offset
 
-angle_offset:; d = angle (column index), c = offset, e = length -> bc = x/y
-    ; offset with polygon drawing in mind
-    ld      a,[polygonHalfSize]
-    ld      b,a
-
-angle_offset_base:; d = angle (column index), b = offset, e = length -> bc = x/y
-
+angle_offset:; d = angle (column index), b = offset, e = length -> bc = x/y
     ; TODO optimize
     ; multiply by 64 to get length offset into table
     ld      h,0

@@ -271,7 +271,7 @@ asteroid_update:
 
     ; only collide every other frame
     ld      a,[coreLoopCounter]
-    and     %0000_0001
+    and     %0000_0010; TODO variable
     jr      z,.rotate
 
     ; collide with other asteroids
@@ -298,6 +298,11 @@ asteroid_update:
 
     ; rotate asteroid
 .rotate:
+    ; skip rotation when on DMG hardware
+    ld      a,[coreColorEnabled]
+    cp      0
+    jr      z,.skip
+
     ; distribute rotation updats over several frames
     ld      a,[polygonIndex]
     and     %0000_0111
@@ -457,6 +462,12 @@ _destroy_other_asteroid:; -> b = half size, c = flags
     ret
 
 _asteroid_split:; return 0 if actually split up
+
+    ; check for full queue
+    ld      a,[asteroidQueueLength]
+    cp      ASTEROID_MAX
+    jr      nc,.full_queue
+
     ld      a,[polygonHalfSize]
     cp      $04
     jr      z,.small
@@ -465,6 +476,10 @@ _asteroid_split:; return 0 if actually split up
     cp      $0C
     jp      z,.large
     jr      .giant
+
+.full_queue:
+    scf
+    ret
 
 .small: ;8x8
     ; no split
@@ -846,12 +861,15 @@ _asteroid_polygons:
 _asteroid_hp:
     DB      2
     DB      4
+
     DB      8
-    DB      16
+    DB      13
+
     DB      15
-    DB      30
+    DB      24
+
     DB      32
-    DB      64
+    DB      48
 
 asteroid_points:
     DB      100

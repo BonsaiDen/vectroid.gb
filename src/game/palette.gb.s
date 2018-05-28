@@ -182,43 +182,42 @@ _background_palettes:
 
 _sprite_palettes:
 
-    ; Asteroids (Dark)
+    ; Asteroids
     GBC_COLOR(0, 0, 0)
-    GBC_COLOR(135, 87, 40)
-    GBC_COLOR(0, 0, 0)
-    GBC_COLOR(0, 0, 0)
-
-    ; Asteroids 2 (Dark)
-    GBC_COLOR(0, 0, 0)
-    GBC_COLOR(222, 223, 84)
+    GBC_COLOR(187, 120, 74)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
-    ; Ship (Dark)
+    ; Asteroids 2
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(226, 232,247)
+    GBC_COLOR(0, 0, 0)
+    GBC_COLOR(0, 0, 0)
+
+    ; Ship
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(255, 0, 0)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(255, 0, 0)
 
-    ; Bullet (Dark)
+    ; Bullet
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(255, 255, 0)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
-    ; Thrust A (Dark)
+    ; Thrust A
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(255, 128, 128)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
-    ; Thrust B (Dark)
+    ; Thrust B
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(255, 64, 0)
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(0, 0, 0)
 
-    ; Asteroids (Light)
 ._sprite_light:
     GBC_COLOR(0, 0, 0)
     GBC_COLOR(106, 71, 36)

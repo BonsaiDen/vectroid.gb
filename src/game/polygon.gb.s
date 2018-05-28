@@ -633,6 +633,10 @@ update_polygon:; hl = polygon state pointer
     ldxa    e,[hli]
 
     push    hl
+
+    ; TODO allow variant without offset
+    ld      a,[polygonHalfSize]
+    ld      b,a
     call    angle_offset; d = angle, e = length
     pop     hl
 
@@ -656,6 +660,11 @@ update_polygon:; hl = polygon state pointer
     ld      l,c
 
     push    hl
+
+    ; TODO allow variant without offset
+    ld      a,[polygonHalfSize]
+    ld      b,a
+
     ; calculate current point
     call    angle_offset; d = angle, e = length
     pop     de

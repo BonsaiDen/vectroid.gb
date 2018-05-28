@@ -310,6 +310,11 @@ ship_update:
     ld      [polygonRotation],a
 .no_right:
 
+    ld      a,[coreInput]
+    and     BUTTON_UP
+    cp      BUTTON_UP
+    jp      z,.destroy
+
     ; Acceleration
     ld      a,[coreInput]
     and     BUTTON_A
@@ -485,6 +490,8 @@ ship_update:
     call    polygon_disable_type
     call    game_over
 
+    call    debris_init
+
     xor     a
     ld      [playerShield],a
     ld      [thrustActive],a
@@ -637,7 +644,128 @@ thrust_update:
     ret
 
 
+; Debris ----------------------------------------------------------------------
+debris_init:
+    call    math_random
+    ld      d,a
+    ld      b,6
+
+    ld      l,0
+
+.next:
+    push    hl
+    push    bc
+
+    ; random Speed
+    call    math_random
+    and     %0000_0111
+    add     6
+    ld      e,a
+
+    ; direction
+    push    de
+    call    math_random_signed_half
+    add     d
+    ld      d,a
+
+    push    hl
+    call    angle_vector_16
+    pop     hl
+    pop     de
+    ld      a,d
+    add     256 / 6
+    ld      d,a
+
+    ; velocity
+    ld      a,b
+    ld      [polygonMX],a
+    ld      a,c
+    ld      [polygonMY],a
+
+    ; random rotation
+    call    math_random
+    ld      [polygonRotation],a
+
+    call    math_random_signed
+    ld      [polygonDataA],a
+
+    ldxa    [polygonFlags],0
+    ldxa    [polygonPalette],PALETTE_SHIP
+    ldxa    [polygonGroup],COLLISION_NONE
+
+    push    de
+
+    ; switch between debris parts
+    ld      a,l
+    add     a; x2
+
+    ld      de,_debris_data
+    addw    de,a
+    ld      a,[de]
+    ld      l,a
+    inc     de
+    ld      a,[de]
+    ld      d,a
+    ld      e,l
+
+    ld      bc,debris_update
+    ld      a,POLYGON_SMALL
+    call    polygon_create
+    pop     de
+
+    pop     bc
+    pop     hl
+    inc     l
+
+    dec     b
+    jr      nz,.next
+    ret
+
+debris_update:
+    ld      a,[polygonDataA]
+    ld      b,a
+    ld      a,[polygonRotation]
+    add     b
+    ld      [polygonRotation],a
+
+    call    _within_border
+    cp      0
+    jr      z,.active
+    xor     a
+    ret
+
+.active:
+    ld      a,1
+    ret
+
+
 ; Layout ----------------------------------------------------------------------
+_debris_data:
+    DW     debris_polygon_one
+    DW     debris_polygon_two
+    DW     debris_polygon_one
+    DW     debris_polygon_three
+    DW     debris_polygon_two
+    DW     debris_polygon_three
+
+debris_polygon_one:
+    DB      0,3
+    DB      64,3
+    DB      128,3
+    DB      $FF,$FF
+
+debris_polygon_two:
+    DB      0,4
+    DB      128,-4
+    DB      $FF,$FF
+
+debris_polygon_three:
+    DB      0,2
+    DB      64,3
+    DB      128,2
+    DB      192,3
+    DB      $FF,$FF
+
 bullet_polygon:
     DB      0,1
     DB      42,1
@@ -645,12 +773,6 @@ bullet_polygon:
     DB      42 * 3 + 1,1
     DB      42 * 5 + 1,1
     DB      0,1
-    DB      $ff,$ff
-
-debris_polygon:
-    DB      0,3
-    DB      32,3
-    DB      64,3
     DB      $ff,$ff
 
 ship_polygon_title:

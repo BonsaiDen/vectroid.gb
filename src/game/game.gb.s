@@ -181,7 +181,11 @@ game_score_increase:; a = increase
     jr      .loop
 
 .overflow_3:
-    ldxa    [playerScore + 2],99
+    ; limit to 999.999
+    ld      a,99
+    ld      [playerScore + 2],a
+    ld      [playerScore + 1],a
+    ld      [playerScore],a
     jr      .loop
 
 game_score_reset:
