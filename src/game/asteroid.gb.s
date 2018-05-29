@@ -245,18 +245,64 @@ asteroid_queue:
 
     ld      bc,asteroid_update
     ld      a,[polygonSize]
+
+    ; check for collisions and ignore placement if we would immediately collide
+    ; with another, bigger asteroid
+    push    af
+    push    bc
+    push    de
+
+    call    collide_asteroid_placement
+    cp      1
+    jr      z,.skip
+
+    pop     de
+    pop     bc
+    pop     af
+
+    ; spawn if valid
     call    polygon_create
 
     ; increase on screen count
     ld      a,[asteroidScreenCount]
     inc     a
     ld      [asteroidScreenCount],a
+    jr      .done
 
+.skip:
+    ; decrease counter if we didn't spawn the asteroid in the first place
+    ld      a,[polygonSize]
+    cp      POLYGON_SMALL
+    jr      z,.small
+    cp      POLYGON_MEDIUM
+    jr      z,.medium
+    cp      POLYGON_LARGE
+    jr      z,.large
+
+    decx    [asteroidGiantAvailable]
+    jr      .skipped
+
+.small:
+    incx    [asteroidSmallAvailable]
+    jr      .skipped
+
+.medium:
+    incx    [asteroidMediumAvailable]
+    jr      .skipped
+
+.large:
+    incx    [asteroidLargeAvailable]
+
+.skipped:
+    pop     de
+    pop     bc
+    pop     af
+
+.done:
     pop     hl
-
     pop     bc
     dec     b
-    jr      nz,.next
+    jp      nz,.next
 
     xor     a
     ld      [asteroidQueueLength],a
@@ -392,10 +438,6 @@ asteroid_update:
     call    _asteroid_split
 
 .destroyed:
-    ld      a,[polygonDataB]
-    cp      $FD
-    jr      z,.ship
-
     ld      a,[polygonHalfSize]
     cp      $04
     jr      nz,.medium
@@ -426,15 +468,19 @@ asteroid_update:
     call    screen_shake_giant
     call    sound_effect_break
     incx    [asteroidGiantAvailable]
-    jr      .done
 
-.ship:
+.done:
+    ; check if destroyed by ship
+    ld      a,[polygonDataB]
+    cp      $FD
+    jr      nz,.decrease; if not skip animation
+
     call    screen_shake_shield
     call    screen_flash_explosion_tiny
     call    sound_effect_shield_damage
 
-.done:
     ; decrease screen count
+.decrease:
     ld      a,[asteroidScreenCount]
     dec     a
     ld      [asteroidScreenCount],a

@@ -111,3 +111,44 @@ collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d 
     ld      a,1
     ret
 
+collide_asteroid_placement:; polygonX, polygonY = x/y, c = collision distance offset, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
+    ld      d,COLLISION_ASTEROID
+    ld      c,3; TODO adjust for different half-sizes?
+    call    collide_with_group
+    cp      0
+    jr      z,.no_collision
+
+.avoid:
+    ; compare size and ignore the collision if the other asteroid is either
+    ; smaller or the same size as ours (meaning we still place the new asteroid)
+    push    hl
+    dec     hl
+    ld      a,[hli]
+    and     %0111_1111
+    ld      c,a
+    ld      a,[polygonSize]
+    cp      c
+    jr      nc,.ignore; ignore polygons <= the current size
+
+    ; also ignore the collision in case the other asteroid is already destroyed
+    inc     hl; update low
+    inc     hl; rotation
+    inc     hl
+    ld      a,[hl]
+    cp      128
+    jr      nc,.ignore
+    pop     hl
+
+    ; if the other asteroid is still alive and bigger than out asteroid
+    ; there's no need to place our one since it would get destroyed immediately
+    ; after placement
+    ld      a,1
+    ret
+
+.ignore:
+    pop     hl
+
+.no_collision:
+    xor     a
+    ret
+
