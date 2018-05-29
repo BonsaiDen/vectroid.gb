@@ -3,7 +3,7 @@ INCLUDE     "core/include/rom.inc"
 
 
 ; Catridge Information --------------------------------------------------------
-CART_NAME           EQUS       "Vectroid"
+CART_NAME           EQUS       "Vectroids"
 CART_LICENSEE       EQUS       "BD"
 CART_TYPE           EQU        ROM_MBC1
 CART_ROM_SIZE       EQU        ROM_SIZE_32KBYTE

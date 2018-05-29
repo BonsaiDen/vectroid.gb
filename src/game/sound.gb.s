@@ -16,8 +16,17 @@ sound_enable:
     ; output all channels to both speakers
     ld      a,%1111_1111
     ld      [$ff25],a
-
     ret
+
+
+; Sound Length Calculation
+; ------------------------
+; Loop
+    ; EnvDir = 0 (Dec)
+        ; x = (InitVol - 1) * (EnvStepTime * (1 / 64)) seconds
+
+; Timed
+    ; (64 - SoundLength) * (1 / 256) seconds
 
 sound_effect_confirm:
     channelOne(4, 0, 7, 1, 2, 7, 0, $F, $05F0, 1)

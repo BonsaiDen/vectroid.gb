@@ -36,6 +36,7 @@ menu_play_init:
     call    clear_bg
 
 .done:
+    ldxa    [rSCX],0
     ld      a,1
     ld      [forceUIUpdate],a
     call    menu_play_render
@@ -441,6 +442,8 @@ menu_game_title_init:
     xor     a
     ld      [menuButton],a
 
+    ldxa    [rSCX],4
+
     ldxa    [gameMode],GAME_MODE_TITLE
     call    clear_bg
 
@@ -481,7 +484,7 @@ menu_game_title_update:
     ld      [forceUIUpdate],a
 
     ld      bc,$050E
-    ld      de,$0A00
+    ld      de,$0B00
     ld      e,h
     call    ui_character
     ret
@@ -495,9 +498,9 @@ menu_game_title_update:
 
 ; Text Data -------------------------------------------------------------------
 text_game_title_0:
-    DS 20 "   -- VECTROID --\0"
+    DS 20 "   -- VECTROIDS --\0"
 text_game_title_1:
-    DS 16 "     Start Game\0"
+    DS 17 "     Press Start\0"
 text_game_title_2:
     DS 16 "     Highscores\0"
 
