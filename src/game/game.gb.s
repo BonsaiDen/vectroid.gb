@@ -8,7 +8,7 @@ game_init:
     call    menu_init
     call    polygon_init
     call    screen_init
-    call    sound_enable
+    call    sound_init
     call    palette_init
 
     ; setup title
@@ -44,16 +44,17 @@ game_play_run:
     ldxa    [gameMode],GAME_MODE_PLAY
     call    game_score_reset
     call    screen_reset
+    call    sound_reset
     call    polygon_init
     call    ship_init
     call    asteroid_init
-    call    sound_enable
     call    menu_play_init
     ret
 
 game_title_run:
     call    screen_flash_in
     call    screen_reset
+    call    sound_reset
     call    ship_init
     call    polygon_init
     call    asteroid_init
@@ -69,6 +70,8 @@ game_timer:
     ret
 
 game_loop:
+
+    call    sound_update
 
     ; handle transitions
     call    screen_flash_update

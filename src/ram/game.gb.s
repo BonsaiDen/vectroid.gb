@@ -42,6 +42,9 @@ GAME_MODE_PAUSE             EQU 3
 PALETTE_BACKGROUND_COUNT    EQU 1
 PALETTE_SPRITE_COUNT        EQU 6
 
+SOUND_PRIORITY_LOW          EQU 1
+SOUND_PRIORITY_MEDIUM       EQU 2
+SOUND_PRIORITY_HIGH         EQU 3
 
 ; OAM -------------------------------------------------------------------------
 SECTION "OAM",WRAM0[$C000]
@@ -55,6 +58,8 @@ screenShakeTicks:           DB
 screenFlashPointer:         DW
 menuDebug:                  DB
 menuButton:                 DB
+soundFrames:                DS 4
+soundPriority:              DS 4
 gameDelay:                  DB
 gameModeNext:               DB
 gameMode:                   DB
