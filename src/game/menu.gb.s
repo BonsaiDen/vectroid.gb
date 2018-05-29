@@ -468,10 +468,6 @@ menu_game_title_update:
     jr      z,.start
     cp      BUTTON_A
     jr      z,.start
-    cp      BUTTON_UP
-    jr      z,.up
-    cp      BUTTON_DOWN
-    jr      z,.down
 
     ; update ui only every 15 frames
     ld      a,[coreLoopCounter16]
@@ -498,14 +494,6 @@ menu_game_title_update:
     ld      [coreInputOn],a
     call    sound_effect_confirm
     call    game_play
-    ret
-
-.up:
-    call    sound_effect_break
-    ret
-
-.down:
-    call    sound_effect_ship_destroy
     ret
 
 ; Text Data -------------------------------------------------------------------

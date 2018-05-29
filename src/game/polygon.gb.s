@@ -175,6 +175,9 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
 
     ; set old rotation to a different value to force initial update
     ld      a,[polygonRotation]
+    ; TODO Maybe this is still broken due to the initial polygon angular momentum
+    ; causing things to get messed up
+    ; TODO finally get around to use a dirty flag!
     add     128
     ld      [hli],a
     jr      .changed
@@ -571,11 +574,10 @@ update_polygon:; hl = polygon state pointer
     ld      a,[polygonRotation]
     ld      d,a; store poly rotation
     ld      [hli],a
-    ld      b,a
     inc     hl; skip over size
     inc     hl; skip over sprite index
     ld      a,[hl]; load old rotation
-    cp      b
+    cp      d
     ret     z
 
     ; update old angle with new angle

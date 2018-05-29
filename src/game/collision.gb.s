@@ -113,7 +113,8 @@ collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d 
 
 collide_asteroid_placement:; polygonX, polygonY = x/y, c = collision distance offset, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
     ld      d,COLLISION_ASTEROID
-    ld      c,3; TODO adjust for different half-sizes?
+    ; TODO if this is too small then in some cases split asteroids might collide instantly with one another
+    ld      c,7; TODO adjust for different half-sizes?
     call    collide_with_group
     cp      0
     jr      z,.no_collision
@@ -131,10 +132,13 @@ collide_asteroid_placement:; polygonX, polygonY = x/y, c = collision distance of
     jr      nc,.ignore; ignore polygons <= the current size
 
     ; also ignore the collision in case the other asteroid is already destroyed
-    inc     hl; update low
-    inc     hl; rotation
-    inc     hl
-    ld      a,[hl]
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    ld      a,[de]
     cp      128
     jr      nc,.ignore
     pop     hl

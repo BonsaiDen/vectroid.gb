@@ -259,7 +259,7 @@ effect_unpause:
     effectOne(3, 0, 7, 1, 2, 7, 0, $F, $04E0, 1)
 
 effect_bullet:
-    effectOne(4, 1, 3, $10, 2, 1, 0, $F, $0730, 1)
+    effectOne(4, 1, 3, $10, 2, 1, 0, $C, $0730, 1)
 
 effect_thrust:
     effectFour($00, 3, 0, $8, 4, 0, 3, 0)
