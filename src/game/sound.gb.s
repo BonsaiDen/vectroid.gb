@@ -22,7 +22,25 @@ sound_effect_unpause:
     ret
 
 sound_effect_bullet:
-    play_effect(effect_bullet, SOUND_PRIORITY_MEDIUM)
+    call    math_random
+    bit     3,a
+    jr      nz,.four
+    bit     2,a
+    jr      nz,.three
+    bit     1,a
+    jr      nz,.two
+
+.one:
+    play_effect(effect_bullet_1, SOUND_PRIORITY_MEDIUM)
+    ret
+.two:
+    play_effect(effect_bullet_2, SOUND_PRIORITY_MEDIUM)
+    ret
+.three:
+    play_effect(effect_bullet_3, SOUND_PRIORITY_MEDIUM)
+    ret
+.four:
+    play_effect(effect_bullet_4, SOUND_PRIORITY_MEDIUM)
     ret
 
 sound_effect_thrust:
@@ -258,8 +276,17 @@ effect_pause:
 effect_unpause:
     effectOne(3, 0, 7, 1, 2, 7, 0, $F, $04E0, 1)
 
-effect_bullet:
+effect_bullet_1:
+    effectOne(4, 1, 3, $10, 2, 1, 0, $C, $0724, 1)
+
+effect_bullet_2:
+    effectOne(4, 1, 3, $10, 2, 1, 0, $C, $0728, 1)
+
+effect_bullet_3:
     effectOne(4, 1, 3, $10, 2, 1, 0, $C, $0730, 1)
+
+effect_bullet_4:
+    effectOne(4, 1, 3, $10, 2, 1, 0, $C, $0734, 1)
 
 effect_thrust:
     effectFour($00, 3, 0, $8, 4, 0, 3, 0)
@@ -278,10 +305,13 @@ effect_shield_damage:
 
 effect_break_1:
     effectFour($00, 2, 0, $F, 4, 0, 6, 0)
+
 effect_break_2:
     effectFour($00, 2, 0, $F, 5, 0, 6, 0)
+
 effect_break_3:
     effectFour($00, 2, 0, $F, 4, 1, 7, 0)
+
 effect_break_4:
     effectFour($00, 2, 0, $F, 5, 1, 7, 0)
 

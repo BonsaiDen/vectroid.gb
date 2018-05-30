@@ -939,9 +939,9 @@ small_asteroid_polygon_a:
 small_asteroid_polygon_b:
     DB        0,2
     DB       25,3
-    DB      126,3
-    DB      176,2
-    DB      240,3
+    DB       56,3
+    DB      126,2
+    DB      196,3
     DB        0,2
     DB      $ff,$ff
 
@@ -951,13 +951,13 @@ medium_asteroid_polygon_a:
     DB       85,6
     DB      135,3
     DB      200,5
-    DB      220,6
+    DB      240,6
     DB        0,7
     DB      $ff,$ff
 
 medium_asteroid_polygon_b:
     DB        0,6
-    DB       15,3
+    DB       15,2
     DB       55,6
     DB       95,7
     DB      130,5
@@ -978,9 +978,10 @@ large_asteroid_polygon_a:
 
 large_asteroid_polygon_b:
     DB        0,11
-    DB       35,9
-    DB       85,7
-    DB      135,10
+    DB       15,3
+    DB       50,9
+    DB      105,10
+    DB      145,10
     DB      200,8
     DB      230,10
     DB        0,11
@@ -988,7 +989,7 @@ large_asteroid_polygon_b:
 
 giant_asteroid_polygon_a:
     DB        0,13
-    DB       25,15
+    DB       30,15
     DB       85,14
     DB      125,13
     DB      165,15
@@ -998,11 +999,12 @@ giant_asteroid_polygon_a:
 
 giant_asteroid_polygon_b:
     DB        0,15
-    DB       65,13
-    DB      105,14
+    DB       35,11
+    DB       85,15
+    DB      115,11
     DB      155,15
-    DB      205,12
-    DB      240,12
+    DB      205,11
+    DB      240,11
     DB        0,15
     DB      $ff,$ff
 
