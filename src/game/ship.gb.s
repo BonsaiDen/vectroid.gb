@@ -310,11 +310,6 @@ ship_update:
     ld      [polygonRotation],a
 .no_right:
 
-    ld      a,[coreInput]
-    and     BUTTON_UP
-    cp      BUTTON_UP
-    jp      z,.destroy
-
     ; Acceleration
     ld      a,[coreInput]
     and     BUTTON_A
@@ -435,23 +430,27 @@ ship_update:
     jr      z,.no_collision
 .collision:
 
-    ; check asteroid size
+    ; get asteroid damage
     ld      a,[de]
-    cp      4
-    jr      z,.hit_small
-    cp      8
-    jr      z,.hit_medium
-    jr      .destroy
+    div     a,4
+    dec     a
+    ld      b,a
 
-    ; hit by small / medium asteroid
-.hit_small:
-    ld      b,SHIELD_DAMAGE_SMALL
-    jr      .damage
+    ; go back to flags
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    dec     de
+    ld      a,[de]; load flags
+    and     %0000_0001; heavy flag
+    add     b
+    add     a; x2
+    ld      hl,asteroid_damage
+    addw    hl,a
+    ld      b,[hl]
 
-.hit_medium:
-    ld      b,SHIELD_DAMAGE_MEDIUM
-
-.damage:
+    ; damage shield
     ld      a,[playerShield]
     sub     b
     jr      z,.destroy
@@ -463,11 +462,6 @@ ship_update:
     ld      [playerIFrames],a
 
     ; destroy asteroid
-    dec     de
-    dec     de
-    dec     de
-    dec     de
-    dec     de
     dec     de; hp
     ld      a,$FD
     ld      [de],a

@@ -44,6 +44,11 @@ menu_play_init:
 
 menu_play_update:
 
+    ld      a,[coreInputOn]
+    and     BUTTON_UP
+    cp      BUTTON_UP
+    jr      z,.test
+
     ; toggle debug
     ld      a,[coreInputOn]
     and     BUTTON_SELECT
@@ -97,6 +102,11 @@ menu_play_update:
     call    clear_bg
     ldxa    [gameMode],GAME_MODE_PLAY
     call    menu_play_render
+    ret
+
+.test:
+    ld      hl,asteroid_points
+    call    game_score_points
     ret
 
 

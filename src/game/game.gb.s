@@ -133,63 +133,55 @@ game_loop:
     call    menu_play_update
     ret
 
-game_score_increase:; a = increase
-    ld      b,a
-    cp      0
-    ret     z
+game_score_points:; hl = points tripplet pointer
 
     ; schedule points redraw
     ld      a,1
     ld      [forceUIUpdate],a
-.loop:
-    ld      a,b
-    cp      0
-    ret     z
 
-    cp      50
-    jr      nc,.add_50
-
-.remainder:
+    ; __ __ 00
+.lower:
+    ld      b,[hl]
     ld      a,[playerScore]
     add     b
-    ld      b,0
-    jr      .overflow_check
-
-.add_50:
-    sub     50
     ld      b,a
-    ld      a,[playerScore]
-    add     50
-
-.overflow_check:
     cp      100
-    jr      nc,.overflow
-    ld      [playerScore],a
-    jr      .loop
+    jr      c,.lower_done
 
-.overflow:
+    ; overflow
     sub     100
-    ld      [playerScore],a
+    ld      b,a
     incx    [playerScore + 1]
+
+.lower_done:
+    ldxa    [playerScore],b
+
+    ; __ 00 __
+.middle:
+    inc     hl
+    ld      b,[hl]
+    ld      a,[playerScore + 1]
+    add     b
+    ld      b,a
     cp      100
-    jr      nc,.overflow_2
-    jr      .loop
+    jr      c,.middle_done
 
-.overflow_2:
-    xor     a
-    ld      [playerScore + 1],a
-    incx    [playerScore + 2]
+    ; overflow
     sub     100
-    jr      nc,.overflow_3
-    jr      .loop
+    ld      b,a
+    incx    [playerScore + 2]
 
-.overflow_3:
-    ; limit to 999.999
+.middle_done:
+    ldxa    [playerScore + 1],b
+    cp      100
+    ret     c
+
+    ; cap at 999999
     ld      a,99
-    ld      [playerScore + 2],a
-    ld      [playerScore + 1],a
     ld      [playerScore],a
-    jr      .loop
+    ld      [playerScore + 1],a
+    ld      [playerScore + 2],a
+    ret
 
 game_score_reset:
     xor     a

@@ -52,7 +52,7 @@ screen_shake_giant:
     ret
 
 screen_shake_ship:
-    ld      a,20
+    ld      a,25
     ld      b,3
     call    screen_shake
     ret

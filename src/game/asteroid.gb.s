@@ -413,25 +413,22 @@ asteroid_update:
     jr      c,.ignore
 
 .points:
-    ; setup points index
-    ; TODO give out more points for heavy asteroids
+    ; calculate asteroid points index
+    ld      a,[polygonFlags]
+    and     %0000_0001
+    ld      b,a
     ld      a,[polygonHalfSize]
     srl     a
     srl     a
     dec     a
-    ld      b,a
+    add     a; x2
+    add     b; add heavy flag
 
-    ; increase points
+    ; setup pointer to points
     ld      hl,asteroid_points
-    ld      a,b
     add     a; x2
     addw    hl,a
-
-    ld      a,[hli]
-    call    game_score_increase
-    ld      a,[hl]
-    call    game_score_increase
-
+    call    game_score_points
     jr      .destroyed
 
 .destroy_collide:
@@ -917,15 +914,51 @@ _asteroid_hp:
     DB      32
     DB      48
 
+asteroid_damage:
+    DB      4
+    DB      6
+
+    DB      8
+    DB      14
+
+    DB      220
+    DB      220
+
+    DB      220
+    DB      220
+
 asteroid_points:
-    DB      100
+    ; small
     DB      0
-    DB      200
+    DB      1
+
+    ; small hevay
+    DB      50
+    DB      1
+
+    ; medium
     DB      0
-    DB      150
-    DB      150
-    DB      250
-    DB      250
+    DB      2
+
+    ; medium heavy
+    DB      25
+    DB      3
+
+    ; large
+    DB      50
+    DB      3
+
+    ; large heavy
+    DB      0
+    DB      5
+
+    ; giant
+    DB      0
+    DB      5
+
+    ; giant heavy
+    DB      5
+    DB      8
 
 small_asteroid_polygon_a:
     DB        0,3
@@ -978,11 +1011,10 @@ large_asteroid_polygon_a:
 
 large_asteroid_polygon_b:
     DB        0,11
-    DB       15,3
-    DB       50,9
-    DB      105,10
-    DB      145,10
-    DB      200,8
+    DB       35,9
+    DB       85,7
+    DB      135,10
+    DB      190,8
     DB      230,10
     DB        0,11
     DB      $ff,$ff
