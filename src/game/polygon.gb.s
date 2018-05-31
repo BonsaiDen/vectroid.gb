@@ -168,6 +168,8 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     pop     de
     pop     bc
 
+    inc     hl; skip redraw flag TODO set above
+
     ; check if changed
     ld      a,[polygonChanged]
     cp      0
@@ -576,6 +578,7 @@ update_polygon:; hl = polygon state pointer
     ld      [hli],a
     inc     hl; skip over size
     inc     hl; skip over sprite index
+    inc     hl; skip over redraw flag TODO use redraw flag
     ld      a,[hl]; load old rotation
     cp      d
     ret     z
@@ -585,7 +588,7 @@ update_polygon:; hl = polygon state pointer
     ld      [hli],a
 
     push    de
-    ld      a,[hli]; load spritecount
+    ld      a,[hli]; load tile clear count
     ld      d,a
 
     ; load source in offscreen buffer
@@ -697,7 +700,7 @@ polygon_destroy:
     ld      d,a
     ld      a,[hli]; load sprite index
     ld      e,a
-    addw    hl,6
+    addw    hl,7
 
     ; check collision pointer
     ld      a,[hl]

@@ -130,6 +130,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $10; Sprite Size
     DB      $00; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $04; Tile Clear Count
     DW      polygonOffscreenBuffer + $0000; Tilevram Offset
@@ -152,6 +153,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $10; Sprite Size
     DB      $02; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $04; Sprite count
     DW      polygonOffscreenBuffer + $0040; Tilevram Offset
@@ -174,6 +176,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $10; Sprite Size
     DB      $04; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $04; Tilecount
     DW      polygonOffscreenBuffer + $0080; Tilevram Offset
@@ -196,6 +199,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $10; Sprite Size
     DB      $06; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $04; Tile Clear Count
     DW      polygonOffscreenBuffer + $00C0; Tilevram Offset
@@ -218,6 +222,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $08; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0100; Tilevram Offset
@@ -240,6 +245,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $09; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0120; Tilevram Offset
@@ -262,6 +268,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0A; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0140; Tilevram Offset
@@ -284,6 +291,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0B; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0160; Tilevram Offset
@@ -306,6 +314,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0C; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0180; Tilevram Offset
@@ -328,6 +337,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0D; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $01A0; Tilevram Offset
@@ -350,6 +360,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0E; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $01C0; Tilevram Offset
@@ -372,6 +383,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0F; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $01E0; Tilevram Offset
@@ -394,6 +406,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $10; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0200; Tilevram Offset
@@ -416,6 +429,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $11; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0220; Tilevram Offset
@@ -438,6 +452,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $12; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0240; Tilevram Offset
@@ -460,6 +475,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $13; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
     DW      polygonOffscreenBuffer + $0260; Tilevram Offset
@@ -482,6 +498,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $20; Sprite Size
     DB      $14; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $0B; Tile Clear Count
     DW      polygonOffscreenBuffer + $0280; Tilevram Offset
@@ -504,6 +521,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $20; Sprite Size
     DB      $1A; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $0B; Tile Clear Count
     DW      polygonOffscreenBuffer + $0340; Tilevram Offset
@@ -526,6 +544,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $00; Rotation
     DB      $30; Sprite Size
     DB      $20; Sprite index
+    DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $10; Tile Clear Count
     DW      polygonOffscreenBuffer + $0400; Tilevram Offset

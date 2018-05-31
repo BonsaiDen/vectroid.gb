@@ -55,7 +55,6 @@ game_title_run:
     call    screen_flash_in
     call    screen_reset
     call    sound_reset
-    call    ship_init
     call    polygon_init
     call    asteroid_init
     call    menu_game_title_init
