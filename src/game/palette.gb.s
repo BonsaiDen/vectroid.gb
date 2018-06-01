@@ -9,9 +9,8 @@ palette_init:
     ld      a,%00000000
     ld      [rOBP0],a
 
-    ld      a,%00000000
+    ld      a,%00010101
     ld      [rOBP1],a
-
     ret
 
 palette_update:; a = dark/light

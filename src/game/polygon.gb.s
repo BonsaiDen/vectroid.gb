@@ -596,29 +596,26 @@ update_polygon:; hl = polygon state pointer
 
     ; update old angle with new angle
 .redraw:
-    dec     hl
-
-    ; mark as changed
-    ld      a,2
-    ld      [hli],a
+    ; store redraw flag pointer + 1
+    push    hl
 
     ; store current rotation into old rotation
     ld      a,d
     ld      [hli],a
 
-    push    de
-    ld      a,[hli]; load tile clear count
-    ld      d,a
+    ; load tile clear count
+    ld      a,[hli]
+    ld      b,a
 
     ; load source in offscreen buffer
     ldxa    [polygonOffset + 1],[hli]
-    ld      e,a
+    ld      c,a
     ldxa    [polygonOffset],[hli]
 
     ; prepare to clear offscreen buffer
     push    hl
     ld      h,a
-    ld      l,e
+    ld      l,c
     xor     a; clear
 
 .clear:
@@ -638,11 +635,9 @@ update_polygon:; hl = polygon state pointer
     inc     l
     ld      [hli],a
     inc     hl
-    dec     d
+    dec     b
     jr      nz,.clear
-
     pop     hl
-    pop     de
 
     ; load polygon data pointer into de
     ld      a,[hli]
@@ -656,11 +651,10 @@ update_polygon:; hl = polygon state pointer
     ld      d,a
     ldxa    e,[hli]
 
-    push    hl
-
     ; TODO allow variant without offset
     ld      a,[polygonHalfSize]
     ld      b,a
+    push    hl
     call    angle_offset; d = angle, e = length
     pop     hl
 
@@ -674,16 +668,13 @@ update_polygon:; hl = polygon state pointer
 
     ; check for end marker
     cp      $ff
-    ret     z
+    jr      z,.done
 
     ; store data pointer
     push    hl
 
-    ; store previous point
-    ld      h,b
-    ld      l,c
-
-    push    hl
+    ; setup previous point for DE down below
+    push    bc
 
     ; TODO allow variant without offset
     ld      a,[polygonHalfSize]
@@ -691,7 +682,7 @@ update_polygon:; hl = polygon state pointer
 
     ; calculate current point
     call    angle_offset; d = angle, e = length
-    pop     de
+    pop     de; get point that was set up
 
     push    bc
     call    line_two
@@ -700,6 +691,14 @@ update_polygon:; hl = polygon state pointer
     ; restore data pointer
     pop     hl
     jr      .loop
+
+.done:
+    ; mark as changed
+    pop     hl
+    dec     hl
+    ld      a,2
+    ld      [hl],a
+    ret
 
 _update_polygon:
     jp      [hl]
@@ -869,13 +868,26 @@ polygon_destroy:
 
 _set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
 
-    ; add priority bit
+    ; determine palette mode
+    ld      a,[coreColorEnabled]
+    cp      0
+    jr      z,.dmg
+
+    ; color gameboy
     ld      a,b
+    and     %0000_1111
+    or      %1000_0000
+    ld      b,a
+    jr      .init
+
+.dmg:
+    ld      a,b
+    and     %0001_0000
     or      %1000_0000
     ld      b,a
 
     ; setup sprite base
-.no_collision:
+.init:
     ld      h,$C0
     ld      a,e
     add     a; x2
@@ -972,7 +984,7 @@ _set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
 polygon_draw:
     ld      a,[coreColorEnabled]
     cp      0
-    jr      z,.dmg
+    jr      z,polygon_draw_dmg
 
     ; wait for hardware DMA to complete
     ld      a,[rHDMA5]
@@ -994,7 +1006,8 @@ polygon_draw:
     ld      [rHDMA5],a
     ret
 
-.dmg:
+    ; DMG support
+polygon_draw_dmg:
     ldxa    [polygonIndex],0
     ld      hl,polygonState
 
@@ -1042,45 +1055,52 @@ polygon_draw:
 .copy:
     ld      a,[rSTAT]       ; <---+
     and     STATF_BUSY      ;     |
-    jr      nz,.copy
-
-    ld      a,[hli]
-    ld      [de],a
-    inc     l
-    inc     e
-    inc     e
+    jr      nz,@-4
     ld      a,[hli]
     ld      [de],a
     inc     l
     inc     e
     inc     e
 
-.copy_2:
     ld      a,[rSTAT]       ; <---+
     and     STATF_BUSY      ;     |
-    jr      nz,.copy_2
-
-    ld      a,[hli]
-    ld      [de],a
-    inc     l
-    inc     e
-    inc     e
+    jr      nz,@-4
     ld      a,[hli]
     ld      [de],a
     inc     l
     inc     e
     inc     e
 
-.copy_3:
     ld      a,[rSTAT]       ; <---+
     and     STATF_BUSY      ;     |
-    jr      nz,.copy_3
-
+    jr      nz,@-4
     ld      a,[hli]
     ld      [de],a
     inc     l
     inc     e
     inc     e
+
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,@-4
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,@-4
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,@-4
     ld      a,[hli]
     ld      [de],a
     inc     l
@@ -1090,13 +1110,16 @@ polygon_draw:
 .copy_4:
     ld      a,[rSTAT]       ; <---+
     and     STATF_BUSY      ;     |
-    jr      nz,.copy_4
-
+    jr      nz,@-4
     ld      a,[hli]
     ld      [de],a
     inc     l
     inc     e
     inc     e
+
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,@-4
     ld      a,[hli]
     ld      [de],a
     inc     hl

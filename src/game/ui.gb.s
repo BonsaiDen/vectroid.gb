@@ -5,6 +5,11 @@ ui_draw:
     cp      0
     ret     z
 
+    ; check if dmg
+    ld      a,[coreColorEnabled]
+    cp      0
+    jr      z,ui_draw_dmg
+
     ; wait for hardware DMA to complete
     ld      a,[rHDMA5]
     and     %1000_0000
@@ -76,6 +81,52 @@ ui_draw:
     ld      [rHDMA5],a
     ret
 
+ui_draw_dmg:
+    ; check what to copy
+    ld      a,[uiClear]
+    cp      0
+    jp      nz,.clear
+
+    xor     a
+    ld      [uiUpdate],a
+
+    ld      a,[uiPosition]
+    cp      0
+    jp      z,.full
+    cp      1
+    jp      z,.top
+
+.bottom:
+    ld      hl,uiOffscreenBuffer
+    ld      de,$9A20
+    COPY_SCREEN_LINE()
+    ret
+
+.top:
+    ld      hl,uiOffscreenBuffer
+    ld      de,$9800
+    COPY_SCREEN_LINE()
+    ret
+
+.clear:
+    xor     a
+    ld      [uiClear],a
+
+.full:
+    ; copy 18 lines
+    ld      b,18
+    ld      hl,uiOffscreenBuffer
+    ld      de,$9800
+
+.loop:
+    COPY_SCREEN_LINE()
+    addw    hl,12
+    addw    de,12
+    dec     b
+    jr      nz,.loop
+    ret
+
+
 ui_text:; bc = x/y, hl = data pointer
 .next:
     ld      a,[hl]
@@ -141,7 +192,6 @@ ui_character:; bc = x/y, d = length, e = character
     dec     d
     jr      nz,.next
     ret
-
 
 ui_number_right_aligned:; a = number, bc = x/y, d = fill width, e = fill tile index
     ld      l,a
@@ -240,3 +290,22 @@ e_div_10:; e / 10 -> h
      add hl,hl
      ret
 
+
+MACRO COPY_SCREEN_LINE()
+_copy_screen_line:
+    ld      c,10
+.loop:
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,@-4
+
+    ld      a,[hli]
+    ld      [de],a
+    inc     e
+    ld      a,[hli]
+    ld      [de],a
+    inc     e
+
+    dec     c
+    jr      nz,.loop
+ENDMACRO

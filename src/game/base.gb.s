@@ -32,11 +32,12 @@ polygon_sprite_base:
     DB      0,0,$AA,0
     DB      0,0,$AC,0
     DB      0,0,$AE,0
+
     DB      0,0,$B0,0
     DB      0,0,$B2,0
-
     DB      0,0,$B4,0
     DB      0,0,$B6,0
+
     DB      0,0,$B8,0
     DB      0,0,$BA,0
     DB      0,0,$BC,0
