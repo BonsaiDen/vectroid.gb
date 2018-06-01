@@ -7,8 +7,7 @@ line_two:
 
     ; skip lines with length 0
     ld      a,h
-    add     l
-    cp      0
+    add     l; sets zero flag
     ret     z
 
     ; dy <= dx
@@ -17,10 +16,12 @@ line_two:
     jr      nc,.plot_line_y
 
 .plot_line_x:
+    sla     l
     PLOT_LINE(b, d, c, h, l, e, lineXI, lineYI)
     ret
 
 .plot_line_y:
+    sla     h
     PLOT_LINE(c, e, b, l, h, d, lineYI, lineXI)
     ret
 
@@ -34,8 +35,8 @@ delta:
     jr      nc,.positive; dy < 0
 
     ; dy = -dy
-    add     $ff
     cpl
+    inc     a
     ld      @delta,a; dy
     ld      a,-1
     jr      .negative
@@ -53,12 +54,10 @@ ENDMACRO
 MACRO PLOT_LINE(@pos, @end, @second, @delta_one, @delta_two, @error, @i_one, @i_two)
 plot_line:
 
-    ; hl = dx:dy, bc = sx:sy, de = error:ey
-    ld      @error,128
-
-    ; offset dy for fast, signed error comparison
-    ld      a,@delta_one
-    add     128
+    ; offset dy for fast / signed error comparison
+    ld      a,128
+    ld      @error,a; init error variable to 0 (+offset)
+    add     @delta_one
     ld      @delta_one,a
 
 .loop:
@@ -69,32 +68,30 @@ plot_line:
     add     @pos
     ld      @pos,a
 
-    ; error += dx + dx
+    ; error += dx * 2
     ld      a,@error
-    add     @delta_two
     add     @delta_two
     ld      @error,a
 
     ; error > dx + 128
     dec     a
     cp      @delta_one
-    jr      c,.small_error
-    ;jr      z,.small_error_y
+    jr      c,.error_too_small
 
     ; sx += xi
+.increase_second:
     ld      a,[@i_two]
     add     @second
     ld      @second,a
 
-    ; error -= tdy
-    ; error -= tdy + tdy
+    ; error -= tdy * 2
     ld      a,@error
     sub     @delta_one
     sub     @delta_one
     add     1; same effect as adding 128 twice to correct for the dx offset
     ld      @error,a
 
-.small_error:
+.error_too_small:
     ; sy == ey
     ld      a,@pos
     cp      @end
@@ -104,55 +101,65 @@ ENDMACRO
 
 MACRO PLOT_PIXEL()
     push    hl
-    push    de
     push    bc
 
-    ; copy original pixel y position
-    ld      e,c
+    ; copy px/py
+    ld      l,b
+    ld      h,c
 
     ; calculate x tile grid
-    div     b,8
-
-    ; calculate y tile grid = y / 8 * 4
-    div     c,8
-    mul     c,4
+    div     l,8
 
     ; calculate tile index
     ld      a,[polygonSize]
     add     tile_index_table & $ff
-    add     b
+
+    ; += y / 8 * 4
+    div     c,8
     add     c
-    ld      h,tile_index_table >> 8
+    add     c
+    add     c
+    add     c
+    add     l
     ld      l,a
 
     ; add relative y offset
-    ld      a,e
-    and     %0000_0111
+    ld      a,h
+    and     %0000_0111; we only set every other byte since we're only using 2 colors
     add     a; x2
-    add     [hl]; add base tile index
+
+    ; add base tile index
+    ld      h,tile_index_table >> 8
+    add     [hl]
+    ld      c,a
+
+    ; add polygon offset
+    ld      a,[polygonOffset + 1]
+    add     c
     ld      l,a
 
-    ; and add tile base pointer
-    ld      h,0
-    ldxa    d,[polygonOffset]
-    ldxa    e,[polygonOffset + 1]
-    add     hl,de
+    ld      a,[polygonOffset]
+    adc     0
+    ld      h,a
 
-    ; restore px
-    pop     bc
-
-    ; load correct bit mask for column
+    ; calculate x modulo for column
     ld      a,b
     and     %0000_0111
-    ld      d,bit_table >> 8
-    ld      e,a
-    ld      a,[de]; load pixel bit mask
 
-    ld      d,[hl]; read old pixel row
-    or      d; combine with bit pixel plot mask
-    ld      [hl],a; store combined row pixels back
+    ; load pixel pattern mask for row/column
+    ; TODO move to HRAM and use ld a,[c] ?
+    ld      b,bit_table >> 8
+    ld      c,a
+    ld      a,[bc]
 
-    pop    de
-    pop    hl
+    ; combine with old pixel row
+    or      [hl]
+
+    ; store combined row pixels back
+    ld      [hl],a
+
+    ; restore px/py
+    pop     bc
+    pop     hl
 ENDMACRO
 
