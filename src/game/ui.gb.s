@@ -1,24 +1,66 @@
 SECTION "UILogic",ROM0
 
 ui_draw:
-    ld      a,[forceUIUpdate]
-    cp      1
-    jr      z,.update
-
-    ; only draw ui every 15 frames
-    ld      a,[coreLoopCounter16]
-    and     %0000_1111
-    ret     nz
-
-.update:
-    xor     a
-    ld      [forceUIUpdate],a
+    ld      a,[uiUpdate]
+    cp      0
+    ret     z
 
     ; wait for hardware DMA to complete
     ld      a,[rHDMA5]
     and     %1000_0000
     ret     z
 
+    ; check what to copy
+    ld      a,[uiClear]
+    cp      0
+    jr      nz,.clear
+
+    xor     a
+    ld      [uiUpdate],a
+
+    ld      a,[uiPosition]
+    cp      0
+    jr      z,.full
+    cp      1
+    jr      z,.top
+
+.bottom:
+    ; source
+    ld      a,uiOffscreenBuffer >> 8
+    ld      [rHDMA1],a
+    xor     a
+    ld      [rHDMA2],a
+
+    ; target
+    ld      a,$9A
+    ld      [rHDMA3],a
+    ld      a,$20
+    ld      [rHDMA4],a
+    ld      a,%0000_0001
+    ld      [rHDMA5],a
+    ret
+
+.top:
+    ; source
+    ld      a,uiOffscreenBuffer >> 8
+    ld      [rHDMA1],a
+    xor     a
+    ld      [rHDMA2],a
+
+    ; target
+    ld      a,$98
+    ld      [rHDMA3],a
+    xor     a
+    ld      [rHDMA4],a
+    ld      a,%0000_0001
+    ld      [rHDMA5],a
+    ret
+
+.clear:
+    xor     a
+    ld      [uiClear],a
+
+.full:
     ; source
     ld      a,uiOffscreenBuffer >> 8
     ld      [rHDMA1],a

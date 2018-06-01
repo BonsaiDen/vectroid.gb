@@ -63,7 +63,9 @@ soundPriority:              DS 4
 gameDelay:                  DB
 gameModeNext:               DB
 gameMode:                   DB
-forceUIUpdate:              DB
+uiUpdate:                   DB
+uiPosition:                 DB
+uiClear:                    DB
 paletteUpdated:             DB
 bulletRotation:             DB
 shipWithinBorder:           DB

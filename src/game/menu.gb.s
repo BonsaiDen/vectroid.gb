@@ -2,6 +2,9 @@ SECTION "MenuLogic",ROM0
 
 menu_init:
     xor     a
+    ld      [uiUpdate],a
+    ld      [uiPosition],a
+    ld      [uiClear],a
     ld      [menuDebug],a
     ld      [menuButton],a
     call    clear_bg
@@ -17,7 +20,6 @@ menu_play_init:
     jr      z,.game
 
 .debug:
-
     call    clear_bg
     ld      bc,$0000
     ld      hl,text_debug_ui_one
@@ -38,16 +40,11 @@ menu_play_init:
 .done:
     ldxa    [rSCX],0
     ld      a,1
-    ld      [forceUIUpdate],a
+    ld      [uiUpdate],a
     call    menu_play_render
     ret
 
 menu_play_update:
-
-    ld      a,[coreInputOn]
-    and     BUTTON_UP
-    cp      BUTTON_UP
-    jr      z,.test
 
     ; toggle debug
     ld      a,[coreInputOn]
@@ -71,10 +68,35 @@ menu_play_update:
     cp      GAME_MODE_PAUSE
     ret     z
 
-    ; only update ui only every 15 frames
-    ld      a,[coreLoopCounter16]
-    and     %0000_1111
-    ret     nz
+    ; check playerY and switch hud position around
+    ld      a,[playerY]
+    cp      80
+    jr      c,.bottom
+
+.top:
+    ld      a,[uiPosition]
+    cp      1
+    jr      z,.render
+    ld      a,1
+    ld      [uiUpdate],a
+    ld      [uiPosition],a
+    call    clear_bg
+    ret
+
+.bottom:
+    ld      a,[uiPosition]
+    cp      2
+    jr      z,.render
+    ld      a,2
+    ld      [uiUpdate],a
+    ld      [uiPosition],a
+    call    clear_bg
+    ret
+
+.render:
+    ld      a,[uiUpdate]
+    cp      0
+    ret     z
 
     call    menu_play_render
     ret
@@ -85,7 +107,7 @@ menu_play_update:
     jr      z,.unpause
 
     ld      a,1
-    ld      [forceUIUpdate],a
+    ld      [uiUpdate],a
     call    sound_effect_pause
     call    clear_bg
 
@@ -97,7 +119,7 @@ menu_play_update:
 
 .unpause:
     ld      a,1
-    ld      [forceUIUpdate],a
+    ld      [uiUpdate],a
     call    sound_effect_unpause
     call    clear_bg
     ldxa    [gameMode],GAME_MODE_PLAY
@@ -178,36 +200,6 @@ menu_play_render:
     cp      0
     ret     z
 
-    ; check playerY and switch hud position around
-    ld      a,[playerY]
-    cp      80
-    jr      c,.bottom
-
-.top:
-    ld      hl,uiOffscreenBuffer + $00 + 544
-    xor     a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-
-    ld      hl,uiOffscreenBuffer + $0C + 544
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-
     ; points
     ld      hl,uiOffscreenBuffer + $0C
     ld      [hl],$70
@@ -233,58 +225,6 @@ menu_play_render:
     ld      hl,uiOffscreenBuffer + $0A
     ld      [hl],$6F
     ld      hl,uiOffscreenBuffer + $00
-    jr      .bar
-
-.bottom:
-    ld      hl,uiOffscreenBuffer + $00
-    xor     a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-
-    ld      hl,uiOffscreenBuffer + $0C
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-    ld      [hli],a
-
-    ; points
-    ld      hl,uiOffscreenBuffer + $0C + 544
-    ld      [hl],$70
-    ld      hl,uiOffscreenBuffer + $0D + 544
-    ld      [hl],$71
-
-    ld      a,[playerScore + 2]
-    ld      bc,$0F11
-    ld      de,$0200
-    call    ui_number_right_aligned
-
-    ld      a,[playerScore + 1]
-    ld      bc,$1111
-    ld      de,$0200
-    call    ui_number_right_aligned
-
-    ld      a,[playerScore]
-    ld      bc,$1311
-    ld      de,$0200
-    call    ui_number_right_aligned
-
-    ; right / left
-    ld      hl,uiOffscreenBuffer + $0A + 544
-    ld      [hl],$6F
-    ld      hl,uiOffscreenBuffer + $00 + 544
 
 .bar:
     ld      [hl],$68
@@ -326,6 +266,7 @@ menu_play_render:
 menu_game_over_init:
     xor     a
     ld      [menuButton],a
+    ld      [uiPosition],a
 
     ldxa    [gameMode],GAME_MODE_OVER
     call    clear_bg
@@ -400,7 +341,7 @@ menu_game_over_update:
 
 .update:
     ld      a,1
-    ld      [forceUIUpdate],a
+    ld      [uiUpdate],a
 
     ld      a,[menuButton]
     cp      1
@@ -451,6 +392,7 @@ menu_game_over_update:
 menu_game_title_init:
     xor     a
     ld      [menuButton],a
+    ld      [uiPosition],a
 
     ldxa    [rSCX],4
 
@@ -491,7 +433,7 @@ menu_game_title_update:
 
 .update:
     ld      a,1
-    ld      [forceUIUpdate],a
+    ld      [uiUpdate],a
 
     ld      bc,$050E
     ld      de,$0B00

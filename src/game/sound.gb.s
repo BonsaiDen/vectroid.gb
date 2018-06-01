@@ -44,7 +44,7 @@ sound_effect_bullet:
     ret
 
 sound_effect_thrust:
-    play_effect(effect_thrust, SOUND_PRIORITY_MEDIUM)
+    play_effect(effect_thrust, SOUND_PRIORITY_LOW)
     ret
 
 sound_effect_impact:

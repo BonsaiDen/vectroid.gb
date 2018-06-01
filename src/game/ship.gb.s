@@ -457,6 +457,10 @@ ship_update:
     jr      c,.destroy
     ld      [playerShield],a
 
+    ; update UI
+    ld      a,1
+    ld      [uiUpdate],a
+
     ; set iframes
     ld      a,IFRAME_COUNT
     ld      [playerIFrames],a

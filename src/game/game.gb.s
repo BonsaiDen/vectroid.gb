@@ -33,7 +33,7 @@ game_title:
 
 game_over:
     ld      a,1
-    ld      [forceUIUpdate],a
+    ld      [uiUpdate],a
     call    clear_bg
     ldxa    [gameDelay],200
     ldxa    [gameModeNext],GAME_MODE_OVER
@@ -136,7 +136,7 @@ game_score_points:; hl = points tripplet pointer
 
     ; schedule points redraw
     ld      a,1
-    ld      [forceUIUpdate],a
+    ld      [uiUpdate],a
 
     ; __ __ 00
 .lower:
@@ -212,6 +212,8 @@ init_bg:
     ret
 
 clear_bg:
+    ld      a,1
+    ld      [uiClear],a
     ld      a,0
     ld      hl,uiOffscreenBuffer
     ld      bc,576
