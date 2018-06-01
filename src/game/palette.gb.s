@@ -2,6 +2,16 @@ SECTION "PaletteLogic",ROM0
 palette_init:
     ldxa    [paletteLightness],-31
     call    palette_update
+
+    ld      a,%00110011
+    ld      [rBGP],a
+
+    ld      a,%00000000
+    ld      [rOBP0],a
+
+    ld      a,%00000000
+    ld      [rOBP1],a
+
     ret
 
 palette_update:; a = dark/light

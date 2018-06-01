@@ -26,6 +26,7 @@ polygon_disable_type:; de = update pointer to disable
     ld      a,$ff
     cp      [hl]; check for end marker
     ret     z
+
     inc     hl
 
     ; load update pointer
@@ -584,22 +585,24 @@ update_polygon:; hl = polygon state pointer
     inc     hl; skip over sprite index
 
     ; check for force redraw flag
-    ld      a,[hl]; load redraw flag
-    cp      0
-    jr      nz,.force_redraw
+    ld      a,[hli]; load redraw flag
+    cp      1
+    jr      z,.redraw
 
-    inc     hl
-    ld      a,[hl]; load old rotation
+    ; check if rotation changed
+    ld      a,[hl]
     cp      d
     ret     z
-    jr      .redraw
-
-.force_redraw:
-    xor     a
-    ld      [hli],a
 
     ; update old angle with new angle
 .redraw:
+    dec     hl
+
+    ; mark as changed
+    ld      a,2
+    ld      [hli],a
+
+    ; store current rotation into old rotation
     ld      a,d
     ld      [hli],a
 
@@ -967,6 +970,10 @@ _set_sprite_palette:; b = palette index, d = sprite size, e = sprite index
 
 ; Polygon Drawing -------------------------------------------------------------
 polygon_draw:
+    ld      a,[coreColorEnabled]
+    cp      0
+    jr      z,.dmg
+
     ; wait for hardware DMA to complete
     ld      a,[rHDMA5]
     and     %1000_0000
@@ -985,6 +992,125 @@ polygon_draw:
     ld      [rHDMA4],a
     ld      a,%0100_1111
     ld      [rHDMA5],a
+    ret
+
+.dmg:
+    ldxa    [polygonIndex],0
+    ld      hl,polygonState
+
+.loop:
+    ld      a,$ff
+    cp      [hl]; check for end marker
+    ret     z
+
+    ; check if active
+    push    hl
+    ld      a,[hl]
+    and     %1000_0000
+    cp      0
+    jr      z,.skip
+
+    ; skip intermediate bytes
+    addw    hl,16
+
+    ; load redraw flag
+    ld      a,[hl]
+    cp      2
+    jr      nz,.skip
+
+    ; reset redraw flag
+    xor     a
+    ld      [hli],a
+    inc     hl; skip old rotation
+
+    ld      a,[hli]; load tile clear count
+    ld      b,a
+
+    ; load source in offscreen buffer
+    ld      a,[hli]
+    ld      e,a
+    ld      a,[hl]
+    ld      h,a
+    ld      l,e
+
+    ; calculate vram target
+    ld      a,($8800 - polygonOffscreenBuffer) >> 8
+    add     h
+    ld      d,a
+    ld      e,l
+
+.copy:
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,.copy
+
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+
+.copy_2:
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,.copy_2
+
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+
+.copy_3:
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,.copy_3
+
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+
+.copy_4:
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,.copy_4
+
+    ld      a,[hli]
+    ld      [de],a
+    inc     l
+    inc     e
+    inc     e
+    ld      a,[hli]
+    ld      [de],a
+    inc     hl
+    inc     e
+    inc     de
+    dec     b
+    jr      nz,.copy
+
+    ; skip bytes
+.skip:
+    pop     hl
+    addw    hl,POLYGON_BYTES
+    incx    [polygonIndex]
+    jp      .loop
     ret
 
 MACRO addFixedSigned(@minor, @increase, @max)
