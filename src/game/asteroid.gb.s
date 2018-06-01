@@ -857,17 +857,17 @@ _asteroid_heavy_chance:
     DB      8
     DB      8
     DB      8
+    DB      12
+    DB      12
     DB      16
     DB      16
     DB      16
-    DB      24
-    DB      24
 
+    DB      20
+    DB      20
+    DB      24
+    DB      28
     DB      32
-    DB      32
-    DB      32
-    DB      48
-    DB      48
     DB      48
     DB      64
     DB      64
