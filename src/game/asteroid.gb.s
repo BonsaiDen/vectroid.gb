@@ -351,7 +351,7 @@ asteroid_update:
 
     ; distribute rotation updats over several frames
     ld      a,[polygonIndex]
-    and     %0000_0111
+    and     %0000_1111
     ld      b,a
     ld      a,[coreLoopCounter]
     cp      b
