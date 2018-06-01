@@ -62,8 +62,8 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      [polygonSize],a
     ld      hl,polygonState
 
-    ld      a,1; TODO Re-enable once we figured out the bug which sometimes causes
-               ; false polygon sprites when re-using
+    ; redraw flag
+    xor     a
     ld      [polygonChanged],a
 
     ; find unused polygon of the desired size
@@ -156,7 +156,39 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     inc     hl
 
 .rot_changed:
-    ; setup palette
+
+    ; update polygon data pointer
+    push    hl
+    addw    hl,7
+
+    ; high byte
+    ld      a,[hl]
+    cp      d
+    jr      z,.hi_up_unchanged
+    ld      a,1
+    ld      [polygonChanged],a
+    ldxa    [hli],d
+    jr      .hi_up_changed
+.hi_up_unchanged:
+    inc     hl
+.hi_up_changed:
+
+    ; low byte
+    ld      a,[hl]
+    cp      e
+    jr      z,.lo_up_unchanged
+    ld      a,1
+    ld      [polygonChanged],a
+    ld      [hl],e
+.lo_up_unchanged:
+
+    ; store point to polygon collision index
+    inc     hl
+    ld      d,h
+    ld      e,l
+    pop     hl
+
+    ; setup sprite palette
     push    bc
     push    de
     ldxa    b,[polygonPalette]
@@ -168,45 +200,15 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     pop     de
     pop     bc
 
-    inc     hl; skip redraw flag TODO set above
-
-    ; check if changed
+    ; set redraw flag
     ld      a,[polygonChanged]
-    cp      0
-    jr      z,.unchanged
-
-    ; set old rotation to a different value to force initial update
-    ld      a,[polygonRotation]
-    ; TODO Maybe this is still broken due to the initial polygon angular momentum
-    ; causing things to get messed up
-    ; TODO finally get around to use a dirty flag!
-    add     128
     ld      [hli],a
-    jr      .changed
-
-.unchanged:
-    ; set old rotation to same value in order to re-use the already drawn tile data
-    ld      a,[polygonRotation]
-    ld      [hli],a
-
-.changed:
-    inc     hl; skip tile count
-    inc     hl; skip tile offset
-    inc     hl
-
-    ; set polygon data
-    ldxa    [hli],d
-    ldxa    [hli],e
 
     ; add to collision group
 .collision:
     ld      a,[polygonGroup]
     cp      $ff; no collision
     jr      z,.no_collision
-
-    ; store polygon data pointer
-    ld      d,h
-    ld      e,l
 
     ; 64 bytes per group (4x16)
     add     a; x2
@@ -363,16 +365,18 @@ update_polygon:; hl = polygon state pointer
     ; py += dy.my
     ld      d,[hl]
     push    hl
-    addFixedSigned(polygonY, d, b, 176)
-    addFixedSigned(polygonY, d, b, 176)
+    ld      hl,polygonY
+    addFixedSigned(d, b, 176)
+    addFixedSigned(d, b, 176)
     pop     hl
     ldxa    [hli],d; store updated dy
 
     ; px += dx.mx
     ld      d,[hl]
     push    hl
-    addFixedSigned(polygonX, d, c, 192)
-    addFixedSigned(polygonX, d, c, 192)
+    ld      hl,polygonX
+    addFixedSigned(d, c, 192)
+    addFixedSigned(d, c, 192)
     pop     hl
     ldxa    [hli],d; store updated dx
     jr      .update_sprite
@@ -574,16 +578,28 @@ update_polygon:; hl = polygon state pointer
 
     ; Compare angles
     ld      a,[polygonRotation]
-    ld      d,a; store poly rotation
+    ld      d,a; store current polygon rotation
     ld      [hli],a
     inc     hl; skip over size
     inc     hl; skip over sprite index
-    inc     hl; skip over redraw flag TODO use redraw flag
+
+    ; check for force redraw flag
+    ld      a,[hl]; load redraw flag
+    cp      0
+    jr      nz,.force_redraw
+
+    inc     hl
     ld      a,[hl]; load old rotation
     cp      d
     ret     z
+    jr      .redraw
+
+.force_redraw:
+    xor     a
+    ld      [hli],a
 
     ; update old angle with new angle
+.redraw:
     ld      a,d
     ld      [hli],a
 
@@ -971,20 +987,15 @@ polygon_draw:
     ld      [rHDMA5],a
     ret
 
-MACRO addFixedSigned(@major, @minor, @increase, @max)
+MACRO addFixedSigned(@minor, @increase, @max)
 add_fixed_signed:
 
-    ld      l,@increase
-
-    ; ignore if zero
-    xor     a
-    cp      @increase
-    jr      z,.done
+    ; store
+    ld      e,@increase
 
     ; check if increase is positive or negative
-    ld      a,128
-    cp      @increase
-    jr      c,.negative
+    bit     7,@increase
+    jr      nz,.negative
 
 .positive:
     sla     @increase
@@ -996,16 +1007,7 @@ add_fixed_signed:
     jr      nc,.positive_two
 
     ; minor overflowed so increase major
-    ld      a,[@major]
-    inc     a
-
-    ; check if > @max
-    cp      @max
-    jr      c,.positive_one_no_wrap
-    add     256 - @max; wrap over to 0
-
-.positive_one_no_wrap:
-    ld      [@major],a
+    inc     [hl]
 
 .positive_two:
     ld      a,@minor
@@ -1014,7 +1016,7 @@ add_fixed_signed:
     jr      nc,.done
 
     ; minor overflowed so increase major
-    ld      a,[@major]
+    ld      a,[hl]
     inc     a
 
     ; check if > @max
@@ -1023,7 +1025,7 @@ add_fixed_signed:
     add     256 - @max; wrap over to 0
 
 .positive_two_no_wrap:
-    ld      [@major],a
+    ld      [hl],a
     jr      .done
 
 .negative:
@@ -1042,16 +1044,7 @@ add_fixed_signed:
     jr      nc,.negative_two
 
     ; minor underflowd so decrease major
-    ld      a,[@major]
-    dec     a
-
-    ; check if > @max
-    cp      @max
-    jr      c,.negative_one_no_wrap
-    sub     256 - @max; wrap over to 176
-
-.negative_one_no_wrap:
-    ld      [@major],a
+    dec     [hl]
 
 .negative_two:
     ld      a,@minor
@@ -1059,8 +1052,8 @@ add_fixed_signed:
     ld      @minor,a
     jr      nc,.done
 
-    ; minor underflowd so decrease major
-    ld      a,[@major]
+    ; minor underflowed, so decrease major
+    ld      a,[hl]
     dec     a
 
     ; check if > @max
@@ -1069,10 +1062,10 @@ add_fixed_signed:
     sub     256 - @max; wrap over to 176
 
 .negative_two_no_wrap:
-    ld      [@major],a
+    ld      [hl],a
 
 .done:
-    ld      @increase,l
+    ld      @increase,e
 ENDMACRO
 
 MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
