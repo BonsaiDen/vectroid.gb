@@ -467,7 +467,7 @@ ship_update:
 
     ; destroy asteroid
     dec     de; hp
-    ld      a,$FD
+    ld      a,ASTEROID_DESTROYED_BY_SHIP
     ld      [de],a
     jr      .no_collision
 

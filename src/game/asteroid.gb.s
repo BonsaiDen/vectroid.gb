@@ -403,7 +403,7 @@ asteroid_update:
     call    _destroy_other_asteroid
 
 .destroy_this_asteroid:
-    ld      a,$FF
+    ld      a,ASTEROID_DESTROYED_BY_BULLET
     ld      [polygonDataB],a
     ld      a,1
     ret
@@ -469,7 +469,7 @@ asteroid_update:
 .done:
     ; check if destroyed by ship
     ld      a,[polygonDataB]
-    cp      $FD
+    cp      ASTEROID_DESTROYED_BY_SHIP
     jr      nz,.decrease; if not skip animation
 
     call    screen_shake_shield
@@ -500,7 +500,12 @@ _destroy_other_asteroid:; -> b = half size, c = flags
     and     %0000_0001
     ld      c,a
     dec     de; hp
-    ld      a,$FE
+    ld      a,ASTEROID_DESTROYED_BY_OTHER
+    ld      [de],a
+
+    ; set other rotation speed to our rotation direction
+    dec     de
+    ld      a,[polygonRotation]
     ld      [de],a
     ret
 
@@ -669,10 +674,20 @@ _asteroid_split:; return 0 if actually split up
     ret
 
 _direction_vector:
-    ; TODO get direction vector of other asteroid if polygonDataB is $fe
+    ld      a,[polygonDataB]
+    cp      ASTEROID_DESTROYED_BY_OTHER
+    jr      z,.other
+
+    ; get angle from current asteroid velocity
     ldxa    b,[polygonMX]
     ldxa    c,[polygonMY]
     call    atan_2
+    ld      d,a
+    ret
+
+.other:
+    ; get angle previously set by the asteroid which destroyed us
+    ld      a,[polygonDataA]
     ld      d,a
     ret
 

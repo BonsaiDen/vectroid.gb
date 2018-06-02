@@ -2,7 +2,6 @@ SECTION "CollisionLogic",ROM0
 
 collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
 
-    ; TODO optimize
     ; get start pointer of collision group
     ld      a,d
     add     a; x2
@@ -114,6 +113,7 @@ collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d 
 collide_asteroid_placement:; polygonX, polygonY = x/y, c = collision distance offset, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
     ld      d,COLLISION_ASTEROID
     ; TODO if this is too small then in some cases split asteroids might collide instantly with one another
+    ; TODO 7 seems to be the absolute minimum
     ld      c,7; TODO adjust for different half-sizes?
     call    collide_with_group
     cp      0
