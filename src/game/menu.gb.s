@@ -77,8 +77,9 @@ menu_play_update:
     ld      a,[uiPosition]
     cp      1
     jr      z,.render
-    ld      a,1
+    ld      a,2
     ld      [uiUpdate],a
+    ld      a,1
     ld      [uiPosition],a
     call    clear_bg
     ret
@@ -95,10 +96,13 @@ menu_play_update:
 
 .render:
     ld      a,[uiUpdate]
+    ld      b,a
     cp      0
     ret     z
 
     call    menu_play_render
+    ld      a,1
+    ld      [uiUpdate],a
     ret
 
 .toggle_pause:

@@ -20,6 +20,11 @@ ui_draw:
     cp      0
     jr      nz,.clear
 
+    ; wait for render to complete (will set this to 1)
+    ld      a,[uiUpdate]
+    cp      1
+    ret     nz
+
     xor     a
     ld      [uiUpdate],a
 
@@ -84,8 +89,15 @@ ui_draw:
 ui_draw_dmg:
     ; check what to copy
     ld      a,[uiClear]
+    cp      2
+    ret     z
     cp      0
     jp      nz,.clear
+
+    ; wait for render to complete (will set this to 2)
+    ld      a,[uiUpdate]
+    cp      1
+    ret     nz
 
     xor     a
     ld      [uiUpdate],a
@@ -109,7 +121,7 @@ ui_draw_dmg:
     ret
 
 .clear:
-    xor     a
+    ld      a,2
     ld      [uiClear],a
 
 .full:
@@ -124,6 +136,9 @@ ui_draw_dmg:
     addw    de,12
     dec     b
     jr      nz,.loop
+
+    xor     a
+    ld      [uiClear],a
     ret
 
 
@@ -302,6 +317,10 @@ _copy_screen_line:
     ld      a,[hli]
     ld      [de],a
     inc     e
+
+    ld      a,[rSTAT]       ; <---+
+    and     STATF_BUSY      ;     |
+    jr      nz,@-4
     ld      a,[hli]
     ld      [de],a
     inc     e
