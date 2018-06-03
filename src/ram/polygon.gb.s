@@ -1,16 +1,16 @@
 ; Constants -------------------------------------------------------------------
-POLYGON_BYTES               EQU 24
-POLYGON_ATTR_BYTES          EQU 14
-POLYGON_COUNT               EQU 19
-POLYGON_COLLISION_BYTES     EQU 3 * 16 * 4
-POLYGON_GIANT               EQU 4
-POLYGON_LARGE               EQU 3
-POLYGON_MEDIUM              EQU 2
-POLYGON_SMALL               EQU 1
+POLYGON_BYTES               EQU     24
+POLYGON_ATTR_BYTES          EQU     14
+POLYGON_COUNT               EQU     19
+POLYGON_COLLISION_BYTES     EQU     3 * 16 * 4
+POLYGON_GIANT               EQU     4
+POLYGON_LARGE               EQU     3
+POLYGON_MEDIUM              EQU     2
+POLYGON_SMALL               EQU     1
 
 
 SECTION "PolygonRam",WRAM0[$C800]
-polygonState:               DS     POLYGON_COUNT * POLYGON_BYTES + 1
+polygonState:               DS      POLYGON_COUNT * POLYGON_BYTES + 1
 polygonPalette:             DB
 polygonDrawState:           DB
 polygonGroup:               DB
@@ -18,17 +18,18 @@ polygonChanged:             DB
 
 
 SECTION "CollisionRam",WRAM0[$CA00]
-polygonCollisionGroups:     DS     POLYGON_COLLISION_BYTES
+polygonCollisionGroups:     DS      POLYGON_COLLISION_BYTES
 
 
 SECTION "PolygonBuffer",WRAM0[$CB00]
-polygonOffscreenBuffer:     DS     1280
+polygonOffscreenBuffer:     DS      1280
 
 
 SECTION "PolygonVars",HRAM[$FF98]
 paletteLightness:           DB
 lineXI:                     DB
 lineYI:                     DB
+lineMask:                   DB
 polygonOX:                  DB
 polygonOY:                  DB
 polygonX:                   DB

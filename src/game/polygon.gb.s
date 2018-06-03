@@ -616,6 +616,13 @@ update_polygon:; hl = polygon state pointer
     push    hl
     ld      h,a
     ld      l,c
+
+    ; TODO optimize
+    ; load base tile address
+    ld      a,[hli]
+    ld      h,[hl]
+    ld      l,a
+
     xor     a; clear
 
 .clear:
@@ -1021,7 +1028,7 @@ polygon_draw_dmg:
     ld      a,[hl]
     and     %1000_0000
     cp      0
-    jr      z,.skip
+    jp      z,.skip
 
     ; skip intermediate bytes
     addw    hl,16
@@ -1045,6 +1052,9 @@ polygon_draw_dmg:
     ld      a,[hl]
     ld      h,a
     ld      l,e
+    ld      a,[hli]
+    ld      h,[hl]
+    ld      l,a
 
     ; calculate vram target
     ld      a,($8800 - polygonOffscreenBuffer) >> 8

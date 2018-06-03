@@ -134,7 +134,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $04; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0000; Tilevram Offset
+    DW      polygon_sprite_1
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -157,7 +157,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $04; Sprite count
-    DW      polygonOffscreenBuffer + $0040; Tilevram Offset
+    DW      polygon_sprite_2
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -180,7 +180,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $04; Tilecount
-    DW      polygonOffscreenBuffer + $0080; Tilevram Offset
+    DW      polygon_sprite_3
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -203,7 +203,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $04; Tile Clear Count
-    DW      polygonOffscreenBuffer + $00C0; Tilevram Offset
+    DW      polygon_sprite_4
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -226,7 +226,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0100; Tilevram Offset
+    DW      polygon_sprite_5
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -249,7 +249,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0120; Tilevram Offset
+    DW      polygon_sprite_6
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -272,7 +272,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0140; Tilevram Offset
+    DW      polygon_sprite_7
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -295,7 +295,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0160; Tilevram Offset
+    DW      polygon_sprite_8
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -318,7 +318,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0180; Tilevram Offset
+    DW      polygon_sprite_9
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -341,7 +341,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $01A0; Tilevram Offset
+    DW      polygon_sprite_10
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -364,7 +364,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $01C0; Tilevram Offset
+    DW      polygon_sprite_11
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -387,7 +387,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $01E0; Tilevram Offset
+    DW      polygon_sprite_12
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -410,7 +410,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0200; Tilevram Offset
+    DW      polygon_sprite_13
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -433,7 +433,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0220; Tilevram Offset
+    DW      polygon_sprite_14
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -456,7 +456,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0240; Tilevram Offset
+    DW      polygon_sprite_15
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -479,7 +479,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $01; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0260; Tilevram Offset
+    DW      polygon_sprite_16
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -502,7 +502,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $0B; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0280; Tilevram Offset
+    DW      polygon_sprite_17
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -525,7 +525,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $0B; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0340; Tilevram Offset
+    DW      polygon_sprite_18
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
@@ -548,10 +548,126 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $55; Redraw Flag
     DB      $00; Old Rotation
     DB      $10; Tile Clear Count
-    DW      polygonOffscreenBuffer + $0400; Tilevram Offset
+    DW      polygon_sprite_19
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
 
     ; end marker
-    DB      $ff
+    DB      $FF
+
+SECTION "PolygonTileData",ROM0
+polygon_sprite_1:
+    sprite_two(polygonOffscreenBuffer + $0000)
+
+polygon_sprite_2:
+    sprite_two(polygonOffscreenBuffer + $0040)
+
+polygon_sprite_3:
+    sprite_two(polygonOffscreenBuffer + $0080)
+
+polygon_sprite_4:
+    sprite_two(polygonOffscreenBuffer + $00C0)
+
+polygon_sprite_5:
+    sprite_one(polygonOffscreenBuffer + $0100)
+
+polygon_sprite_6:
+    sprite_one(polygonOffscreenBuffer + $0120)
+
+polygon_sprite_7:
+    sprite_one(polygonOffscreenBuffer + $0140)
+
+polygon_sprite_8:
+    sprite_one(polygonOffscreenBuffer + $0160)
+
+polygon_sprite_9:
+    sprite_one(polygonOffscreenBuffer + $0180)
+
+polygon_sprite_10:
+    sprite_one(polygonOffscreenBuffer + $01A0)
+
+polygon_sprite_11:
+    sprite_one(polygonOffscreenBuffer + $01C0)
+
+polygon_sprite_12:
+    sprite_one(polygonOffscreenBuffer + $01E0)
+
+polygon_sprite_13:
+    sprite_one(polygonOffscreenBuffer + $0200)
+
+polygon_sprite_14:
+    sprite_one(polygonOffscreenBuffer + $0220)
+
+polygon_sprite_15:
+    sprite_one(polygonOffscreenBuffer + $0240)
+
+polygon_sprite_16:
+    sprite_one(polygonOffscreenBuffer + $0260)
+
+polygon_sprite_17:
+    sprite_three(polygonOffscreenBuffer + $0280)
+
+polygon_sprite_18:
+    sprite_three(polygonOffscreenBuffer + $0340)
+
+polygon_sprite_19:
+    sprite_four(polygonOffscreenBuffer + $0400)
+
+MACRO sprite_one(@base)
+    DW      @base
+    DW      $0000
+    DW      $0000
+    DW      $0000
+ENDMACRO
+
+MACRO sprite_two(@base)
+    DW      @base
+    DW      @base + 2 * 16
+    DW      $0000
+    DW      $0000
+
+    DW      @base + 1 * 16
+    DW      @base + 3 * 16
+    DW      $0000
+    DW      $0000
+ENDMACRO
+
+MACRO sprite_three(@base)
+    DW      @base
+    DW      @base +  2 * 16
+    DW      @base +  4 * 16
+    DW      $0000
+
+    DW      @base +  1 * 16
+    DW      @base +  3 * 16
+    DW      @base +  5 * 16
+    DW      $0000
+
+    DW      @base +  6 * 16
+    DW      @base +  8 * 16
+    DW      @base + 10 * 16
+    DW      $0000
+ENDMACRO
+
+MACRO sprite_four(@base)
+    DW      @base
+    DW      @base +  2 * 16
+    DW      @base +  4 * 16
+    DW      @base +  6 * 16
+
+    DW      @base +  1 * 16
+    DW      @base +  3 * 16
+    DW      @base +  5 * 16
+    DW      @base +  7 * 16
+
+    DW      @base +  8 * 16
+    DW      @base + 10 * 16
+    DW      @base + 12 * 16
+    DW      @base + 14 * 16
+
+    DW      @base +  9 * 16
+    DW      @base + 11 * 16
+    DW      @base + 13 * 16
+    DW      @base + 15 * 16
+ENDMACRO
 

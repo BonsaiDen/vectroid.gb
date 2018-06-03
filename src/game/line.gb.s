@@ -101,65 +101,74 @@ ENDMACRO
 
 MACRO PLOT_PIXEL()
     push    hl
-    push    bc
 
-    ; copy px/py
-    ld      l,b
-    ld      h,c
+    ; calculate modulo for column
+    ld      a,b; 4
+    and     %0000_0111; 8
+    ld      l,a; 4
+    ld      h,bit_table >> 8; 8
+    ld      a,[hl]; 8
+    ld      [lineMask],a; 12 + 12
+    ; 56
 
-    ; calculate x tile grid
-    div     l,8
-
-    ; calculate tile index
-    ld      a,[polygonSize]
-    add     tile_index_table & $ff
-
-    ; += y / 8 * 4
-    div     c,8
-    add     c
-    add     c
-    add     c
-    add     c
-    add     l
-    ld      l,a
-
-    ; add relative y offset
-    ld      a,h
-    and     %0000_0111; we only set every other byte since we're only using 2 colors
-    add     a; x2
-
-    ; add base tile index
-    ld      h,tile_index_table >> 8
-    add     [hl]
-    ld      c,a
-
-    ; add polygon offset
+    ; load low byte of tile index table for the sprite
     ld      a,[polygonOffset + 1]
-    add     c
     ld      l,a
 
+    ; y tile grid = py / 8
+    ld      h,c
+    srl     h
+    srl     h
+    srl     h
+
+    ; calculate tile index to draw on = x + y * 4
+    ; x tile grid = px / 8
+    ld      a,b
+    rrca    ; / 2
+    rrca    ; / 4
+    rrca    ; / 8
+    and     %0001_1111; mask of wrapped bits
+
+    ; + y * 4
+    add     h
+    add     h
+    add     h
+    add     h
+
+    ; multiply by 2 and combine with base pointer address
+    add     a
+    add     l
+    ld      l,a; load into low byte
+
+    ; load high byte
     ld      a,[polygonOffset]
-    adc     0
+    adc     0; TODO still required?
     ld      h,a
 
-    ; calculate x modulo for column
-    ld      a,b
-    and     %0000_0111
+    ; load vram tile address from index table of the sprite
+    ld      a,[hli]
+    ld      h,[hl]
+    ld      l,a
 
-    ; load pixel pattern mask for row/column
-    ; TODO move to HRAM and use ld a,[c] ?
-    ld      b,bit_table >> 8
-    ld      c,a
-    ld      a,[bc]
+    ; we now have the start of the tile in vram
+    ; and need to add the line offset
+    ld      a,c
+    and     %0000_0111
+    add     a; x2 - since we only use 2 colors we can skip the "high bits" of each line
+    add     l
+
+    ; hl is now the final vram address of the line within the tile
+    ld      l,a
+
+    ; restore pixel mask
+    ld      a,[lineMask]
 
     ; combine with old pixel row
     or      [hl]
 
-    ; store combined row pixels back
+    ; store combined row pixels back into vram
     ld      [hl],a
 
-    ; restore px/py
-    pop     bc
     pop     hl
 ENDMACRO
 
