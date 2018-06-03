@@ -2,7 +2,7 @@
 POLYGON_BYTES               EQU     32
 POLYGON_ATTR_BYTES          EQU     16
 POLYGON_COUNT               EQU     19
-POLYGON_COLLISION_BYTES     EQU     3 * 16 * 4
+POLYGON_COLLISION_BYTES     EQU     4 * 16 + 1
 POLYGON_GIANT               EQU     4
 POLYGON_LARGE               EQU     3
 POLYGON_MEDIUM              EQU     2

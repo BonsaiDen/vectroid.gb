@@ -28,11 +28,11 @@ ship_init:
 
     ld      a,72
     ld      [playerX],a
-    createPolygon(2, COLLISION_SHIP, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
+    createPolygon(2, COLLISION_NONE, PALETTE_SHIP, 80, 72, 192, ship_polygon, ship_update)
     ret
 
 ship_title:
-    createPolygon(4, COLLISION_SHIP, PALETTE_SHIP, 80, 64, 192, ship_polygon_title, ship_title_rotate)
+    createPolygon(4, COLLISION_NONE, PALETTE_SHIP, 80, 64, 192, ship_polygon_title, ship_title_rotate)
     ret
 
 ship_title_rotate:
@@ -134,7 +134,7 @@ ship_fire_bullet:
     ld      [polygonY],a
 
     ldxa    [polygonPalette],PALETTE_BULLET
-    ldxa    [polygonGroup],COLLISION_BULLET
+    ldxa    [polygonGroup],COLLISION_NONE
     ldxa    [polygonRotation],0
     ldxa    [polygonDataA],BULLET_ACTIVE
     ld      de,bullet_polygon
@@ -423,9 +423,8 @@ ship_update:
     jr      nz,.iframe_period
 
     ; collision detection
-    ld      d,COLLISION_ASTEROID
     ld      c,8; TODO adjust for different half-sizes?
-    call    collide_with_group
+    call    collide_with_asteroid
     cp      0
     jr      z,.no_collision
 .collision:
@@ -547,12 +546,17 @@ bullet_update:
     jr      z,.destroy
     ld      [polygonDataA],a
 
-    ld      d,COLLISION_ASTEROID
+    ; only check for collision every other frame
+    ld      a,[coreLoopCounter]
+    and     %0000_0001
+    jr      z,.done
+
     ld      c,BULLET_COLLISION_RANGE
-    call    collide_with_group
+    call    collide_with_asteroid
     cp      1
     jr      z,.collide
 
+.done:
     ld      a,1
     ret
 

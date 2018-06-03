@@ -1,29 +1,25 @@
 SECTION "CollisionLogic",ROM0
 
-collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
+collision_init:
+    ld      hl,polygon_collision_base
+    ld      de,polygonCollisionGroups
+    ld      bc,POLYGON_COLLISION_BYTES
+    call    core_mem_cpy
+    ret
 
-    ; get start pointer of collision group
-    ld      a,d
-    add     a; x2
-    add     a; x4
-    add     a; x8
-    add     a; x16
-    add     a; x32
-    add     a; x64
-    ld      l,a
-    ld      h,polygonCollisionGroups >> 8
-
+collide_with_asteroid:; polygonX, polygonY = x/y, c = collision distance offset, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
+    ld      hl,polygonCollisionGroups
     ldxa    [polygonOffset],c
-
-    ; max of 8 entries in the group
-    ld      b,16
 .loop:
     ld      a,[hli]
     cp      $ff
     jr      z,.inactive
 
+    ; check for end of collision group
+    cp      0
+    ret     z
+
     push    hl
-    push    bc
 
     ; load data pointer
     ld      d,[hl]
@@ -31,14 +27,14 @@ collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d 
     ld      e,[hl]
     push    de
 
-    ; load position from pointer
+    ; load position from data pointer
     ld      a,[de]; half size
     ld      l,a
-    inc     de
+    inc     e
 
     ld      a,[de]; y
     ld      c,a
-    inc     de
+    inc     e
 
     ld      a,[de]; x
     ld      b,a
@@ -88,34 +84,25 @@ collide_with_group:; polygonX, polygonY = x/y, c = collision distance offset, d 
     ; restore pointers
 .no_collision:
     pop     de
-    pop     bc
     pop     hl
 
 .inactive:
     inc     l
     inc     l
     inc     l
-
-.next:
-    dec     b
-    jr      nz,.loop
-
-    xor     a
-    ret
+    jr      .loop
 
 .collision:
     pop     de; restore data pointer
-    pop     bc
     pop     hl
     ld      a,1
     ret
 
 collide_asteroid_placement:; polygonX, polygonY = x/y, c = collision distance offset, d = group -> a=0 no collision, a=1 collision, de=data pointer of collided polygon
-    ld      d,COLLISION_ASTEROID
     ; TODO if this is too small then in some cases split asteroids might collide instantly with one another
     ; TODO 7 seems to be the absolute minimum
     ld      c,7; TODO adjust for different half-sizes?
-    call    collide_with_group
+    call    collide_with_asteroid
     cp      0
     jr      z,.no_collision
 
@@ -132,12 +119,12 @@ collide_asteroid_placement:; polygonX, polygonY = x/y, c = collision distance of
     jr      nc,.ignore; ignore polygons <= the current size
 
     ; also ignore the collision in case the other asteroid is already destroyed
-    dec     de
-    dec     de
-    dec     de
-    dec     de
-    dec     de
-    dec     de
+    dec     e
+    dec     e
+    dec     e
+    dec     e
+    dec     e
+    dec     e
     ld      a,[de]
     cp      128
     jr      nc,.ignore

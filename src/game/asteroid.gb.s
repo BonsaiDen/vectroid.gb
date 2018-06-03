@@ -311,20 +311,22 @@ asteroid_queue:
 asteroid_update:
     ld      a,[polygonDataB]
     cp      0
-    jr      z,.destroy
+    jp      z,.destroy
     cp      128
     jp      nc,.destroy_collide
 
-    ; only collide every other frame
-    ld      a,[coreLoopCounter]
-    and     %0000_0010; TODO variable
+    ; perform collison checks more often for smaller asteroids
+    ld      a,[polygonHalfSize]
+    dec     a
+    ld      b,a
+    ld      a,[coreLoopCounter16]
+    and     b
     jr      z,.rotate
 
     ; collide with other asteroids
     ; need to use half size
-    ld      d,COLLISION_ASTEROID
     ld      c,5; TODO adjust for different half-sizes?
-    call    collide_with_group
+    call    collide_with_asteroid
     cp      0
     jr      z,.rotate
 
@@ -489,22 +491,22 @@ _destroy_other_asteroid:; -> b = half size, c = flags
     ; store half size
     ld      a,[de]
     ld      b,a
-    dec     de
-    dec     de
-    dec     de
-    dec     de
-    dec     de
+    dec     e
+    dec     e
+    dec     e
+    dec     e
+    dec     e
 
     ; store flags
     ld      a,[de]
     and     %0000_0001
     ld      c,a
-    dec     de; hp
+    dec     e; hp
     ld      a,ASTEROID_DESTROYED_BY_OTHER
     ld      [de],a
 
     ; set other rotation speed to our rotation direction
-    dec     de
+    dec     e
     ld      a,[polygonRotation]
     ld      [de],a
     ret

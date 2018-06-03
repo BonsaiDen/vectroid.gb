@@ -12,11 +12,7 @@ polygon_init:
     ld      de,polygonState
     ld      bc,POLYGON_COUNT * POLYGON_BYTES + 1
     call    core_mem_cpy
-
-    ld      hl,polygon_collision_base
-    ld      de,polygonCollisionGroups
-    ld      bc,POLYGON_COLLISION_BYTES
-    call    core_mem_cpy
+    call    collision_init
     ret
 
 polygon_disable_type:; de = update pointer to disable
@@ -211,18 +207,11 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ; add to collision group
 .collision:
     ld      a,[polygonGroup]
-    cp      $ff; no collision
+    cp      COLLISION_NONE
     jr      z,.no_collision
 
-    ; 64 bytes per group (4x16)
-    add     a; x2
-    add     a; x4
-    add     a; x8
-    add     a; x16
-    add     a; x32
-    add     a; x64
-    ld      l,a
-    ld      h,polygonCollisionGroups >> 8
+    ; collision base pointer
+    ld      hl,polygonCollisionGroups
 
     ; FIXME This doesn't guard against overflow if more than 8 polygons are
     ; created per collision group
@@ -241,6 +230,9 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ; store half size
     ld      a,[polygonHalfSize]
     ld      [hl],a
+
+    ; TODO maybe store collision group information if we actually need other
+    ; collisions in the future?
 
     ; divide L by 4 to get collision index
     div     l,4
