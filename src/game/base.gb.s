@@ -128,6 +128,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $08; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $10; Sprite Size
     DB      $00; Sprite index
@@ -137,6 +138,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_1
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 2x2
     DB      %0000_0010; active / size
@@ -151,6 +158,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $08; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $10; Sprite Size
     DB      $02; Sprite index
@@ -160,6 +168,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_2
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 2x2
     DB      %0000_0010; active / size
@@ -174,6 +188,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $08; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $10; Sprite Size
     DB      $04; Sprite index
@@ -183,6 +198,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_3
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 2x2
     DB      %0000_0010; active / size
@@ -197,6 +218,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $08; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $10; Sprite Size
     DB      $06; Sprite index
@@ -206,6 +228,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_4
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 1
     DB      %0000_0001; active / size
@@ -220,6 +248,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $08; Sprite index
@@ -229,6 +258,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_5
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 2
     DB      %0000_0001; active / size
@@ -243,6 +278,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $09; Sprite index
@@ -252,6 +288,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_6
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 3
     DB      %0000_0001; active / size
@@ -266,6 +308,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0A; Sprite index
@@ -275,6 +318,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_7
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 4
     DB      %0000_0001; active / size
@@ -289,6 +338,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0B; Sprite index
@@ -298,6 +348,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_8
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 5
     DB      %0000_0001; active / size
@@ -312,6 +368,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0C; Sprite index
@@ -321,6 +378,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_9
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 6
     DB      %0000_0001; active / size
@@ -335,6 +398,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0D; Sprite index
@@ -344,6 +408,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_10
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 7
     DB      %0000_0001; active / size
@@ -358,6 +428,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0E; Sprite index
@@ -367,6 +438,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_11
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 8
     DB      %0000_0001; active / size
@@ -381,6 +458,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $0F; Sprite index
@@ -390,6 +468,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_12
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 9
     DB      %0000_0001; active / size
@@ -404,6 +488,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $10; Sprite index
@@ -413,6 +498,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_13
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 10
     DB      %0000_0001; active / size
@@ -427,6 +518,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $11; Sprite index
@@ -436,6 +528,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_14
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 11
     DB      %0000_0001; active / size
@@ -450,6 +548,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $12; Sprite index
@@ -459,6 +558,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_15
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 1x1 12
     DB      %0000_0001; active / size
@@ -473,6 +578,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $04; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $00; Sprite Size
     DB      $13; Sprite index
@@ -482,6 +588,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_16
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 3x3
     DB      %0000_0011; active / size
@@ -496,6 +608,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $0C; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $20; Sprite Size
     DB      $14; Sprite index
@@ -505,6 +618,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_17
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 3x3
     DB      %0000_0011; active / size
@@ -519,6 +638,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $0C; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $20; Sprite Size
     DB      $1A; Sprite index
@@ -528,6 +648,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_18
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; 4x4
     DB      %0000_0100; active / size
@@ -542,6 +668,7 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DB      $10; Sprite half width
     DB      $20; Y
     DB      $20; X
+    DW      $FF
     DB      $00; Rotation
     DB      $30; Sprite Size
     DB      $20; Sprite index
@@ -551,6 +678,12 @@ polygon_state_base:; POLYGON_BYTES bytes per polygon
     DW      polygon_sprite_19
     DW      $FFFF; Polygon data
     DB      $FF; Collision Index
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
+    DB      $55
+    DB      $AA
 
     ; end marker
     DB      $FF

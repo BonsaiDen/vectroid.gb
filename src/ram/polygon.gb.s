@@ -1,6 +1,6 @@
 ; Constants -------------------------------------------------------------------
-POLYGON_BYTES               EQU     24
-POLYGON_ATTR_BYTES          EQU     14
+POLYGON_BYTES               EQU     32
+POLYGON_ATTR_BYTES          EQU     16
 POLYGON_COUNT               EQU     19
 POLYGON_COLLISION_BYTES     EQU     3 * 16 * 4
 POLYGON_GIANT               EQU     4
@@ -9,7 +9,7 @@ POLYGON_MEDIUM              EQU     2
 POLYGON_SMALL               EQU     1
 
 
-SECTION "PolygonRam",WRAM0[$C800]
+SECTION "PolygonRam",WRAM0[$C700]
 polygonState:               DS      POLYGON_COUNT * POLYGON_BYTES + 1
 polygonPalette:             DB
 polygonDrawState:           DB

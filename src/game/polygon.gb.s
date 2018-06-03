@@ -27,11 +27,11 @@ polygon_disable_type:; de = update pointer to disable
     cp      [hl]; check for end marker
     ret     z
 
-    inc     hl
+    inc     l
 
     ; load update pointer
     ld      b,[hl]
-    inc     hl
+    inc     l
     ld      c,[hl]
 
     ; back to active flag
@@ -92,7 +92,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     jr      .hi_changed
 
 .hi_unchanged:
-    inc     hl
+    inc     l
 
 .hi_changed:
     ld      a,[hl]
@@ -105,7 +105,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     jr      .lo_changed
 
 .lo_unchanged:
-    inc     hl
+    inc     l
 
 .lo_changed:
     ; data values
@@ -137,11 +137,14 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ld      a,[hli]
     ld      [polygonHalfSize],a
 
-    ; set x
+    ; set y / x
     ldxa    [hli],[polygonY]
-
-    ; set y
     ldxa    [hli],[polygonX]
+
+    ; reset previous position
+    ld      a,$ff
+    ld      [hli],a
+    ld      [hli],a
 
     ; set rotation
     ld      a,[polygonRotation]
@@ -154,7 +157,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     jr      .rot_changed
 
 .rot_unchanged:
-    inc     hl
+    inc     l
 
 .rot_changed:
 
@@ -171,7 +174,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ldxa    [hli],d
     jr      .hi_up_changed
 .hi_up_unchanged:
-    inc     hl
+    inc     l
 .hi_up_changed:
 
     ; low byte
@@ -184,7 +187,7 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
 .lo_up_unchanged:
 
     ; store point to polygon collision index
-    inc     hl
+    inc     l
     ld      d,h
     ld      e,l
     pop     hl
@@ -259,10 +262,10 @@ polygon_create:; a = size, bc = update, de = data pointer -> a=1 created, a=no s
     ret
 
 .collision_slot_in_used:
-    inc     hl
-    inc     hl
-    inc     hl
-    inc     hl
+    inc     l
+    inc     l
+    inc     l
+    inc     l
     jr      .next
 
     ; skip bytes
@@ -320,11 +323,13 @@ update_polygon:; hl = polygon state pointer
     ; skip momentum and delta
     ldxa    [polygonMY],[hli]
     ldxa    [polygonMX],[hli]
-    inc     hl; skip dy
-    inc     hl; skip dx
+    inc     l; skip dy
+    inc     l; skip dx
     ldxa    [polygonHalfSize],[hli]
     ldxa    [polygonY],[hli]
     ldxa    [polygonX],[hli]
+    inc     l
+    inc     l
     ld      a,[hl]; load current rotation
     ld      [polygonRotation],a
 
@@ -353,7 +358,7 @@ update_polygon:; hl = polygon state pointer
     ; re-assign data so it can be used as a counter etc.
     ldxa    [hli],[polygonDataA]
     ldxa    [hli],[polygonDataB]
-    inc     hl
+    inc     l
 
     ; b = my
     ldxa    [hli],[polygonMY]
@@ -384,7 +389,7 @@ update_polygon:; hl = polygon state pointer
     ; re-assign data so it can be used as a counter etc.
     ldxa    [hli],[polygonDataA]
     ldxa    [hli],[polygonDataB]
-    inc     hl
+    inc     l
 
     ; reset mx/my/dx/dy
     xor     a
@@ -393,8 +398,7 @@ update_polygon:; hl = polygon state pointer
     ld      [hli],a
     ld      [hli],a
 
-    ; TODO Only call when needed
-    ; TODO the position update is ~900 cycles in the worst case
+    ; 256 cycles
 .update_sprite:
 
     ; load half size
@@ -402,30 +406,61 @@ update_polygon:; hl = polygon state pointer
     ld      d,a
     ld      [polygonHalfSize],a
 
-    ; update sprite position
-    ldxa    c,[polygonOY]
+    ; store copy of y/x
     ldxa    [hli],[polygonY]
-
-    ; offset for sprite rendering
-    sub     d
-    add     16
-    sub     SCROLL_BORDER
-    add     c
     ld      b,a
-
-    ldxa    c,[polygonOX]
     ldxa    [hli],[polygonX]
+    ld      c,a
 
-    ; offset for sprite rendering
+    ; reset compare flag
+    ld      e,0
+
+    ; Compare y with previous position
+    ld      a,[hl]
+    cp      b
+    jr      z,.unchanged_y
+    inc     e
+.unchanged_y:
+    ld      a,b
+    ld      [hli],a
+
+    ; Compare x with previous position
+    ld      a,[hl]
+    cp      c
+    jr      z,.unchanged_x
+    inc     e
+.unchanged_x:
+    ld      a,c
+    ld      [hli],a
+
+    ; check if position changed
+.check_position_change:
+    xor     a
+    cp      e
+    jp      z,.compare_rotation
+
+    ; x offset for sprite rendering
+.position_changed:
+    ldxa    e,[polygonOX]
+    ld      a,c
     sub     d
     add     8
     sub     SCROLL_BORDER
-    add     c
+    add     e
     ld      c,a
+
+    ; y offset for sprite rendering
+    ldxa    e,[polygonOY]
+    ld      a,b
+    sub     d
+    add     16
+    sub     SCROLL_BORDER
+    add     e
+    ld      b,a
 
     ; update sprites
     push    hl
-    inc     hl; skip over rotation angle
+    inc     l; skip over rotation angle
     ld      a,[hli]; load size
     ld      [polygonSize],a
     ld      d,a
@@ -437,7 +472,7 @@ update_polygon:; hl = polygon state pointer
     add     a; x4
     ld      l,a;
 
-.one:
+.one:; 56 cycles
     ; set y 0,0
     ldxa    [hli],b
 
@@ -447,11 +482,11 @@ update_polygon:; hl = polygon state pointer
     ; one complete
     ld      a,d
     cp      0
-    jr      z,.compare_rotation
+    jr      z,.position_done
     inc     l
     inc     l
 
-.two:
+.two:; 64 cycles
     ; set y 1,0
     ldxa    [hli],b
 
@@ -463,11 +498,11 @@ update_polygon:; hl = polygon state pointer
     ; two complete
     ld      a,d
     cp      $10
-    jr      z,.compare_rotation
+    jr      z,.position_done
     inc     l
     inc     l
 
-.three:
+.three:; 192 cycles
     ld      a,d
     cp      $30
     jr      z,.four
@@ -511,9 +546,9 @@ update_polygon:; hl = polygon state pointer
     ld      a,c
     add     16
     ld      [hl],a
-    jr      .compare_rotation
+    jr      .position_done
 
-.four:
+.four:; 236
     ; set y 2,0
     ldxa    [hli],b
 
@@ -574,15 +609,16 @@ update_polygon:; hl = polygon state pointer
     add     24
     ld      [hl],a
 
-.compare_rotation:
+.position_done:
     pop     hl
 
     ; Compare angles
+.compare_rotation:
     ld      a,[polygonRotation]
     ld      d,a; store current polygon rotation
     ld      [hli],a
-    inc     hl; skip over size
-    inc     hl; skip over sprite index
+    inc     l; skip over size
+    inc     l; skip over sprite index
 
     ; check for force redraw flag
     ld      a,[hli]; load redraw flag
@@ -1031,7 +1067,7 @@ polygon_draw_dmg:
     jp      z,.skip
 
     ; skip intermediate bytes
-    addw    hl,16
+    addw    hl,18
 
     ; load redraw flag
     ld      a,[hl]
@@ -1041,7 +1077,7 @@ polygon_draw_dmg:
     ; reset redraw flag
     xor     a
     ld      [hli],a
-    inc     hl; skip old rotation
+    inc     l; skip old rotation
 
     ld      a,[hli]; load tile clear count
     ld      b,a

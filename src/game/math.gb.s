@@ -20,20 +20,20 @@ angle_vector_16:; d = angle (column index), e = length -> bc = x/y
     ld      b,0
 
 angle_offset:; d = angle (column index), b = offset, e = length -> bc = x/y
-    ; TODO optimize
-    ; multiply by 64 to get length offset into table
-    ld      h,0
-    dec     e
-    ld      l,e
-    add     hl,hl
-    add     hl,hl
-    add     hl,hl
-    add     hl,hl
-    add     hl,hl
-    add     hl,hl
-    ld      e,l
 
+    ; multiply e by 64 into hl
+    ld      a,e
+    dec     a
+    rrc     a
+    rrc     a
+    ld      h,a
+    and     %1100_0000; 8
+    ld      l,a
+    ld      e,a; copy of low byte
+
+    ; calculate length index in high byte
     ld      a,h
+    and     %0011_1111
     add     angle_table >> 8
     ld      h,a
 

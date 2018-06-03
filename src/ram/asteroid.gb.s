@@ -22,7 +22,7 @@ ASTEROID_DESTROYED_BY_OTHER     EQU $FE
 ASTEROID_DESTROYED_BY_SHIP      EQU $FD
 
 
-SECTION "AsteroidRam",WRAM0[$C700]
+SECTION "AsteroidRam",WRAM0[$C500]
 asteroidQueue:              DS ASTEROID_MAX * 8
                             ; size
                             ; palette
