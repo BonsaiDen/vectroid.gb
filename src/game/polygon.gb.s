@@ -367,8 +367,7 @@ update_polygon:; hl = polygon state pointer
     ld      d,[hl]
     push    hl
     ld      hl,polygonY
-    addFixedSigned(d, b, 176)
-    addFixedSigned(d, b, 176)
+    addFixedSigned(d, b, 176, 177)
     pop     hl
     ldxa    [hli],d; store updated dy
 
@@ -376,8 +375,7 @@ update_polygon:; hl = polygon state pointer
     ld      d,[hl]
     push    hl
     ld      hl,polygonX
-    addFixedSigned(d, c, 192)
-    addFixedSigned(d, c, 192)
+    addFixedSigned(d, c, 192, 193)
     pop     hl
     ldxa    [hli],d; store updated dx
     jr      .update_sprite
@@ -395,6 +393,8 @@ update_polygon:; hl = polygon state pointer
     ld      [hli],a
     ld      [hli],a
 
+    ; TODO Only call when needed
+    ; TODO the position update is ~900 cycles in the worst case
 .update_sprite:
 
     ; load half size
@@ -1146,11 +1146,8 @@ polygon_draw_dmg:
     jp      .loop
     ret
 
-MACRO addFixedSigned(@minor, @increase, @max)
+MACRO addFixedSigned(@minor, @increase, @max, @min)
 add_fixed_signed:
-
-    ; store
-    ld      e,@increase
 
     ; check if increase is positive or negative
     bit     7,@increase
@@ -1172,18 +1169,35 @@ add_fixed_signed:
     ld      a,@minor
     add     @increase
     ld      @minor,a
-    jr      nc,.done
+    jr      nc,.positive_three
 
     ; minor overflowed so increase major
-    ld      a,[hl]
-    inc     a
+    inc     [hl]
+
+.positive_three:
+    ld      a,@minor
+    add     @increase
+    ld      @minor,a
+    jr      nc,.positive_four
+
+    ; minor overflowed so increase major
+    inc     [hl]
+
+.positive_four:
+    ld      a,@minor
+    add     @increase
+    ld      @minor,a
+    jr      nc,.positive_check
+
+    ; minor overflowed so increase major
+    inc     [hl]
 
     ; check if > @max
+.positive_check:
+    ld      a,[hl]
     cp      @max
-    jr      c,.positive_two_no_wrap
+    jr      c,.done
     add     256 - @max; wrap over to 0
-
-.positive_two_no_wrap:
     ld      [hl],a
     jr      .done
 
@@ -1209,22 +1223,38 @@ add_fixed_signed:
     ld      a,@minor
     add     @increase
     ld      @minor,a
-    jr      nc,.done
+    jr      nc,.negative_three
+
+    ; minor underflowd so decrease major
+    dec     [hl]
+
+.negative_three:
+    ld      a,@minor
+    add     @increase
+    ld      @minor,a
+    jr      nc,.negative_four
+
+    ; minor underflowd so decrease major
+    dec     [hl]
+
+.negative_four:
+    ld      a,@minor
+    add     @increase
+    ld      @minor,a
+    jr      nc,.negative_check
 
     ; minor underflowed, so decrease major
+    dec     [hl]
+
+    ; check if < 0
+.negative_check:
     ld      a,[hl]
-    dec     a
-
-    ; check if > @max
-    cp      @max
-    jr      c,.negative_two_no_wrap
+    cp      @min
+    jr      c,.done
     sub     256 - @max; wrap over to 176
-
-.negative_two_no_wrap:
     ld      [hl],a
 
 .done:
-    ld      @increase,e
 ENDMACRO
 
 MACRO createPolygon(@size, @group, @palette, @x, @y, @r, @data, @update)
