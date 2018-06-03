@@ -615,38 +615,38 @@ polygon_sprite_19:
 
 MACRO sprite_one(@base)
     DW      @base
-    DW      $0000
-    DW      $0000
-    DW      $0000
+    DW      @base
+    DW      @base
+    DW      @base
 ENDMACRO
 
 MACRO sprite_two(@base)
     DW      @base
     DW      @base + 2 * 16
-    DW      $0000
-    DW      $0000
+    DW      @base
+    DW      @base
 
     DW      @base + 1 * 16
     DW      @base + 3 * 16
-    DW      $0000
-    DW      $0000
+    DW      @base
+    DW      @base
 ENDMACRO
 
 MACRO sprite_three(@base)
     DW      @base
     DW      @base +  2 * 16
     DW      @base +  4 * 16
-    DW      $0000
+    DW      @base
 
     DW      @base +  1 * 16
     DW      @base +  3 * 16
     DW      @base +  5 * 16
-    DW      $0000
+    DW      @base
 
     DW      @base +  6 * 16
     DW      @base +  8 * 16
     DW      @base + 10 * 16
-    DW      $0000
+    DW      @base
 ENDMACRO
 
 MACRO sprite_four(@base)

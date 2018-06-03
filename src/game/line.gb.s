@@ -103,13 +103,12 @@ MACRO PLOT_PIXEL()
     push    hl
 
     ; calculate modulo for column
-    ld      a,b; 4
-    and     %0000_0111; 8
-    ld      l,a; 4
-    ld      h,bit_table >> 8; 8
-    ld      a,[hl]; 8
-    ld      [lineMask],a; 12 + 12
-    ; 56
+    ld      a,b
+    and     %0000_0111
+    ld      l,a
+    ld      h,bit_table >> 8
+    ld      a,[hl]
+    ld      [lineMask],a
 
     ; load low byte of tile index table for the sprite
     ld      a,[polygonOffset + 1]
@@ -151,7 +150,7 @@ MACRO PLOT_PIXEL()
     ld      l,a
 
     ; we now have the start of the tile in vram
-    ; and need to add the line offset
+    ; so we need to add the line offset
     ld      a,c
     and     %0000_0111
     add     a; x2 - since we only use 2 colors we can skip the "high bits" of each line
