@@ -634,7 +634,7 @@ thrust_update:
     add     128
     ld      [polygonRotation],a
 
-    ld      a,1
+    ld      a,2
     ret
 
 .destroy:
