@@ -27,9 +27,6 @@ bgb: debug
 clean:
 	rm -rf build
 	find . -name "*.bin" -print0 | xargs -0 rm -rf
-	
-tiled:
-	~/dev/tiled/bin/tiled src/data/scroll.map.json &
 
 
 # Video
@@ -38,7 +35,7 @@ record:
 	mednafen -sound.driver sdl -qtrecord "game_raw.mov" -qtrecord.vcodec png -qtrecord.h_double_threshold 144 -qtrecord.w_double_threshold 160 build/vectroid.gbc
 
 webm:
-	ffmpeg -i game_raw.mov -vf scale=320:288 -sws_flags neighbor -c:v libvpx -crf 20 -b:v 1M -c:a libvorbis vectroid.webm
+	ffmpeg -i game_raw.mov -vf scale=320:288 -sws_flags neighbor -c:v libvpx -crf 40 -b:v 100KB -c:a libvorbis -b:a 64k -ar 22000 vectroid.webm
 
 render:
 	ffmpeg -i game_raw.mov -vf scale=480:432 -sws_flags neighbor -acodec libmp3lame -ac 1 -ab 64000 -ar 22050 -vcodec mpeg4 -flags +mv4+gmc -mbd bits -trellis 2 -b 8000k vectroid.avi
