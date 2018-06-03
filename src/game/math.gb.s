@@ -18,7 +18,6 @@ angle_vector_16_zero:; d = angle (column index), e = length -> bc = x/y
 
 angle_vector_16:; d = angle (column index), e = length -> bc = x/y
     ld      b,0
-    jr      angle_offset
 
 angle_offset:; d = angle (column index), b = offset, e = length -> bc = x/y
     ; TODO optimize
